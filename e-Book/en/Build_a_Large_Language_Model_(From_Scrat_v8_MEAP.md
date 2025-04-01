@@ -2662,7 +2662,7 @@ class GELU(nn.Module):
             (x + 0.044715 * torch.pow(x, 3))
         ))
 ```
-Next, to get an idea of what this GELU function looks like and how it compares to the ReLU function, let's plot these functions side by side:
+Next, to get an idea of what this **GELU** function looks like and how it compares to the **ReLU** function, let's plot these functions side by side:
 
 ```python
 import matplotlib.pyplot as plt
@@ -2680,9 +2680,12 @@ for i, (y, label) in enumerate(zip([y_gelu, y_relu], ["GELU", "ReLU"]), 1):
 plt.tight_layout()
 plt.show()
 ```
-#A Create 100 sample data points in the range -3 to 3
+> [!IMPORTANT]
+>
+> - **#A** Create 100 sample data points in the range -3 to 3
 
 As we can see in the resulting plot in Figure 4.8, ReLU is a piecewise linear function that outputs the input directly if it is positive; otherwise, it outputs zero. GELU is a smooth, nonlinear function that approximates ReLU but with a non-zero gradient for negative values.
+
 ![](_page_130_Figure_0.jpeg)
 
 Figure 4.8 The output of the GELU and ReLU plots using matplotlib. The x-axis shows the function inputs and the y-axis shows the function outputs.
@@ -2691,7 +2694,7 @@ The smoothness of GELU, as shown in Figure [4](https://livebook.manning.com/book
 
 Next, let's use the GELU function to implement the small neural network module, FeedForward, that we will be using in the LLM's transformer block later:
 
-#### Li[sting](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=103---book-markup-container) 4.4 A feed forward neural network module
+#### Listing 4.4 A feed forward neural network module
 
 ```python
 class FeedForward(nn.Module):
@@ -2709,23 +2712,31 @@ As we can see in the preceding code, the FeedForward module is a small neural ne
 
 Figure 4.9 shows how the embedding size is manipulated inside this small feed forward neural network when we pass it some inputs.
 
+
+
 ![](_page_131_Figure_1.jpeg)
 
 Figure 4.9 provides a visual overview of the connections between the layers of the feed forward neural network. It is important to note that this neural network can accommodate variable batch sizes and numbers of tokens in the input. However, the embedding size for each token is determined and fixed when initializing the weights.
 
-Following the example in Figure 4.9, let's initi[a](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=107---book-markup-container)lize a new FeedForward module with a token embedding size of 768 and feed it a batch input with 2 samples and 3 tokens each:
+Following the example in Figure 4.9, let's initialize a new FeedForward module with a token embedding size of 768 and feed it a batch input with 2 samples and 3 tokens each:
 
-ffn = FeedForward(GPT\_CONFIG\_124M) x = torch.rand(2, 3, 768) #A out = ffn(x) print(out.shape)
-
-#A create sample input with batch dimension 2
+```python
+ffn = FeedForward(GPT_CONFIG_124M) 
+x = torch.rand(2, 3, 768) #A 
+out = ffn(x)
+print(out.shape)
+```
+> #A create sample input with batch dimension 2
 
 As we can see, the shape of the output tensor is the same as that of the input tensor:
 
+```python
 torch.Size([2, 3, 768])
-
- 
+```
 
 The FeedForward module we implemented in this section plays a crucial role in enhancing the model's ability to learn from and generalize the data. Although the input and output dimensions of this module are the same, it internally expands the embedding dimension into a higher-dimensional space through the first linear layer as illustrated in Figure 4.10. This expansion is followed by a non-linear GELU activation, and then a contraction back to the original dimension with the second linear transformation. Such a design allows for the exploration of a richer representation space.
+
+
 
 ![](_page_132_Figure_1.jpeg)
 
@@ -2739,7 +2750,7 @@ As illustrated in Figure 4.11, we have now implemented most of the LLM's buildin
 
 #### Figure 4.11 A mental model showing the topics we cover in this chapter, with the black checkmarks indicating those that we have already covered.
 
-In the next section, we will go over the co[nc](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=116---book-markup-container)ept of shortcut connections that we insert between different layers of a neural network, which are important for improving the training performance in deep neural network architectures.
+In the next section, we will go over the concept of shortcut connections that we insert between different layers of a neural network, which are important for improving the training performance in deep neural network architectures.
 
 ## 4.4 Adding shortcut connections
 
