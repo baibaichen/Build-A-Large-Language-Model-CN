@@ -2469,7 +2469,7 @@ tensor([[[-1.2034, 0.3201, -0.7130, ..., -1.5548, -0.2390, -0.4667],
         [-0.2407, -0.7349, -0.5102, ..., 2.0057, -0.3694, 0.1814]]],
       grad_fn=<UnsafeViewBackward0>)
 ```
- 
+
 
 The output tensor has two rows corresponding to the two text samples. Each text sample consists of 4 tokens; each token is a 50,257-dimensional vector, which matches the size of the tokenizer's vocabulary.
 
@@ -3946,7 +3946,7 @@ torch.manual_seed(123)
 next_token_id = torch.multinomial(probas, num_samples=1).item()
 print(inverse_vocab[next_token_id])
 ```
- 
+
 
 The printed output is "forward" just like before. What happened? The multinomial function samples the next token proportional to its probability score. In other words, "forward" is still the most likely token and will be selected by multinomial most of the time but not all the time. To illustrate this, let's implement a function that repeats this sampling 1000 times:
 
@@ -4163,7 +4163,7 @@ model = GPTModel(GPT_CONFIG_124M)
 model.load_state_dict(torch.load("model.pth"))
 model.eval()
 ```
- 
+
 
 As discussed in chapter 4, dropout helps prevent the model from overfitting to the training data by randomly "dropping out" of a layer's neurons during training. However, during inference, we don't want to randomly drop out any of the information the network has learned. Using model.eval() switches the model to evaluation mode for inference, disabling the dropout layers of the model.
 
@@ -5910,7 +5910,7 @@ def custom_collate_fn(
        indices = torch.nonzero(mask).squeeze() #A
        if indices.numel() > 1: #A
 ```
- 
+
 
 | targets[indices[1:]] = ignore_index                                                                                                                | #A |  |
 |----------------------------------------------------------------------------------------------------------------------------------------------------|----|--|
@@ -7163,15 +7163,17 @@ In the previous sections, we covered PyTorch's tensor and autograd components. T
 
 To provide a concrete example, we focus on a multilayer perceptron, which is a fully connected neural network, as illustrated in figure A.9.
 
-Figure A.9 An illustration of a multilayer perceptron with 2 hidden layers. Each node represents a unit in the respective layer. Each layer has only a very small number of nodes for illustration purposes.
+- [ ] figure A.9
+
+> Figure A.9 An illustration of a multilayer perceptron with 2 hidden layers. Each node represents a unit in the respective layer. Each layer has only a very small number of nodes for illustration purposes.
 
 When implementing a neural network in PyTorch, we typically subclass the torch.nn.Module class to define our own custom network architecture. This Module base class provides a lot of functionality, making it easier to build and train models. For instance, it allows us to encapsulate layers and operations and keep track of the model's parameters.
 
 Within this subclass, we define the network layers in the \_\_init\_\_ constructor and specify how they interact in the forward method. The forward method describes how the input data passes through the network and comes together as a computation graph.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=162---book-markup-container) contrast, the backward method, which we typically do not need to implement ourselves, is used during training to compute gradients of the loss function with respect to the model parameters, as we will see in section 2.7, *A typical training loop*.
+In contrast, the backward method, which we typically do not need to implement ourselves, is used during training to compute gradients of the loss function with respect to the model parameters, as we will see in section 2.7, *A typical training loop*.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=163---book-markup-container) following code implements a classic multilayer perceptron with two hidden layers to illustrate a typical usage of the Module class:
+The following code implements a classic multilayer perceptron with two hidden layers to illustrate a typical usage of the Module class:
 ```python
 Listing A.4 A multilayer perceptron with two hidden layers
 class NeuralNetwork(torch.nn.Module):
@@ -7191,17 +7193,17 @@ class NeuralNetwork(torch.nn.Module):
       logits = self.layers(x)
       return logits #E
 ```
-#A It's useful to code the number of inputs and outputs as variables to reuse the same code for datasets with different numbers of features and classes.
-
-#B The Linear layer takes the number of input and output nodes as arguments.
-
-#C Nonlinear activation functions are placed between the hidden layers.
-
-#D The number of output nodes of one hidden layer has to match the number of inputs of the next layer. #E The outputs of the last layer are called logits.
+> [!IMPORTANT]
+>
+> - **#A** It's useful to code the number of inputs and outputs as variables to reuse the same code for datasets with different numbers of features and classes.
+> - **#B** The Linear layer takes the number of input and output nodes as arguments.
+> - **#C** Nonlinear activation functions are placed between the hidden layers.
+> - **#D** The number of output nodes of one hidden layer has to match the number of inputs of the next layer. 
+> - **#E** The outputs of the last layer are called logits.
 
 We can then instantiate a new neural network object as follows:
 
-```
+```python
 model = NeuralNetwork(50, 3)
 ```
 But before using this new model object, it is often useful to call print on the model to see a summary of its structure:
@@ -7212,7 +7214,7 @@ This prints:
 
 319
 
-```
+```python
 NeuralNetwork(
   (layers): Sequential(
     (0): Linear(in_features=50, out_features=30, bias=True)
@@ -7227,7 +7229,7 @@ Note that we used the Sequential class when we implemented the NeuralNetwork cla
 
 Next, let's check the total number of trainable parameters of this model:
 
-n[um\\_pa](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=173---book-markup-container)rams = sum(p.numel() for p in model.parameters() if p.requires\_grad) print("Total number of trainable model parameters:", num\_params)
+num\\_params = sum(p.numel() for p in model.parameters() if p.requires\_grad) print("Total number of trainable model parameters:", num\_params)
 
 This prints:
 
@@ -7237,14 +7239,14 @@ Note that each parameter for which requires\_grad=True counts as a trainable par
 
 In the case of our neural network model with the two hidden layers above, these trainable parameters are contained in the torch.nn.Linear layers. A *linear* layer multiplies the inputs with a weight matrix and adds a bias vector. This is sometimes also referred to as a *feedforward* or *fully connected* layer.
 
-[Ba](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=178---book-markup-container)sed on the print(model) call we executed above, we can see that the first Linear layer is at index position 0 in the layers attribute. We can access the corresponding weight parameter matrix as follows:
+Based on the print(model) call we executed above, we can see that the first Linear layer is at index position 0 in the layers attribute. We can access the corresponding weight parameter matrix as follows:
 
-```
+```python
 print(model.layers[0].weight)
 ```
 This prints:
 
-```
+```python
 Parameter containing:
 tensor([[ 0.1174, -0.1350, -0.1227, ..., 0.0275, -0.0520, -0.0192],
        [-0.0169, 0.1265, 0.0255, ..., -0.1247, 0.1191, -0.0698],
@@ -7261,18 +7263,18 @@ print(model.layers[0].weight.shape)
 
 The result is:
 
-```
+```python
 torch.Size([30, 50])
 ```
 (Similarly, you could access the bias vector via model.layers[0].bias.)
 
 The weight matrix above is a 30x50 matrix, and we can see that the requires\_grad is set to True, which means its entries are trainable -- this is the default setting for weights and biases in torch.nn.Linear.
 
-[No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=188---book-markup-container)te that if you execute the code above on your computer, the numbers in the weight matrix will likely differ from those shown above. This is because the model weights are initialized with small random numbers, which are different each time we instantiate the network. In deep learning, initializing model weights with small random numbers is desired to break symmetry during training -- otherwise, the nodes would be just performing the same operations and updates during backpropagation, which would not allow the network to learn complex mappings from inputs to outputs.
+Note that if you execute the code above on your computer, the numbers in the weight matrix will likely differ from those shown above. This is because the model weights are initialized with small random numbers, which are different each time we instantiate the network. In deep learning, initializing model weights with small random numbers is desired to break symmetry during training -- otherwise, the nodes would be just performing the same operations and updates during backpropagation, which would not allow the network to learn complex mappings from inputs to outputs.
 
-[Ho](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=189---book-markup-container)wever, while we want to keep using small random numbers as initial values for our layer weights, we can make the random number initialization reproducible by seeding PyTorch's random number generator via manual\_seed:
+However, while we want to keep using small random numbers as initial values for our layer weights, we can make the random number initialization reproducible by seeding PyTorch's random number generator via manual\_seed:
 
-```
+```python
 torch.manual_seed(123)
 model = NeuralNetwork(50, 3)
 print(model.layers[0].weight)
@@ -7281,7 +7283,7 @@ The result is:
 
 321
 
-```
+```python
 Parameter containing:
 tensor([[-0.0577, 0.0047, -0.0702, ..., 0.0222, 0.1260, 0.0865],
        [ 0.0502, 0.0307, 0.0333, ..., 0.0951, 0.1134, -0.0297],
@@ -7294,7 +7296,7 @@ tensor([[-0.0577, 0.0047, -0.0702, ..., 0.0222, 0.1260, 0.0865],
 ```
 Now, after we spent some time inspecting the NeuraNetwork instance, let's briefly see how it's used via the forward pass:
 
-```
+```python
 torch.manual_seed(123)
 X = torch.rand((1, 50))
 out = model(X)
@@ -7306,9 +7308,9 @@ In the code above, we generated a single random training example X as a toy inpu
 
 The forward pass refers to calculating output tensors from input tensors. This involves passing the input data through all the neural network layers, starting from the input layer, through hidden layers, and finally to the output layer.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=198---book-markup-container)se three numbers returned above correspond to a score assigned to each of the three output nodes. Notice that the output tensor also includes a grad\_fn value.
+These three numbers returned above correspond to a score assigned to each of the three output nodes. Notice that the output tensor also includes a grad\_fn value.
 
-[He](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=199---book-markup-container)re, grad\_fn=<AddmmBackward0> represents the last-used function to compute a variable in the computational graph. In particular, grad\_fn=<AddmmBackward0> means that the tensor we are inspecting was created via a matrix multiplication and addition operation. PyTorch will use this information when it computes gradients during backpropagation. The <AddmmBackward0> part of grad\_fn=<AddmmBackward0> specifies the operation that was performed. In this case, it is an Addmm operation. Addmm stands for matrix multiplication (mm) followed by an addition (Add).
+Here, grad\_fn=<AddmmBackward0> represents the last-used function to compute a variable in the computational graph. In particular, grad\_fn=<AddmmBackward0> means that the tensor we are inspecting was created via a matrix multiplication and addition operation. PyTorch will use this information when it computes gradients during backpropagation. The <AddmmBackward0> part of grad\_fn=<AddmmBackward0> specifies the operation that was performed. In this case, it is an Addmm operation. Addmm stands for matrix multiplication (mm) followed by an addition (Add).
 
 322
 
@@ -7786,7 +7788,7 @@ for epoch in range(num_epochs):
        optimizer.step()
        ### LOGGING
 ```
- 
+
 
 ```
 print(f"Epoch: {epoch+1:03d}/{num_epochs:03d}"
@@ -8765,7 +8767,7 @@ torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 model.eval()
 ```
- 
+
 
 After initializing the model, we also need to initialize the data loaders we used in chapter 5. First, we load the "The Verdict" short story:
 
