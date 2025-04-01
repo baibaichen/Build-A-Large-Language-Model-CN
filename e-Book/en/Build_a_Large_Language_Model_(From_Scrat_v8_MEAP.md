@@ -2297,15 +2297,15 @@ Using the MultiHeadAttention class, initialize a multi-head attention module tha
 - We can create a multi-head attention module by stacking multiple instances of causal attention modules[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=344---book-markup-container)
 - A more efficient way of creating multi-head attention modules involves batched matrix multiplications[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=345---book-markup-container)
 
-# 4 Implementing a GPT model from Scratch
+# 4 Implementing a GPT model from Scratch To Generate Text
 
-<span id="page-112-0"></span>To Generate Text
+<span id="page-112-0"></span>
 
 #### This chapter covers
 
-- Coding a GPT-like large language model (LLM) that can be trained to generate human-like tex[t](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=2---book-markup-container)
-- Normalizing layer activations to stabilize neural network trainin[g](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=3---book-markup-container)
-- Adding shortcut connections in deep neural networks to train models more effectivel[y](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=4---book-markup-container)
+- Coding a GPT-like large language model (LLM) that can be trained to generate human-like text
+- Normalizing layer activations to stabilize neural network training
+- Adding shortcut connections in deep neural networks to train models more effectively
 - Implementing transformer blocks to create GPT models of various sizes
 - Computing the number of parameters and storage requirements of GPT models
 
@@ -2315,7 +2315,7 @@ In the previous chapter, you learned and coded the *multi-head attention* mechan
 
 Figure 4.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it on a labeled dataset. This chapter focuses on implementing the LLM architecture, which we will train in the next chapter.
 
-The LLM architecture, referenced in Figure 4.[1](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=8---book-markup-container), consists of several building blocks that we will implement throughout this chapter. We will begin with a top-down view of the model architecture in the next section before covering the individual components in more detail.
+The LLM architecture, referenced in Figure 4.1, consists of several building blocks that we will implement throughout this chapter. We will begin with a top-down view of the model architecture in the next section before covering the individual components in more detail.
 
 ## 4.1 Coding an LLM architecture
 
@@ -2325,7 +2325,7 @@ LLMs, such as GPT (which stands for *Generative Pretrained Transformer*), are la
 
 #### Figure 4.2 A mental model of a GPT model. Next to the embedding layers, it consists of one or more transformer blocks containing the masked multi-head attention module we implemented in the previous chapter.
 
-As you can see in Figure 4.2, we have alr[ea](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=12---book-markup-container)dy covered several aspects, such as input tokenization and embedding, as well as the masked multi-head attention module. The focus of this chapter will be on implementing the core structure of the GPT model, including its *transformer blocks*, which we will then train in the next chapter to generate human-like text.
+As you can see in Figure 4.2, we have already covered several aspects, such as input tokenization and embedding, as well as the masked multi-head attention module. The focus of this chapter will be on implementing the core structure of the GPT model, including its *transformer blocks*, which we will then train in the next chapter to generate human-like text.
 
 In the previous chapters, we used smaller embedding dimensions for simplicity, ensuring that the concepts and examples could comfortably fit on a single page. Now, in this chapter, we are scaling up to the size of a small GPT-2 model, specifically the smallest version with 124 million parameters, as described in Radford *et al.*'s paper, "Language Models are Unsupervised Multitask Learners." Note that while the original report mentions 117 million parameters, this was later corrected.
 
@@ -2601,7 +2601,7 @@ So far, in this section, we have coded and applied layer normalization in a step
 
 #### Listing 4.2 A layer normalization class
 
-```
+```python
 class LayerNorm(nn.Module):
     def __init__(self, emb_dim):
         super().__init__()
@@ -2650,18 +2650,20 @@ If you are familiar with batch normalization, a common and traditional normaliza
 
 ## 4.3 Implementing a feed forward network with GELU activations
 
-In this section, we implement a small neural network submodule that is used as part of the transformer block in LLMs. We begin with implementing the *GELU* activation function, which plays a crucial role in this neural network submodule. (For additional information on implementing neural networks in PyTorch, please see section A.5 Implementing multilayer neural networks in Appendix A.)
+In this section, we implement a small neural network submodule that is used as part of the transformer block in LLMs. We begin with implementing the **GELU** activation function, which plays a crucial role in this neural network submodule. (For additional information on implementing neural networks in PyTorch, please see [section A.5 Implementing multilayer neural networks](# A.5 Implementing multilayer neural networks) in Appendix A.)
 
 Historically, the ReLU activation function has been commonly used in deep learning due to its simplicity and effectiveness across various neural network architectures. However, in LLMs, several other activation functions are employed beyond the traditional ReLU. Two notable examples are GELU (*Gaussian Error Linear Unit*) and SwiGLU (*Swish-Gated Linear Unit*).
 
-[GE](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=92---book-markup-container)LU and SwiGLU are more complex and smooth activation functions incorporating Gaussian and sigmoid-gated linear units, respectively. They offer improved performance for deep learning models, unlike the simpler ReLU.
+GELU and SwiGLU are more complex and smooth activation functions incorporating Gaussian and sigmoid-gated linear units, respectively. They offer improved performance for deep learning models, unlike the simpler ReLU.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=93---book-markup-container) GELU activation function can be implemented in several ways; the exact version is defined as GELU(x)=x⋅Φ(x), where Φ(x) is the cumulative distribution function of the standard Gaussian distribution. In practice, however, it's common to implement a computationally cheaper approximation (the original GPT-2 model was also trained with this approximation):
+The GELU activation function can be implemented in several ways; the exact version is defined as $GELU(x)=x⋅Φ(x)$, where $Φ(x)$ is the cumulative distribution function of the standard Gaussian distribution. In practice, however, it's common to implement a computationally cheaper approximation (the original GPT-2 model was also trained with this approximation):
+
+$$ \text{GELU}(x) \approx 0.5 \cdot x \cdot\left(1+\tanh \left[\sqrt{(2 / \pi)} \cdot\left(x+0.044715 \cdot x^{3}\right]\right)\right. $$
 
 In code, we can implement this function as PyTorch module as follows:
 
-```
-Listing 4.3 An implementation of the GELU activation function
+```python
+# Listing 4.3 An implementation of the GELU activation function
 class GELU(nn.Module):
     def __init__(self):
         super().__init__()
@@ -2673,7 +2675,7 @@ class GELU(nn.Module):
 ```
 Next, to get an idea of what this GELU function looks like and how it compares to the ReLU function, let's plot these functions side by side:
 
-```
+```python
 import matplotlib.pyplot as plt
 gelu, relu = GELU(), nn.ReLU()
 x = torch.linspace(-3, 3, 100) #A
@@ -2705,7 +2707,7 @@ Next, let's use the GELU function to implement the small neural network module, 
 
 #### Li[sting](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=103---book-markup-container) 4.4 A feed forward neural network module
 
-```
+```python
 class FeedForward(nn.Module):
     def __init__(self, cfg):
         super().__init__()
@@ -7204,7 +7206,7 @@ Within this subclass, we define the network layers in the \_\_init\_\_ construct
 
 >  **Licensed to <149533107@qq.com>**
 
-```
+```python
 Listing A.4 A multilayer perceptron with two hidden layers
 class NeuralNetwork(torch.nn.Module):
    def __init__(self, num_inputs, num_outputs): #A
