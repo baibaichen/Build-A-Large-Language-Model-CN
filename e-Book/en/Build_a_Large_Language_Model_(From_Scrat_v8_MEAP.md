@@ -6821,7 +6821,7 @@ We will introduce PyTorch, a popular Python-based deep learning library, which w
 
 [No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=9---book-markup-container)te that this chapter is meant as a primer for those who are new to deep learning in PyTorch. While this chapter explains PyTorch from the ground up, it's not meant to be an exhaustive coverage of the PyTorch library. Instead, this chapter focuses on the PyTorch fundamentals that we will use to implement LLMs throughout this book. If you are already familiar with deep learning, you may skip this appendix and directly move on to chapter 2, working with text data.
 
-# A.1 What is PyTorch
+## A.1 What is PyTorch
 
 *PyTorch* [\(https://pytorch.org/](https://pytorch.org/)) is an open-source Python-based deep learning library. According to *Papers With Code* (<https://paperswithcode.com/trends>), a platform that tracks and analyzes research papers, PyTorch has been the most widely used deep learning library for research since 2019 by a wide margin. And according to the *Kaggle Data Science and Machine Learning Survey 2022* [\(https://www.kaggle.com/c/kaggle-survey-2022](https://www.kaggle.com/c/kaggle-survey-2022)), the number of respondents using PyTorch is approximately 40% and constantly grows every year.
 
@@ -6829,7 +6829,7 @@ One of the reasons why PyTorch is so popular is its user-friendly interface and 
 
 [In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=13---book-markup-container) the following subsections, we will define the main features PyTorch has to offer.
 
-# A[.1.1](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=14---book-markup-container) The three core components of PyTorch
+### A.1.1 The three core components of PyTorch
 
 PyTorch is a relatively comprehensive library, and one way to approach it is to focus on its three broad components, which are summarized in figure A.1.
 
@@ -6845,7 +6845,7 @@ Secondly, PyTorch is an *automatic differentiation engine*, also known as autogr
 
 [Aft](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=20---book-markup-container)er defining the term deep learning and installing PyTorch in the two following subsections, the remainder of this chapter will go over these three core components of PyTorch in more detail, along with hands-on code examples.
 
-#### A[.1.2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=21---book-markup-container) Defining deep learning
+### A.1.2 Defining deep learning
 
 LLMs are often referred to as *AI* models in the news. However, as illustrated in the first section of chapter 1 (*1.1 What is an LLM?*) LLMs are also a type of deep neural network, and PyTorch is a deep learning library. Sounds confusing? Let's take a brief moment and summarize the relationship between these terms before we proceed.
 
@@ -6957,7 +6957,7 @@ Run the supplementary Chapter 2 code at [https://github.com/rasbt/LLMs-from](htt
 
 307
 
-# A.2 Understanding tensors
+## A.2 Understanding tensors
 
 Tensors represent a mathematical concept that generalizes vectors and matrices to potentially higher dimensions. In other words, tensors are mathematical objects that can be characterized by their order (or rank), which provides the number of dimensions. For example, a scalar (just a number) is a tensor of rank 0, a vector is a tensor of rank 1, and a matrix is a tensor of rank 2, as illustrated in figure A.6
 
@@ -6975,7 +6975,7 @@ As you will see in the upcoming sections, PyTorch adopts most of the NumPy array
 
 The following subsections will look at the basic operations of the PyTorch tensor library, showing how to create simple tensors and going over some of the essential operations.
 
-#### A.2.1 Scalars, vectors, matrices, and tensors
+### A.2.1 Scalars, vectors, matrices, and tensors
 
 As mentioned earlier, PyTorch tensors are data containers for array-like structures. A scalar is a 0-dimensional tensor (for instance, just a number), a vector is a 1-dimensional tensor, and a matrix is a 2-dimensional tensor. There is no specific term for higher-dimensional tensors, so we typically refer to a 3-dimensional tensor as just a 3D tensor, and so forth.
 
@@ -6992,7 +6992,7 @@ We can create objects of PyTorch's Tensor class using the torch.tensor function 
 
 #D create a 3D tensor from a nested Python list
 
-#### A.2.2 Tensor data types
+### A.2.2 Tensor data types
 
 In the previous section, we created tensors from Python integers. In this case, PyTorch adopts the default 64-bit integer data type from Python. We can access the data type of a tensor via the .dtype attribute of a tensor:
 
@@ -7026,7 +7026,7 @@ torch.float32
 
 For more information about different tensor data types available in PyTorch, I recommend checking the official documentation at<https://pytorch.org/docs/stable/tensors.html>.
 
-#### A.2.3 Common PyTorch tensor operations
+### A.2.3 Common PyTorch tensor operations
 
 Comprehensive coverage of all the different PyTorch tensor operations and commands is outside the scope of this book. However, we will briefly describe relevant operations as we introduce them throughout the book.
 
@@ -7097,7 +7097,7 @@ tensor([[14, 32], [32, 77]])
 
 As mentioned earlier, we will introduce additional operations throughout this book when needed. For readers who'd like to browse through all the different tensor operations available in PyTorch (hint: we won't need most of these), I recommend checking out the official documentation at <https://pytorch.org/docs/stable/tensors.html>.
 
-# A.3 Seeing models as computation graphs
+## A.3 Seeing models as computation graphs
 
 In the previous section, we covered one of the major three components of PyTorch, namely, its tensor library. Next in line is PyTorch's automatic differentiation engine, also known as autograd. PyTorch's autograd system provides functions to compute gradients in dynamic computational graphs automatically. But before we dive deeper into computing gradients in the next section, let's define the concept of a computational graph.
 
@@ -7129,7 +7129,7 @@ If not all components in the code above make sense to you, don't worry. The poin
 
 In fact, PyTorch builds such a computation gr[ap](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=138---book-markup-container)h in the background, and we can use this to calculate gradients of a loss function with respect to the model parameters (here w1 and b) to train the model, which is the topic of the upcoming sections.
 
-# A.4 Automatic differentiation made easy
+## A.4 Automatic differentiation made easy
 
 In the previous section, we introduced the concept of computation graphs. If we carry out computations in PyTorch, it will build such a graph internally by default if one of its terminal nodes has the requires\_grad attribute set to True. This is useful if we want to compute gradients. Gradients are required when training neural networks via the popular backpropagation algorithm, which can be thought of as an implementation of the *chain rule* from calculus for neural networks, which is illustrated in figure A.8.
 
@@ -7186,7 +7186,7 @@ The outputs are:
 
 If this section is packed with a lot of information and you may be overwhelmed by the calculus concepts, don't worry. While this calculus jargon was a means to explain PyTorch's autograd component, all you need to take away from this section is that PyTorch takes care of the calculus for us via the .backward method -- we won't need to compute any derivatives or gradients by hand in this book.
 
-# A.5 Implementing multilayer neural networks
+## A.5 Implementing multilayer neural networks
 
 In the previous sections, we covered PyTorch's tensor and autograd components. This section focuses on PyTorch as a library for implementing deep neural networks.
 
@@ -7372,7 +7372,7 @@ In the following two sections, we will learn how to set up an efficient data loa
 
 323
 
-# A.6 Setting up efficient data loaders
+## A.6 Setting up efficient data loaders
 
 In the previous section, we defined a custom neural network model. Before we can train this model, we have to briefly talk about creating efficient data loaders in PyTorch, which we will iterate over when training the model. The overall idea behind data loading in PyTorch is illustrated in figure A.10.
 
@@ -7526,7 +7526,7 @@ Furthermore, for Jupyter notebooks, setting num\_workers to greater than 0 can s
 
 [In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=245---book-markup-container) my experience, setting num\_workers=4 usually leads to optimal performance on many real-world datasets, but optimal settings depend on your hardware and the code used for loading a training example defined in the Dataset class.
 
-# A[.7](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=246---book-markup-container) A typical training loop
+## A.7 A typical training loop
 
 So far, we've discussed all the requirements for training neural networks: PyTorch's tensor library, autograd, the Module API, and efficient data loaders. Let's now combine all these things and train a neural network on the toy dataset from the previous section. The training code is shown in code listing A.9 below.
 
@@ -7705,9 +7705,9 @@ This prints:
 
 In this section, we learned how we can train a neural network using PyTorch. Next, let's see how we can save and restore models after training.
 
-# A.8 Saving and loading models
+## A.8 Saving and loading models
 
-In the previous section, we successfully trained a model. Let's now see how we can save a trained model to reuse it later.
+## In the previous section, we successfully trained a model. Let's now see how we can save a trained model to reuse it later.
 
 Here's the recommended way how we can save and load models in PyTorch:
 
@@ -7728,7 +7728,7 @@ Note that the line model = NeuralNetwork(2, 2) above is not strictly necessary i
 
 [No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=308---book-markup-container)w, we are well equipped to use PyTorch to implement large language models in the upcoming chapters. However, before we jump to the next chapter, the last section will show you how to train PyTorch models faster using one or more GPUs (if available).
 
-# A[.9](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=309---book-markup-container) Optimizing training performance with GPUs
+## A.9 Optimizing training performance with GPUs
 
 In this last section of this chapter, we will see how we can utilize GPUs, which will accelerate deep neural network training compared to regular CPUs. First, we will introduce the main concepts behind GPU computing in PyTorch. Then, we will train a model on a single GPU. Finally, we'll then look at distributed training using multiple GPUs.
 
@@ -8052,7 +8052,7 @@ This is, in a nutshell, how distributed training via DDP works. If you are inter
 
 If you prefer more straightforward ways to use multiple GPUs in PyTorch, you can also consider add-on APIs like the open-source Fabric library, which I've written about in Accelerating PyTorch Model Training: Using Mixed-Precision and Fully Sharded Data Parallelism [https://magazine.sebastianraschka.com/p/accelerating-pytorch-model](https://magazine.sebastianraschka.com/p/accelerating-pytorch-model-training)[training](https://magazine.sebastianraschka.com/p/accelerating-pytorch-model-training).
 
-# A.10 Summary
+## A.10 Summary
 
 - PyTorch is an open-source library that consists of three core components: a tensor library, automatic differentiation functions, and deep learning utilities.
 - PyTorch's tensor library is similar to array libraries like NumPy
@@ -8064,7 +8064,7 @@ If you prefer more straightforward ways to use multiple GPUs in PyTorch, you can
 - It's easiest to train models on a CPU or single GPU.
 - Using DistributedDataParallel is the simplest way in PyTorch to accelerate the training if multiple GPUs are available.
 
-# A.11 Further reading
+## A.11 Further reading
 
 While this chapter should be sufficient to get you up to speed, in addition, if you are looking for more comprehensive introductions to deep learning, I recommend the following books:
 
@@ -8091,9 +8091,9 @@ This chapter covered DDP, which is a popular approach for training deep learning
 
 Introducing PyTorch Fully Sharded Data Parallel (FSDP) API, [https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel](https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/)[api/](https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/)
 
-# A.12 Exercise answers
+## A.12 Exercise answers
 
-# EXERCISE A.3:
+### EXERCISE A.3:
 
 The network has 2 inputs and 2 outputs. In addition, there are 2 hidden layers with 30 and 20 nodes, respectively. Programmatically, we can calculate the number of parameters as follows:
 
@@ -8114,7 +8114,7 @@ We can also calculate this manually as follows:
 
 Then, adding all the parameters in each layer results in 2×30+30 + 30×20+20 + 20×2+2 = 752.
 
-#### EXERCISE A.4:
+### EXERCISE A.4:
 
 The exact runtime results will be specific to the hardware used for this experiment. In my experiments, I observed significant speed-ups even for small matrix multiplications as the following one when using a Google Colab instance connected to a V100 GPU:
 
@@ -8138,7 +8138,7 @@ In this case, on a V100, the computation was approximately four times faster.
 
 # <span id="page-355-0"></span>Appendix B. References and Further Reading
 
-# Chapter 1
+Chapter 1
 
 Custom-built LLMs are able to outperform general-purpose LLMs as a team at Bloomberg showed via a version of GPT pretrained on finance data from scratch. The custom LLM outperformed ChatGPT on financial tasks while maintaining good performance on general LLM benchmarks:
 
@@ -8181,7 +8181,7 @@ The following paper provides the reference for InstructGPT for finetuning GPT-3,
 
 *Training Language Models to Follow Instructions with Human Feedback* (2022) by *Ouyang et al.*,<https://arxiv.org/abs/2203.02155>
 
-# Chapter 2
+## Chapter 2
 
 - *Machine Learning Q and AI* (2023) by Sebastian Raschka, [https://leanpub.com/machine-learning-q-and-ai](https://leanpub.com/machine-learning-q-and-ai/)
 - The following paper provides more in-depth discussions of how how byte pair encoding is used as a tokenization method:
@@ -8205,7 +8205,7 @@ Readers who are interested in studying alternative tokenization schemes that are
 - SentencePiece: A Simple and Language Independent Subword Tokenizer and Detokenizer for Neural Text Processing (2018) by Kudo and Richardson,<https://aclanthology.org/D18-2012/>
 - Fast WordPiece Tokenization (2020) by Song et al., [https://arxiv.](https://arxiv.org/abs/2012.15524) [org/abs/2012.15524](https://arxiv.org/abs/2012.15524)
 
-# Chapter 3
+## Chapter 3
 
 Readers interested in learning more about Bahdanau attention for RNN and language translation can find detailed insights in the following paper:
 
@@ -8236,7 +8236,7 @@ While using the multi-head attention based on scaled-dot product attention remai
 
 *Simplifying Transformer Blocks* (2023) by He and Hofmann, [https://arxiv.](https://arxiv.org/abs/2311.01906) [org/abs/2311.01906](https://arxiv.org/abs/2311.01906)
 
-# Chapter 4
+## Chapter 4
 
 The layer normalization paper, titled "Layer Normalization," introduces a technique that stabilizes the hidden state dynamics neural networks by normalizing the summed inputs to the neurons within a hidden layer, significantly reducing training time compared to previously published methods:
 
@@ -8273,7 +8273,7 @@ An informative blog post showing that most of the computation in LLMs is spent i
 
 "In the long (context) run" by Harm de Vries, [https://www.harmdevries.](https://www.harmdevries.com/post/context-length/) [com/post/context-length/](https://www.harmdevries.com/post/context-length/)
 
-# Chapter 5
+## Chapter 5
 
 A video lecture by the author detailing the loss function and applying a log transformation to make it easier to handle for mathematical optimization:
 
@@ -8317,7 +8317,7 @@ Beam search (not cover in chapter 5) is an alternative decoding algorithm that g
 
 Diverse Beam Sea*rch: Decoding Diverse Solutions from Neural Sequence Models by Vijayakumar* et al. (2016), <https://arxiv.org/abs/1610.02424>
 
-# Chapter 6
+## Chapter 6
 
 Additional resources that discuss the different types of finetuning:
 
@@ -8355,7 +8355,7 @@ Recent papers are showing that the classification performance can be further imp
 - *Label Supervised LLaMA Finetuning* (2023) by Li *et al.*, [https://arxiv.](https://arxiv.org/abs/2310.01208) [org/abs/2310.01208](https://arxiv.org/abs/2310.01208)
 - LLM2Vec: Large Language Models Are Secretly Powerful Text Encoders (2024) by BehnamGhader *et al.*,<https://arxiv.org/abs/2404.05961>
 
-# Chapter 7
+## Chapter 7
 
 The Alpaca dataset for instruction finetuning contains 52 thousand instruction-response pairs and is one of the first and most popular publicly available datasets for instruction finetuning:
 
@@ -8398,9 +8398,9 @@ Preference finetuning is an optional step after instruction finetuning to align 
 
 The complete code examples for the exercises answers can be found in the supplementary GitHub repository at [https://github.com/rasbt/LLMs-from-scratch.](https://github.com/rasbt/LLMs-from-scratch)
 
-# Chapter 2
+## Chapter 2
 
-# EXERCISE 2.1
+### EXERCISE 2.1
 
 You can obtain the individual token IDs by prompting the encoder with one string at a time:
 
@@ -8445,7 +8445,7 @@ An example batch looks like as follows:
 
 tensor([[ 40, 367, 2885, 1464, 1807, 3619, 402, 271], [ 2885, 1464, 1807, 3619, 402, 271, 10899, 2138], [ 1807, 3619, 402, 271, 10899, 2138, 257, 7026], [ 402, 271, 10899, 2138, 257, 7026, 15632, 438]])
 
-# Chapter 3
+## Chapter 3
 
 #### EXERCISE 3.1
 
@@ -8474,7 +8474,7 @@ d_in, d_out = 768, 768
 num_heads = 12
 mha = MultiHeadAttention(d_in, d_out, block_size, 0.0, num_heads)
 ```
-# Chapter 4
+## Chapter 4
 
 #### EXERCISE 4.1
 
@@ -8512,7 +8512,7 @@ Then, reusing the code from Section 4.6 to calculate the number of parameters an
 
 gpt2-xl: Total number of parameters: 1,637,792,000 Number of trainable parameters considering weight tying: 1,557,380,800 Total size of the model: 6247.68 MB
 
-# Chapter 5
+## Chapter 5
 
 #### EXERCISE 5.1
 
@@ -8539,7 +8539,7 @@ There are multiple ways to force deterministic behavior with the generate functi
 - 1. Setting to top\_k=None and applying no temperature scaling;
 - 2. Setting top\_k=1[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=56---book-markup-container)
 
-# EXERCISE 5.4
+#### EXERCISE 5.4
 
 In essence, we have to load the model and optimizer that we saved in the main chapter:
 
@@ -8552,7 +8552,7 @@ optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 ```
 Then, call the train\_simple\_function with num\_epochs=1 to train the model for another epoch.
 
-# EXERCISE 5.5
+#### EXERCISE 5.5
 
 We can use the following code to calculate the training and validation set losses of the GPT model:
 
@@ -8584,7 +8584,7 @@ The updated code is as follows:
 
 hparams, params = download\_and\_load\_gpt2(model\_size="1558M", models\_dir="gpt2") model\_name = "gpt2-xl (1558M)"
 
-# Chapter 6
+## Chapter 6
 
 #### EXERCISE 6.1
 
@@ -8613,7 +8613,7 @@ Rather than finetuning the last output token, we can finetune the first output t
 
 As expected, since the first token contains less information than the last token, this change results in a substantially worse test accuracy of 75.00% (versus the 95.67% in the main chapter).
 
-# C[hap](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=85---book-markup-container)ter 7
+## Chapter 7
 
 #### EXERCISE 7.1
 
@@ -8658,7 +8658,7 @@ for i, entry in tqdm(enumerate(test_data), total=len(test_data)):
 
 Finetuning the model with the Phi-3 template is approximately 17% faster since it results in shorter model inputs. The score is close to 50, which is in the same ballpark as the score we previously achieved with the Alpaca-style prompts.
 
-# EXERCISE 7.2
+#### EXERCISE 7.2
 
 To mask out the instructions as shown in figure 7.13 in chapter 7, we need to make slight modifications to the InstructionDataset class and custom\_collate\_fn function. We can modify the InstructionDataset class to collect the lengths of the instructions, which we will use in the collate function to locate the instruction content positions in the targets when we code the collate function, as follows:
 
@@ -8730,7 +8730,7 @@ return inputs_tensor, targets_tensor
 
 When evaluating a model finetuned with this instruction masking method, it performs slightly worse (approximately 4 points using the Ollama Llama 3 method from chapter 7). This is consistent with observations in the "Instruction Tuning With Loss Over Instructions" paper ([https://arxiv.org/abs/2405.14394\)](https://arxiv.org/abs/2405.14394).
 
-# EXERCISE 7.3
+#### EXERCISE 7.3
 
 To finetune the model on the original Stanford Alpaca dataset ([https://github.com/tatsu](https://github.com/tatsu-lab/stanford_alpaca)[lab/stanford\\_alpaca](https://github.com/tatsu-lab/stanford_alpaca)), we just have to change the file URL from
 
@@ -8841,7 +8841,7 @@ Now that we have re-instantiated the model and data loaders we used in chapter 5
 
 >  **Licensed to <149533107@qq.com>**
 
-# D.1 Learning rate warmup
+## D.1 Learning rate warmup
 
 The first technique we introduce is *learning rate warmup*. Implementing a learning rate warmup can stabilize the training of complex models such as LLMs. This process involves gradually increasing the learning rate from a very low initial value (initial\_lr) to a maximum value specified by the user (peak\_lr). Starting the training with smaller weight updates decreases the risk of the model encountering large, destabilizing updates during its training phase.
 
@@ -8895,7 +8895,7 @@ As shown in Figure D.1, the learning rate star[ts](https://livebook.manning.com/
 
 In the next section, we will modify the learning rate further so that it decreases after reaching the maximum learning rate, which further helps improve the model training.
 
-# D[.2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-d?potentialInternalRefId=20---book-markup-container) Cosine decay
+## D.2 Cosine decay
 
 Another widely adopted technique for training complex deep neural networks and LLMs is *cosine decay*. This method modulates the learning rate throughout the training epochs, making it follow a cosine curve after the warmup stage.
 
@@ -8941,7 +8941,7 @@ Figure D.2 The first 20 steps of linear learning rate warmup are followed by a c
 
 As shown in Figure D.2, the learning ratestarts with a linear warmup phase, which increases for 20 steps until it reaches the maximum value after 20 steps. After the 20 steps of linear warmup, cosine decay kicks in, reducing the learning rate gradually until it reaches its minimum.
 
-# D.3 Gradient clipping
+## D.3 Gradient clipping
 
 In this section, we introduce *gradient clipping*, another important technique for enhancing stability during LLM training. This method involves setting a threshold above which gradients are downscaled to a predetermined maximum magnitude. This process ensures that the updates to the model's parameters during backpropagation stay within a manageable range.
 
@@ -9006,7 +9006,7 @@ tensor(0.0166)
 
 In the next section, we will put all the concepts covered in this appendix so far into action and modify the LLM training function.
 
-# D.4 The modified training function
+## D.4 The modified training function
 
 In this final section of this appendix, we improve the train\_model\_simple training function we used in chapter 5 by adding the three concepts we introduced: linear warmup, cosine decay, and gradient clipping. Together, these methods help stabilize LLM training.
 
@@ -9112,11 +9112,11 @@ Readers are encouraged to train the model on a larger text dataset and compare t
 
 384
 
-# <span id="page-388-0"></span>Appendix [E](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e/v-8/section-E?refid=1) Parameter-efficient Finetuning with LoRA
+# <span id="page-388-0"></span>Appendix E Parameter-efficient Finetuning with LoRA
 
 This appendix introduces *low-rank adaptation* (*LoRA*), one of the most widely used techniques for *parameter-efficient finetuning*. After explaining the main idea behind LoRA, this appendix will be based on the spam classification-finetuning example from chapter 6 and finetune the LLM. It's important to note, however, that LoRA finetuning is also applicable to the supervised *instruction-finetuning* discussed in chapter 7.
 
-# E.1 Introduction to LoRA
+## E.1 Introduction to LoRA
 
 LoRA, or low-rank adaptation, is a technique that adapts a pretrained model to better suit a specific, often smaller, dataset by adjusting only a small subset of the model's weight parameters. The "low-rank" aspect refers to the mathematical concept of limiting model adjustments to a smaller dimensional subspace of the total weight parameter space, which effectively captures the most influential directions of the weight parameter changes during training.
 
@@ -9160,7 +9160,7 @@ Keeping the LoRA weights separate is very useful in practice because it enables 
 
 [No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=22---book-markup-container)w that we have discussed what LoRA is all about, in the following sections, let's see how it can be used to finetune an LLM for spam classification, similar to the finetuning example in chapter 6.
 
-# E[.2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=23---book-markup-container) Preparing the dataset
+## E.2 Preparing the dataset
 
 Before applying LoRA to the spam classification example from chapter 6, we have to load the dataset and pretrained model we will work with.
 
@@ -9263,7 +9263,7 @@ In this case, we have the following number of batches per dataset:
 
 130 training batches 19 validation batches 38 test batches
 
-# E.3 Initializing the model
+## E.3 Initializing the model
 
 This section repeats the code from chapter 6 to load and prepare the pretrained GPT model. We begin with downloading the model weights and loading them into the GPTModel class:
 
@@ -9345,7 +9345,7 @@ The initial prediction accuracies are as follows:
 
 Training accuracy: 46.25% Validation accuracy: 45.00% Test accuracy: 48.75%
 
-# E.4 Parameter-efficient finetuning with LoRA
+## E.4 Parameter-efficient finetuning with LoRA
 
 In this section, we modify and finetune the LLM using LoRA. We begin by initializing a LoRALayer that creates the matrices *A* and *B*, along with the alpha scaling factor and the rank (*r*) setting.
 
