@@ -286,14 +286,14 @@ Next, in stage 2, we will learn how to code and pretrain a GPT-like LLM capable 
 
 <span id="page-21-0"></span>[2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2/v-8/section-2?refid=1)
 
-# Working with Text Data
+# 2 Working with Text Data
 
 #### This chapter covers
 
 - Preparing text for large language model training
 - Splitting text into word and subword tokens
-- Byte pair encoding as a more advanced way of tokenizing tex[t](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=4---book-markup-container)
-- Sampling training examples with a sliding window approac[h](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=5---book-markup-container)
+- Byte pair encoding as a more advanced way of tokenizing text
+- Sampling training examples with a sliding window approach
 - Converting tokens into vectors that feed into a large language model
 
 In the previous chapter, we covered the general structure of large language models (LLMs) and learned that they are pretrained on vast amounts of text. Specifically, our focus was on decoder-only LLMs based on the transformer architecture, which underlies the models used in ChatGPT and other popular GPT-like LLMs.
@@ -308,7 +308,7 @@ Figure 2.1 A mental model of the three main stages of coding an LLM, pretraining
 
 In this chapter, you'll learn how to prepar[e](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=9---book-markup-container) input text for training LLMs. This involves splitting text into individual word and subword tokens, which can then be encoded into vector representations for the LLM. You'll also learn about advanced tokenization schemes like byte pair encoding, which is utilized in popular LLMs like GPT. Lastly, we'll implement a sampling and data loading strategy to produce the input-output pairs necessary for training LLMs in subsequent chapters.
 
-# 2.1 Understanding word embeddings
+## 2.1 Understanding word embeddings
 
 Deep neural network models, including LLMs, cannot process raw text directly. Since text is categorical, it isn't compatible with the mathematical operations used to implement and train neural networks. Therefore, we need a way to represent words as continuous-valued vectors. (Readers unfamiliar with vectors and tensors in a computational context can learn more in Appendix A, section A2.2 Understanding tensors.)
 
@@ -348,7 +348,7 @@ Unfortunately, high-dimensional embeddings present a challenge for visualization
 
 The upcoming sections in this chapter will walk through the required steps for preparing the embeddings used by an LLM, which include splitting text into words, converting words into tokens, and turning tokens into embedding vectors.
 
-# 2[.2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=23---book-markup-container) Tokenizing text
+## 2[.2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=23---book-markup-container) Tokenizing text
 
 This section covers how we split input text into individual tokens, a required preprocessing step for creating embeddings for an LLM. These tokens are either individual words or special characters, including punctuation characters, as shown in Figure 2.4.
 
@@ -462,7 +462,7 @@ The resulting output shows that our tokenizer appears to be handling the text we
 
 ['I', 'HAD', 'always', 'thought', 'Jack', 'Gisburn', 'rather', 'a', 'cheap', 'genius', '--', 'though', 'a', 'good', 'fellow', 'enough', '--', 'so', 'it', 'was', 'no', 'great', 'surprise', 'to', 'me', 'to', 'hear', 'that', ',', 'in']
 
-# 2.3 Converting tokens into token IDs
+## 2.3 Converting tokens into token IDs
 
 In the previous section, we tokenized a short story by Edith Wharton into individual tokens. In this section, we will convert these tokens from a Python string to an integer representation to produce the so-called token IDs. This conversion is an intermediate step before converting the token IDs into embedding vectors.
 
@@ -581,7 +581,7 @@ The problem is that the word "Hello" was not used in the *The Verdict* short sto
 
 In the next section, we will test the tokenizer further on text that contains unknown words, and we will also discuss additional special tokens that can be used to provide further context for an LLM during training.
 
-# 2[.4](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=95---book-markup-container) Adding special context tokens
+## 2[.4](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=95---book-markup-container) Adding special context tokens
 
 In the previous section, we implemented a simple tokenizer and applied it to a passage from the training set. In this section, we will modify this tokenizer to handle unknown words.
 
@@ -705,7 +705,7 @@ Note that the tokenizer used for GPT models does not need any of these tokens me
 
 Moreover, the tokenizer used for GPT models also doesn't use an <|unk|> token for outof-vocabulary words. Instead, GPT models use a *byte pair encoding* tokenizer, which breaks down words into subword units, which we will discuss in the next section.
 
-# 2[.5](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=129---book-markup-container) Byte pair encoding
+## 2[.5](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=129---book-markup-container) Byte pair encoding
 
 We implemented a simple tokenization scheme in the previous sections for illustration purposes. This section covers a more sophisticated tokenization scheme based on a concept called byte pair encoding (BPE). The BPE tokenizer covered in this section was used to train LLMs such as GPT-2, GPT-3, and the original model used in ChatGPT.
 
@@ -768,7 +768,7 @@ A detailed discussion and implementation of BPE is out of the scope of this book
 
 **Licensed to <149533107@qq.com>**
 
-# 2.6 Data sampling with a sliding window
+## 2.6 Data sampling with a sliding window
 
 The previous section covered the tokenization steps and conversion from string tokens into integer token IDs in great detail. The next step before we can finally create the embeddings for the LLM is to generate the input-target pairs required for training an LLM.
 
@@ -1014,7 +1014,7 @@ Note that we increase the stride to 4. This is to utilize the data set fully (we
 
 In the final two sections of this chapter, we will implement embedding layers that convert the token IDs into continuous vector representations, which serve as input data format for LLMs.
 
-# 2[.7](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=206---book-markup-container) Creating token embeddings
+## 2[.7](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=206---book-markup-container) Creating token embeddings
 
 The last step for preparing the input text for LLM training is to convert the token IDs into embedding vectors, as illustrated in Figure 2.15, which will be the focus of these two last remaining sections of this chapter.
 
@@ -1098,7 +1098,7 @@ Figure 2.16 Embedding layers perform a look-up operation, retrieving the embeddi
 
 This section covered how we create embeddi[ng](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=233---book-markup-container) vectors from token IDs. The next and final section of this chapter will add a small modification to these embedding vectors to encode positional information about a token within a text.
 
-# 2.8 Encoding word positions
+## 2.8 Encoding word positions
 
 In the previous section, we converted the token IDs into a continuous vector representation, the so-called token embeddings. In principle, this is a suitable input for an LLM. However, a minor shortcoming of LLMs is that their self-attention mechanism, which will be covered in detail in chapter 3, doesn't have a notion of position or order for the tokens within a sequence.
 
@@ -1205,7 +1205,7 @@ The input\_embeddings we created, as summarized in Figure 2.19, are the embedded
 
 Figure 2.19 As part of the input processing pipeline, input text is first broken up into individual tokens. These tokens are then converted into token IDs using a vocabulary. The token IDs are converted into embedding vectors to which positional embeddings of a similar size are added, resulting in input embeddings that are used as input for the main LLM layers.
 
-# 2.9 Summary
+## 2.9 Summary
 
 LLMs require textual data to be converted into numerical vectors, known as embeddings since they can't process raw text. Embeddings transform discrete data (like words or images) into continuous vector spaces, making them compatible with neural network operations.
 
