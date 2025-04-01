@@ -258,7 +258,7 @@ Next, in stage 2, we will learn how to code and pretrain a GPT-like LLM capable 
 
 # 2 Working with Text Data
 
-#### This chapter covers
+This chapter covers
 
 - Preparing text for large language model training
 - Splitting text into word and subword tokens
@@ -274,7 +274,7 @@ During the pretraining stage, LLMs process text one word at a time. Training LLM
 
 Figure 2.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it on a labeled dataset. This chapter will explain and code the data preparation and sampling pipeline that provides the LLM with the text data for pretraining.
 
-In this chapter, you'll learn how to prepar[e](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=9---book-markup-container) input text for training LLMs. This involves splitting text into individual word and subword tokens, which can then be encoded into vector representations for the LLM. You'll also learn about advanced tokenization schemes like byte pair encoding, which is utilized in popular LLMs like GPT. Lastly, we'll implement a sampling and data loading strategy to produce the input-output pairs necessary for training LLMs in subsequent chapters.
+In this chapter, you'll learn how to prepare input text for training LLMs. This involves splitting text into individual word and subword tokens, which can then be encoded into vector representations for the LLM. You'll also learn about advanced tokenization schemes like byte pair encoding, which is utilized in popular LLMs like GPT. Lastly, we'll implement a sampling and data loading strategy to produce the input-output pairs necessary for training LLMs in subsequent chapters.
 
 ## 2.1 Understanding word embeddings
 
