@@ -212,7 +212,7 @@ The good news is that many pretrained LLMs, available as open-source models, can
 
 [In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-1?potentialInternalRefId=64---book-markup-container) this book, we will implement the code for pretraining and use it to pretrain an LLM for educational purposes. All computations will be executable on consumer hardware. After implementing the pretraining code we will learn how to reuse openly available model weights and load them into the architecture we will implement, allowing us to skip the expensive pretraining stage when we finetune LLMs later in this book.
 
-# 1[.6](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-1?potentialInternalRefId=65---book-markup-container) A closer look at the GPT architecture
+# 1.6 A closer look at the GPT architecture
 
 Previously in this chapter, we mentioned the terms GPT-like models, GPT-3, and ChatGPT. Let's now take a closer look at the general GPT architecture. First, GPT stands for *G*enerative *P*retrained *T*ransformer and was originally introduced in the following paper:
 
@@ -222,9 +222,11 @@ GPT-3 is a scaled-up version of this model that has more parameters and was trai
 
 <span id="page-16-0"></span>[© Manning Publications Co. To comment go to liveBook](https://livebook.manning.com/forum?product=raschka&page=1)
 
+![](image.062B42.png)
+
 Figure 1.7 In the next-word pretraining task for GPT models, the system learns to predict the upcoming word in a sentence by looking at the words that have come before it. This approach helps the model understand how words and phrases typically fit together in language, forming a foundation that can be applied to various other tasks.
 
-The next-word prediction task is a form of sel[f-](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-1?potentialInternalRefId=70---book-markup-container)supervised learning, which is a form of selflabeling. This means that we don't need to collect labels for the training data explicitly but can leverage the structure of the data itself: we can use the next word in a sentence or document as the label that the model is supposed to predict. Since this next-word prediction task allows us to create labels "on the fly," it is possible to leverage massive unlabeled text datasets to train LLMs as previously discussed in section *1.5, Utilizing large datasets*.
+The next-word prediction task is a form of self-supervised learning, which is a form of self-labeling. This means that we don't need to collect labels for the training data explicitly but can leverage the structure of the data itself: we can use the next word in a sentence or document as the label that the model is supposed to predict. Since this next-word prediction task allows us to create labels "on the fly", it is possible to leverage massive unlabeled text datasets to train LLMs as previously discussed in <u>section 1.5</u>, Utilizing large datasets.
 
 Compared to the original transformer architecture we covered in section 1.4, the general GPT architecture is relatively simple. Essentially, it's just the decoder part without the encoder as illustrated in Figure 1.8. Since decoder-style models like GPT generate text by predicting text one word at a time, they are considered a type of *autoregressive* model. Autoregressive models incorporate their previous outputs as inputs for future predictions. Consequently, in GPT, each new word is chosen based on the sequence that precedes it, which improves coherence of the resulting text.
 
