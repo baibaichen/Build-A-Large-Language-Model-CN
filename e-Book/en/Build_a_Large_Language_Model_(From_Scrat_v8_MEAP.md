@@ -268,7 +268,7 @@ Next, in stage 2, we will learn how to code and pretrain a GPT-like LLM capable 
 
 <span id="page-20-1"></span><span id="page-20-0"></span>
 
-<span id="page-21-0"></span>[2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2/v-8/section-2?refid=1)
+<span id="page-21-0"></span>2
 
 # 2 Working with Text Data
 
@@ -286,13 +286,13 @@ During the pretraining stage, LLMs process text one word at a time. Training LLM
 
 ![](_page_22_Figure_0.jpeg)
 
-Figure 2.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it on a labeled dataset. This chapter will explain and code the data preparation and sampling pipeline that provides the LLM with the text data for pretraining.
+> Figure 2.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it on a labeled dataset. This chapter will explain and code the data preparation and sampling pipeline that provides the LLM with the text data for pretraining.
 
 In this chapter, you'll learn how to prepare input text for training LLMs. This involves splitting text into individual word and subword tokens, which can then be encoded into vector representations for the LLM. You'll also learn about advanced tokenization schemes like byte pair encoding, which is utilized in popular LLMs like GPT. Lastly, we'll implement a sampling and data loading strategy to produce the input-output pairs necessary for training LLMs in subsequent chapters.
 
 ## 2.1 Understanding word embeddings
 
-Deep neural network models, including LLMs, cannot process raw text directly. Since text is categorical, it isn't compatible with the mathematical operations used to implement and train neural networks. Therefore, we need a way to represent words as continuous-valued vectors. (Readers unfamiliar with vectors and tensors in a computational context can learn more in Appendix A, section A2.2 Understanding tensors.)
+Deep neural network models, including LLMs, cannot process raw text directly. Since text is categorical, it isn't compatible with the mathematical operations used to implement and train neural networks. Therefore, we need a way to represent words as continuous-valued vectors. (Readers unfamiliar with vectors and tensors in a computational context can learn more in [Appendix A, section A2.2](# A.2 Understanding tensors) Understanding tensors.)
 
 The concept of converting data into a vector format is often referred to as *embedding*. Using a specific neural network layer or another pretrained neural network model, we can embed different data types, for example, video, audio, and text, as illustrated in Figure 2.2.
 
@@ -6945,15 +6945,18 @@ Tensors represent a mathematical concept that generalizes vectors and matrices t
 
 ![](_page_311_Figure_2.jpeg)
 
-Figure A.6 An illustration of tensors with different ranks. Here 0D corresponds to rank 0, 1D to rank 1, and 2D to rank 2. Note that a 3D vector, which consists of 3 elements, is still a rank 1 tensor.
+> Figure A.6 An illustration of tensors with different ranks. Here 0D corresponds to rank 0, 1D to rank 1, and 2D to rank 2. Note that a 3D vector, which consists of 3 elements, is still a rank 1 tensor.
 
-From a computational perspective, tensors se[rv](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=74---book-markup-container)e as data containers. For instance, they hold multi-dimensional data, where each dimension represents a different feature. Tensor libraries, such as PyTorch, can create, manipulate, and compute with these multidimensional arrays efficiently. In this context, a tensor library functions as an array library.
+From a computational perspective, tensors serve as data containers. For instance, they hold multi-dimensional data, where each dimension represents a different feature. Tensor libraries, such as PyTorch, can create, manipulate, and compute with these multidimensional arrays efficiently. In this context, a tensor library functions as an array library.
 
-PyTorch tensors are similar to NumPy arrays but have several additional features important for deep learning. For example, PyTorch adds an automatic differentiation engine, simplifying *computing gradients*, as discussed later in section 2.4. PyTorch tensors also support GPU computations to speed up deep neural network training, which we will discuss later in section 2.8.
+PyTorch tensors are similar to NumPy arrays but have several additional features important for deep learning. For example, PyTorch adds an automatic differentiation engine, simplifying computing gradients, as discussed later in section 2.4. PyTorch tensors also support GPU computations to speed up deep neural network training, which we will discuss later in section 2.8.
 
-#### PYTORCH'S HAS A NUMPY-LIKE API
-
-As you will see in the upcoming sections, PyTorch adopts most of the NumPy array API and syntax for its tensor operations. If you are new to NumPy, you can get a brief overview of the most relevant concepts via my article Scientific Computing in Python: Introduction to NumPy and Matplotlib at [https://sebastianraschka.com/blog/](https://sebastianraschka.com/blog/2020/numpy-intro.html) [2020/numpy-intro.html](https://sebastianraschka.com/blog/2020/numpy-intro.html).
+> [!NOTE]
+>
+> **PYTORCH'S HAS A NUMPY-LIKE API**
+>
+> As you will see in the upcoming sections, PyTorch adopts most of the NumPy array API and syntax for its tensor operations. If you are new to NumPy, you can get a brief overview of the most relevant concepts via my article Scientific Computing in Python: Introduction to NumPy and Matplotlib at [https://sebastianraschka.com/blog/2020/numpy-intro.html](https://sebastianraschka.com/blog/2020/numpy-intro.html).
+>
 
 The following subsections will look at the basic operations of the PyTorch tensor library, showing how to create simple tensors and going over some of the essential operations.
 
@@ -6963,50 +6966,57 @@ As mentioned earlier, PyTorch tensors are data containers for array-like structu
 
 We can create objects of PyTorch's Tensor class using the torch.tensor function as follows:
 
-| Listing A.1 Creating PyTorch tensors                                                                                                                         |    |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------|----|
-| import torch                                                                                                                                                 |    |
-| tensor0d = torch.tensor(1)                                                                                                                                   | #A |
-| tensor1d = torch.tensor([1, 2, 3])                                                                                                                           | #B |
-| tensor2d = torch.tensor([[1, 2], [3, 4]])                                                                                                                    | #C |
-| tensor3d = torch.tensor([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])                                                                                                | #D |
-| #A create a 0D tensor (scalar) from a Python integer<br>#B create a 1D tensor (vector) from a Python list<br>#C create a 2D tensor from a nested Python list |    |
+```python
+# Listing A.1 Creating PyTorch tensors
 
+import torch
+tensor0d = torch.tensor(1)                                    #A
+tensor1d = torch.tensor([1, 2, 3])                            #B
+tensor2d = torch.tensor([[1, 2], [3, 4]])                     #C
+tensor3d = torch.tensor([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]) #D
+
+#A create a 0D tensor (scalar) from a Python integer
+#B create a 1D tensor (vector) from a Python list
+#C create a 2D tensor from a nested Python list
 #D create a 3D tensor from a nested Python list
+```
 
 ### A.2.2 Tensor data types
 
-In the previous section, we created tensors from Python integers. In this case, PyTorch adopts the default 64-bit integer data type from Python. We can access the data type of a tensor via the .dtype attribute of a tensor:
+In the previous section, we created tensors from Python integers. In this case, PyTorch adopts the default 64-bit integer data type from Python. We can access the data type of a tensor via the `.dtype` attribute of a tensor:
 
-```
+```python
 tensor1d = torch.tensor([1, 2, 3])
 print(tensor1d.dtype)
 ```
 This prints:
 
+```python
 torch.int64
+```
 
 If we create tensors from Python floats, PyTorch creates tensors with a 32-bit precision by default, as we can see below:
-
-floatvec = torch.tensor([1.0, 2.0, 3.0]) print(floatvec.dtype)
-
+```python
+floatvec = torch.tensor([1.0, 2.0, 3.0])
+print(floatvec.dtype)
+```
 The output is:
-
+```python
 torch.float32
-
+```
 This choice is primarily due to the balance between precision and computational efficiency. A 32-bit floating point number offers sufficient precision for most deep learning tasks, while consuming less memory and computational resources than a 64-bit floating point number. Moreover, GPU architectures are optimized for 32-bit computations, and using this data type can significantly speed up model training and inference.
 
 Moreover, it is possible to readily change the precision using a tensor's .to method. The following code demonstrates this by changing a 64-bit integer tensor into a 32-bit float tensor:
 
-```
+```python
 floatvec = tensor1d.to(torch.float32)
 print(floatvec.dtype)
 ```
 This returns:
-
+```python
 torch.float32
-
-For more information about different tensor data types available in PyTorch, I recommend checking the official documentation at<https://pytorch.org/docs/stable/tensors.html>.
+```
+For more information about different tensor data types available in PyTorch, I recommend checking the official documentation at <https://pytorch.org/docs/stable/tensors.html>.
 
 ### A.2.3 Common PyTorch tensor operations
 
@@ -7014,69 +7024,78 @@ Comprehensive coverage of all the different PyTorch tensor operations and comman
 
 Before we move on to the next section covering the concept behind computation graphs, below is a list of the most essential PyTorch tensor operations.
 
-[We](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=101---book-markup-container) already introduced the torch.tensor() function to create new tensors.
+We already introduced the `torch.tensor()` function to create new tensors.
 
-```
+```python
 tensor2d = torch.tensor([[1, 2, 3], [4, 5, 6]])
 print(tensor2d)
 ```
 This prints:
-
-tensor([[1, 2, 3], [4, 5, 6]])
-
-In addition, the .shape attribute allows us to access the shape of a tensor:
-
-print(tensor2d.shape)
-
-The output is:
-
-torch.Size([2, 3])
-
-As you can see above, .shape returns [2, 3], which means that the tensor has 2 rows and 3 columns. To reshape the tensor into a 3 by 2 tensor, we can use the .reshape method:
-
+```python
+tensor([[1, 2, 3],
+        [4, 5, 6]])
 ```
+In addition, the `.shape` attribute allows us to access the shape of a tensor:
+```python
+print(tensor2d.shape)
+```
+The output is:
+```python
+torch.Size([2, 3])
+```
+As you can see above, `.shape` returns `[2, 3]`, which means that the tensor has 2 rows and 3 columns. To reshape the tensor into a 3 by 2 tensor, we can use the `.reshape` method:
+
+```python
 print(tensor2d.reshape(3, 2))
 ```
 This prints:
-
-tensor([[1, 2], [3, 4], [5, 6]])
-
-However, note that the more common command for reshaping tensors in PyTorch is .view():
-
+```python
+tensor([[1, 2], 
+        [3, 4], 
+        [5, 6]])
+```
+However, note that the more common command for reshaping tensors in PyTorch is `.view()`:
+```python
 print(tensor2d.view(3, 2))
-
+```
 The output is:
-
-tensor([[1, 2], [3, 4], [5, 6]])
-
-Similar to .reshape and .view, there are several cases where PyTorch offers multiple syntax options for executing the same computation. This is because PyTorch initially followed the original Lua Torch syntax convention but then also added syntax to make it more similar to NumPy upon popular request.
+```python
+tensor([[1, 2],
+        [3, 4],
+        [5, 6]])
+```
+Similar to `.reshape` and `.view`, there are several cases where PyTorch offers multiple syntax options for executing the same computation. This is because PyTorch initially followed the original Lua Torch syntax convention but then also added syntax to make it more similar to NumPy upon popular request.
 
 Next, we can use .T to transpose a tensor, which means flipping it across its diagonal. Note that this is similar from reshaping a tensor as you can see based on the result below:
-
-p[rint\(](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=119---book-markup-container)tensor2d.T)
-
-The output is:
-
-tensor([[1, 4], [2, 5], [3, 6]])
-
-Lastly, the common way to multiply two matrices in PyTorch is the .matmul method:
-
+```python
+print(tensor2d.T)
 ```
+The output is:
+```python
+tensor([[1, 4], 
+        [2, 5], 
+        [3, 6]])
+```
+Lastly, the common way to multiply two matrices in PyTorch is the `.matmul` method:
+
+```python
 print(tensor2d.matmul(tensor2d.T))
 ```
 The output is:
-
-tensor([[14, 32], [32, 77]])
-
-However, we can also adopt the @ operator, which accomplishes the same thing more compactly:
-
+```python
+tensor([[14, 32], 
+        [32, 77]])
 ```
+However, we can also adopt the `@` operator, which accomplishes the same thing more compactly:
+
+```python
 print(tensor2d @ tensor2d.T)
 ```
 This prints:
-
-tensor([[14, 32], [32, 77]])
-
+```python
+tensor([[14, 32],
+        [32, 77]])
+```
 As mentioned earlier, we will introduce additional operations throughout this book when needed. For readers who'd like to browse through all the different tensor operations available in PyTorch (hint: we won't need most of these), I recommend checking out the official documentation at <https://pytorch.org/docs/stable/tensors.html>.
 
 ## A.3 Seeing models as computation graphs
