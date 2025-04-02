@@ -428,7 +428,7 @@ As we can see based on the results summarized in Figure 2.5, our tokenization sc
 
 ![](_page_29_Figure_5.jpeg)
 
-Figure 2.5 The tokenization scheme we implemented so far splits text into individual words and punctuation characters. In the specific example shown in this figure, the sample text gets split into 10 individual tokens.
+>  Figure 2.5 The tokenization scheme we implemented so far splits text into individual words and punctuation characters. In the specific example shown in this figure, the sample text gets split into 10 individual tokens.
 
 Now that we got a basic tokenizer working, let's apply it to Edith Wharton's entire short story:
 
@@ -459,11 +459,11 @@ To map the previously generated tokens into token IDs, we have to build a so-cal
 
 ![](_page_31_Figure_0.jpeg)
 
-Figure 2.6 We build a vocabulary by tokenizing the entire text in a training dataset into individual tokens. These individual tokens are then sorted alphabetically, and duplicate tokens are removed. The unique tokens are then aggregated into a vocabulary that defines a mapping from each unique token to a unique integer value. The depicted vocabulary is purposefully small for illustration purposes and contains no punctuation or special characters for simplicity.
+> Figure 2.6 We build a vocabulary by tokenizing the entire text in a training dataset into individual tokens. These individual tokens are then sorted alphabetically, and duplicate tokens are removed. The unique tokens are then aggregated into a vocabulary that defines a mapping from each unique token to a unique integer value. The depicted vocabulary is purposefully small for illustration purposes and contains no punctuation or special characters for simplicity.
 
 In the previous section, we tokenized EdithWharton's short story and assigned it to a Python variable called preprocessed. Let's now create a list of all unique tokens and sort them alphabetically to determine the vocabulary size:
 
-```
+```python
 all_words = sorted(set(preprocessed))
 vocab_size = len(all_words)
 print(vocab_size)
@@ -472,95 +472,123 @@ After determining that the vocabulary size is 1,130 via the above code, we creat
 
 28
 
-Listing 2.2 Creating a vocabulary
-
-vocab = {token:integer for integer,token in enumerate(all\_words)} for i, item in enumerate(vocab.items()): print(item) if i > 50: break
+```python
+# Listing 2.2 Creating a vocabulary
+vocab = {token:integer for integer,token in enumerate(all_words)}
+for i, item in enumerate(vocab.items()):
+  	print(item)
+    if i > 50:
+      	break
+```
 
 The output is as follows:
 
-('!', 0) ('"', 1) ("'", 2) ... ('Her', 49) ('Hermia', 50)
+```
+('!', 0)
+('"', 1)
+("'", 2)
+...
+('Her', 49)
+('Hermia', 50)
+```
 
 As we can see, based on the output above, the dictionary contains individual tokens associated with unique integer labels. Our next goal is to apply this vocabulary to convert new text into token IDs, as illustrated in Figure 2.7.
 
 ![](_page_33_Figure_0.jpeg)
 
-Figure 2.7 Starting with a new text sample, we tokenize the text and use the vocabulary to convert the text tokens into token IDs. The vocabulary is built from the entire training set and can be applied to the training set itself and any new text samples. The depicted vocabulary contains no punctuation or special characters for simplicity.
+>  Figure 2.7 Starting with a new text sample, we tokenize the text and use the vocabulary to convert the text tokens into token IDs. The vocabulary is built from the entire training set and can be applied to the training set itself and any new text samples. The depicted vocabulary contains no punctuation or special characters for simplicity.
 
 Later in this book, when we want to convert t[h](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=75---book-markup-container)e outputs of an LLM from numbers back into text, we also need a way to turn token IDs into text. For this, we can create an inverse version of the vocabulary that maps token IDs back to corresponding text tokens.
 
 Let's implement a complete tokenizer class in Python with an encode method that splits text into tokens and carries out the string-to-integer mapping to produce token IDs via the vocabulary. In addition, we implement a decode method that carries out the reverse integer-to-string mapping to convert the token IDs back into text.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=77---book-markup-container) code for this tokenizer implementation is as in listing 2.3:
+The code for this tokenizer implementation is as in listing 2.3:
 
 30
 
-| Listing 2.3 Implementing a simple text tokenizer                                                                                                                                                   |    |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----|
-| class SimpleTokenizerV1:<br>def __init__(self, vocab):                                                                                                                                             |    |
-| self.str_to_int = vocab                                                                                                                                                                            | #A |
-| self.int_to_str = {i:s for s,i in vocab.items()}                                                                                                                                                   | #B |
-| def encode(self, text):                                                                                                                                                                            | #C |
-| preprocessed = re.split(r'([,.?_!"()\'] -- \s)', text)<br>preprocessed = [item.strip() for item in preprocessed if item.strip()]<br>ids = [self.str_to_int[s] for s in preprocessed]<br>return ids |    |
-| def decode(self, ids):                                                                                                                                                                             | #D |
-| text = " ".join([self.int_to_str[i] for i in ids])                                                                                                                                                 |    |
-| text = re.sub(r'\s+([,.?!"()\'])', r'\1', text)<br>return text                                                                                                                                     | #E |
+```python
+# Listing 2.3 Implementing a simple text tokenizer
+class SimpleTokenizerV1:
+  	def __init__(self, vocab):
+      	self.str_to_int = vocab                                                   #A
+        self.int_to_str = {i:s for s,i in vocab.items()}                          #B
+
+    def encode(self, text):                                                       #C
+      	preprocessed = re.split(r'([,.?_!"()\']|--|\s)', text)
+        preprocessed = [item.strip() for item in preprocessed if item.strip()]
+        ids = [self.str_to_int[s] for s in preprocessed]
+        return ids
+
+    def decode(self, ids):                                                        #D
+      	text = " ".join([self.int_to_str[i] for i in ids])
+
+        text = re.sub(r'\s+([,.?!"()\'])', r'\1', text)                           #E
+        return text
 
 #A Store the vocabulary as a class attribute for access in the encode and decode methods
-
 #B Create an inverse vocabulary that maps token IDs back to the original text tokens
-
 #C Process input text into token IDs
-
 #D Convert token IDs back into text
-
 #E Replace spaces before the specified punctuation
+```
 
-Using the SimpleTokenizerV1 Python class above, we can now instantiate new tokenizer objects via an existing vocabulary, which we can then use to encode and decode text, as illustrated in Figure 2.8.
+Using the `SimpleTokenizerV1` Python class above, we can now instantiate new tokenizer objects via an existing vocabulary, which we can then use to encode and decode text, as illustrated in Figure 2.8.
 
 31
 
 ![](_page_35_Figure_0.jpeg)
 
-Figure 2.8 Tokenizer implementations share two common methods: an encode method and a decode method. The encode method takes in the sample text, splits it into individual tokens, and converts the tokens into token IDs via the vocabulary. The decode method takes in token IDs, converts them back into text tokens, and concatenates the text tokens into natural text.
+> Figure 2.8 Tokenizer implementations share two common methods: an encode method and a decode method. The encode method takes in the sample text, splits it into individual tokens, and converts the tokens into token IDs via the vocabulary. The decode method takes in token IDs, converts them back into text tokens, and concatenates the text tokens into natural text.
 
-Let's instantiate a new tokenizer object from [t](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=81---book-markup-container)he SimpleTokenizerV1 class and tokenize a passage from Edith Wharton's short story to try it out in practice:
+Let's instantiate a new tokenizer object from the `SimpleTokenizerV1` class and tokenize a passage from Edith Wharton's short story to try it out in practice:
 
-```
+```python
 tokenizer = SimpleTokenizerV1(vocab)
 text = """"It's the last he painted, you know," Mrs. Gisburn said with pardonable
 pride."""
 ids = tokenizer.encode(text)
 print(ids)
 ```
+
 The code above prints the following token IDs:
+```
+[1, 56, 2, 850, 988, 602, 533, 746, 5, 1126, 596, 5, 1, 67, 7, 38, 851, 1108, 754, 793, 7]
+```
 
 Next, let's see if we can turn these token IDs back into text using the decode method:
 
+```python
 print(tokenizer.decode(ids))
+```
 
 This outputs the following text:
 
+```
 '" It\' s the last he painted, you know," Mrs. Gisburn said with pardonable pride.'
+```
 
 32
 
-Based on the output above, we can see that the decode method successfully converted the token IDs back into the original text.
+Based on the output above, we can see that the `decode` method successfully converted the token IDs back into the original text.
 
 So far, so good. We implemented a tokenizer capable of tokenizing and de-tokenizing text based on a snippet from the training set. Let's now apply it to a new text sample that is not contained in the training set:
 
-```
+```python
 text = "Hello, do you like tea?"
 print(tokenizer.encode(text))
 ```
 Executing the code above will result in the following error:
 
-... KeyError: 'Hello'
+```
+...
+KeyError: 'Hello'
+```
 
 The problem is that the word "Hello" was not used in the *The Verdict* short story. Hence, it is not contained in the vocabulary. This highlights the need to consider large and diverse training sets to extend the vocabulary when working on LLMs.
 
 In the next section, we will test the tokenizer further on text that contains unknown words, and we will also discuss additional special tokens that can be used to provide further context for an LLM during training.
 
-## 2[.4](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=95---book-markup-container) Adding special context tokens
+## 2.4 Adding special context tokens
 
 In the previous section, we implemented a simple tokenizer and applied it to a passage from the training set. In this section, we will modify this tokenizer to handle unknown words.
 
