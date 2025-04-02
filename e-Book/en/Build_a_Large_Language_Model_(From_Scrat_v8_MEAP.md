@@ -80,7 +80,7 @@ LLMs utilize an architecture called the *transformer* (covered in more detail in
 
 ![](_page_6_Figure_2.jpeg)
 
-#### Figure 1.1 As this hierarchical depiction of the relationship between the different fields suggests, LLMs represent a specific application of deep learning techniques, leveraging their ability to process and generate human-like text. Deep learning is a specialized branch of machine learning that focuses on using multi-layer neural networks. And machine learning and deep learning are fields aimed at implementing algorithms that enable computers to learn from data and perform tasks that typically require human intelligence.
+Figure 1.1 As this hierarchical depiction of the relationship between the different fields suggests, LLMs represent a specific application of deep learning techniques, leveraging their ability to process and generate human-like text. Deep learning is a specialized branch of machine learning that focuses on using multi-layer neural networks. And machine learning and deep learning are fields aimed at implementing algorithms that enable computers to learn from data and perform tasks that typically require human intelligence.
 
 The algorithms used to implement AI are [th](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-1?potentialInternalRefId=17---book-markup-container)e focus of the field of machine learning. Specifically, machine learning involves the development of algorithms that can learn from and make predictions or decisions based on data without being explicitly programmed. To illustrate this, imagine a spam filter as a practical application of machine learning. Instead of manually writing rules to identify spam emails, a machine learning algorithm is fed examples of emails labeled as spam and legitimate emails. By minimizing the error in its predictions on a training dataset, the model then learns to recognize patterns and characteristics indicative of spam, enabling it to classify new emails as either spam or legitimate.
 
@@ -98,7 +98,7 @@ Owing to their advanced capabilities to parse and understand unstructured text d
 
 ![](_page_8_Picture_0.jpeg)
 
-#### Figure 1.2 LLM interfaces enable natural language communication between users and AI systems. This screenshot shows ChatGPT writing a poem according to a user's specifications.
+Figure 1.2 LLM interfaces enable natural language communication between users and AI systems. This screenshot shows ChatGPT writing a poem according to a user's specifications.
 
 LLMs can also power sophisticated chatbot[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-1?potentialInternalRefId=25---book-markup-container) and virtual assistants, such as OpenAI's ChatGPT or Google's Gemini (formerly called Bard), which can answer user queries and augment traditional search engines such as Google Search or Microsoft Bing.
 
@@ -154,7 +154,7 @@ A key component of transformers and LLMs is the self-attention mechanism (not sh
 
 ![](_page_13_Figure_0.jpeg)
 
-#### Figure 1.5 A visual representation of the transformer's encoder and decoder submodules. On the left, the encoder segment exemplifies BERT-like LLMs, which focus on masked word prediction and are primarily used for tasks like text classification. On the right, the decoder segment showcases GPT-like LLMs, designed for generative tasks and producing coherent text sequences.
+Figure 1.5 A visual representation of the transformer's encoder and decoder submodules. On the left, the encoder segment exemplifies BERT-like LLMs, which focus on masked word prediction and are primarily used for tasks like text classification. On the right, the decoder segment showcases GPT-like LLMs, designed for generative tasks and producing coherent text sequences.
 
 GPT, on the other hand, focuses on the [de](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-1?potentialInternalRefId=48---book-markup-container)coder portion of the original transformer architecture and is designed for tasks that require generating texts. This includes machine translation, text summarization, fiction writing, writing computer code, and more. We will discuss the GPT architecture in more detail in the remaining sections of this chapter and implement it from scratch in this book.
 
@@ -224,7 +224,7 @@ Compared to the original transformer architecture we covered in section 1.4, the
 
 ![](_page_18_Figure_0.jpeg)
 
-#### Figure 1.8 The GPT architecture employs only the decoder portion of the original transformer. It is designed for unidirectional, left-to-right processing, making it well-suited for text generation and next-word prediction tasks to generate text in iterative fashion one word at a time.
+Figure 1.8 The GPT architecture employs only the decoder portion of the original transformer. It is designed for unidirectional, left-to-right processing, making it well-suited for text generation and next-word prediction tasks to generate text in iterative fashion one word at a time.
 
 GPT-3 was introduced in 2020, which, by the [st](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-1?potentialInternalRefId=74---book-markup-container)andards of deep learning and large language model (LLM) development, is considered a long time ago. However, more recent architectures, such as Meta's Llama models, are still based on the same underlying concepts, introducing only minor modifications. Hence, understanding GPT remains as relevant as ever, and this book focuses on implementing the prominent architecture behind GPT while providing pointers to specific tweaks employed by alternative LLMs.
 
@@ -238,7 +238,7 @@ In this chapter, we laid the groundwork for understanding LLMs. In the remainder
 
 ![](_page_19_Figure_2.jpeg)
 
-#### Figure 1.9 The stages of building LLMs covered in this book include implementing the LLM architecture and data preparation process, pretraining an LLM to create a foundation model, and finetuning the foundation model to become a personal assistant or text classifier.
+Figure 1.9 The stages of building LLMs covered in this book include implementing the LLM architecture and data preparation process, pretraining an LLM to create a foundation model, and finetuning the foundation model to become a personal assistant or text classifier.
 
 First, we will learn about the fundamental da[ta](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-1?potentialInternalRefId=80---book-markup-container) preprocessing steps and code the attention mechanism that is at the heart of every LLM.
 
@@ -312,7 +312,7 @@ At its core, an embedding is a mapping from discrete objects, such as words, ima
 
 ![](_page_24_Figure_0.jpeg)
 
-#### Figure 2.3 If word embeddings are two-dimensional, we can plot them in a two-dimensional scatterplot for visualization purposes as shown here. When using word embedding techniques, such as Word2Vec, words corresponding to similar concepts often appear close to each other in the embedding space. For instance, different types of birds appear closer to each other in the embedding space compared to countries and cities.
+Figure 2.3 If word embeddings are two-dimensional, we can plot them in a two-dimensional scatterplot for visualization purposes as shown here. When using word embedding techniques, such as Word2Vec, words corresponding to similar concepts often appear close to each other in the embedding space. For instance, different types of birds appear closer to each other in the embedding space compared to countries and cities.
 
 Word embeddings can have varying dimensio[ns](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=19---book-markup-container), from one to thousands. As shown in Figure 2.3, we can choose two-dimensional word embeddings for visualization purposes. A higher dimensionality might capture more nuanced relationships but at the cost of computational efficiency.
 
@@ -706,7 +706,7 @@ Second, the BPE tokenizer above encodes and decodes unknown words, such as "some
 
 ![](_page_43_Figure_0.jpeg)
 
-#### Figure 2.11 BPE tokenizers break down unknown words into subwords and individual characters. This way, a BPE tokenizer can parse any word and doesn't need to replace unknown words with special tokens, such as <|unk|>.
+Figure 2.11 BPE tokenizers break down unknown words into subwords and individual characters. This way, a BPE tokenizer can parse any word and doesn't need to replace unknown words with special tokens, such as <|unk|>.
 
 As illustrated in Figure 2.11, the ability to [b](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=149---book-markup-container)reak down unknown words into individual characters ensures that the tokenizer, and consequently the LLM that is trained with it, can process any text, even if it contains words that were not present in its training data.
 
@@ -802,7 +802,7 @@ There's only one more task before we can turn the tokens into embeddings, as we 
 
 ![](_page_47_Figure_0.jpeg)
 
-#### Figure 2.13 To implement efficient data loaders, we collect the inputs in a tensor, x, where each row represents one input context. A second tensor, y, contains the corresponding prediction targets (next words), which are created by shifting the input by one position.
+Figure 2.13 To implement efficient data loaders, we collect the inputs in a tensor, x, where each row represents one input context. A second tensor, y, contains the corresponding prediction targets (next words), which are created by shifting the input by one position.
 
 While Figure 2.13 shows the tokens in stri[ng](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=180---book-markup-container) format for illustration purposes, the code implementation will operate on token IDs directly since the encode method of the BPE tokenizer performs both tokenization and conversion into token IDs as a single step.
 
@@ -1184,7 +1184,7 @@ An RNN is a type of neural network where outputs from previous steps are fed as 
 
 ![](_page_66_Figure_2.jpeg)
 
-#### Figure 3.4 Before the advent of transformer models, encoder-decoder RNNs were a popular choice for machine translation. The encoder takes a sequence of tokens from the source language as input, where a hidden state (an intermediate neural network layer) of the encoder encodes a compressed representation of the entire input sequence. Then, the decoder uses its current hidden state to begin the translation, token by token.
+Figure 3.4 Before the advent of transformer models, encoder-decoder RNNs were a popular choice for machine translation. The encoder takes a sequence of tokens from the source language as input, where a hidden state (an intermediate neural network layer) of the encoder encodes a compressed representation of the entire input sequence. Then, the decoder uses its current hidden state to begin the translation, token by token.
 
 While we don't need to know the inner work[in](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=21---book-markup-container)gs of these encoder-decoder RNNs, the key idea here is that the encoder part processes the entire input text into a hidden state (memory cell). The decoder then takes in this hidden state to produce the output. You can think of this hidden state as an embedding vector, a concept we discussed in chapter 2.
 
@@ -1590,7 +1590,7 @@ The scaling by the square root of the embedding dimension is the reason why this
 
 Now, the final step is to compute the context vectors, as illustrated in Figure 3.17.
 
-#### Figure 3.17 In the final step of the self-attention computation, we compute the context vector by combining all value vectors via the attention weights.
+Figure 3.17 In the final step of the self-attention computation, we compute the context vector by combining all value vectors via the attention weights.
 
 Similar to section 3.3, where we computed t[he](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=165---book-markup-container) context vector as a weighted sum over the input vectors, we now compute the context vector as a weighted sum over the value vectors. Here, the attention weights serve as a weighting factor that weighs the respective importance of each value vector. Similar to section 3.3, we can use matrix multiplication to obtain the output in one step:
 
@@ -2312,7 +2312,7 @@ LLMs, such as GPT (which stands for *Generative Pretrained Transformer*), are la
 
 ![](_page_114_Figure_0.jpeg)
 
-#### Figure 4.2 A mental model of a GPT model. Next to the embedding layers, it consists of one or more transformer blocks containing the masked multi-head attention module we implemented in the previous chapter.
+Figure 4.2 A mental model of a GPT model. Next to the embedding layers, it consists of one or more transformer blocks containing the masked multi-head attention module we implemented in the previous chapter.
 
 As you can see in Figure 4.2, we have already covered several aspects, such as input tokenization and embedding, as well as the masked multi-head attention module. The focus of this chapter will be on implementing the core structure of the GPT model, including its *transformer blocks*, which we will then train in the next chapter to generate human-like text.
 
@@ -2355,7 +2355,7 @@ Using the configuration above, we will start this chapter by implementing a GPT 
 
 ![](_page_116_Figure_7.jpeg)
 
-#### Figure 4.3 A mental model outlining the order in which we code the GPT architecture. In this chapter, we will start with the GPT backbone, a placeholder architecture, before we get to the individual core pieces and eventually assemble them in a transformer block for the final GPT architecture.
+Figure 4.3 A mental model outlining the order in which we code the GPT architecture. In this chapter, we will start with the GPT backbone, a placeholder architecture, before we get to the individual core pieces and eventually assemble them in a transformer block for the final GPT architecture.
 
 The numbered boxes shown in Figure 4.3 [il](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=30---book-markup-container)lustrate the order in which we tackle the individual concepts required to code the final GPT architecture. We will start with step 1, a placeholder GPT backbone we call DummyGPTModel:
 
@@ -2629,7 +2629,7 @@ In this section, we covered one of the building blocks we will need to implement
 
 ![](_page_127_Figure_4.jpeg)
 
-#### Figure 4.7 A mental model listing the different building blocks we implement in this chapter to assemble the GPT architecture.
+Figure 4.7 A mental model listing the different building blocks we implement in this chapter to assemble the GPT architecture.
 
 In the next section, we will look at the G[EL](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=86---book-markup-container)U activation function, which is one of the activation functions used in LLMs, instead of the traditional ReLU function we used in this section.
 
@@ -2748,7 +2748,7 @@ As illustrated in Figure 4.11, we have now implemented most of the LLM's buildin
 
 ![](_page_133_Figure_0.jpeg)
 
-#### Figure 4.11 A mental model showing the topics we cover in this chapter, with the black checkmarks indicating those that we have already covered.
+Figure 4.11 A mental model showing the topics we cover in this chapter, with the black checkmarks indicating those that we have already covered.
 
 In the next section, we will go over the concept of shortcut connections that we insert between different layers of a neural network, which are important for improving the training performance in deep neural network architectures.
 
@@ -3106,7 +3106,7 @@ The process by which a GPT model goes from output tensors to generated text invo
 
 ![](_page_149_Figure_1.jpeg)
 
-#### Figure 4.17 details the mechanics of text generation in a GPT model by showing a single iteration in the token generation process. The process begins by encoding the input text into token IDs, which are then fed into the GPT model. The outputs of the model are then converted back into text and appended to the original input text.
+Figure 4.17 details the mechanics of text generation in a GPT model by showing a single iteration in the token generation process. The process begins by encoding the input text into token IDs, which are then fed into the GPT model. The outputs of the model are then converted back into text and appended to the original input text.
 
 The next-token generation process detailed i[n](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=213---book-markup-container) Figure 4.17 illustrates a single step where the GPT model generates the next token given its input.
 
@@ -3140,7 +3140,7 @@ In the next chapter, when we will implement the GPT training code, we will also 
 
 ![](_page_151_Figure_0.jpeg)
 
-#### Figure 4.18 An illustration showing six iterations of a token prediction cycle, where the model takes a sequence of initial token IDs as input, predicts the next token, and appends this token to the input sequence for the next iteration. (The token IDs are also translated into their corresponding text for better understanding.)
+Figure 4.18 An illustration showing six iterations of a token prediction cycle, where the model takes a sequence of initial token IDs as input, predicts the next token, and appends this token to the input sequence for the next iteration. (The token IDs are also translated into their corresponding text for better understanding.)
 
 As shown in Figure 4.18, we generate the tok[e](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=222---book-markup-container)n IDs in an iterative fashion. For instance, in iteration 1, the model is provided with the tokens corresponding to "Hello , I am", predicts the next token (with ID 257, which is "a"), and appends it to the input. This process is repeated until the model produces the complete sentence "Hello, I am a model ready to help." after six iterations.
 
@@ -3232,7 +3232,7 @@ In the previous chapters, we implemented the data sampling, attention mechanism 
 
 ![](_page_155_Figure_0.jpeg)
 
-#### Figure 5.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset and finetuning it on a labeled dataset. This chapter focuses on pretraining the LLM, which includes implementing the training code, evaluating the performance, and saving and loading model weights.
+Figure 5.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset and finetuning it on a labeled dataset. This chapter focuses on pretraining the LLM, which includes implementing the training code, evaluating the performance, and saving and loading model weights.
 
 As illustrated in Figure 5.1, we will also lear[n](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=7---book-markup-container) about basic model evaluation techniques to measure the quality of the generated text, which is a requirement for optimizing the LLM during the training process. Moreover, we will discuss how to load pretrained weights, giving our LLM a solid starting point for finetuning in the upcoming chapters.
 
@@ -3389,7 +3389,7 @@ The model produces random text that is different from the target text because it
 
 ![](_page_161_Figure_4.jpeg)
 
-#### Figure 5.5 We now implement the text evaluation function in the remainder of this section. In the next section, we apply this evaluation function to the entire dataset we use for model training.
+Figure 5.5 We now implement the text evaluation function in the remainder of this section. In the next section, we apply this evaluation function to the entire dataset we use for model training.
 
 Part of the text evaluation process that we i[m](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=52---book-markup-container)plement in the remainder of this section, as shown in Figure 5.5, is to measure "how far" the generated tokens are from the correct predictions (targets). The training function we implement later in this chapter will use this information to adjust the model weights to generate text that is more similar to (or ideally matches) the target text.
 
@@ -3399,7 +3399,7 @@ The model training aims to increase the softmax probability in the index positio
 
 ![](_page_162_Figure_1.jpeg)
 
-#### Figure 5.6 Before training, the model produces random next-token probability vectors. The goal of model training is to ensure that the probability values corresponding to the highlighted target token IDs are maximized.
+Figure 5.6 Before training, the model produces random next-token probability vectors. The goal of model training is to ensure that the probability values corresponding to the highlighted target token IDs are maximized.
 
 Remember that Figure 5.6 displays the s[of](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=55---book-markup-container)tmax probabilities for a compact 7-token vocabulary to fit everything into a single figure. This implies that the starting random values will hover around 1/7, which equals approximately 0.14.
 
@@ -3527,7 +3527,7 @@ In this section, we first prepare the training and validation datasets that we w
 
 ![](_page_167_Figure_5.jpeg)
 
-#### Figure 5.8 After computing the cross entropy loss in the previous section, we now apply this loss computation to the entire text dataset that we will use for model training.
+Figure 5.8 After computing the cross entropy loss in the previous section, we now apply this loss computation to the entire text dataset that we will use for model training.
 
 To compute the loss on the training and valid[a](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=106---book-markup-container)tion datasets as illustrated in Figure 5.8, we use a very small text dataset, the "The Verdict" short story by Edith Wharton, which we have already worked with in chapter 2. By selecting a text from the public domain, we circumvent any concerns related to usage rights. Additionally, the reason why we use such a small dataset is that it allows for the execution of code examples on a standard laptop computer in a matter of minutes, even without a high-end GPU, which is particularly advantageous for educational purposes.
 
@@ -3566,7 +3566,7 @@ Next, we divide the dataset into a training and a validation set and use the dat
 
 ![](_page_169_Figure_1.jpeg)
 
-#### Figure 5.9 When preparing the data loaders, we split the input text into training and validation set portions. Then, we tokenize the text (only shown for the training set portion for simplicity) and divide the tokenized text into chunks of a user-specified length (here 6). Finally, we shuffle the rows and organize the chunked text into batches (here, batch size 2), which we can use for model training.
+Figure 5.9 When preparing the data loaders, we split the input text into training and validation set portions. Then, we tokenize the text (only shown for the training set portion for simplicity) and divide the tokenized text into chunks of a user-specified length (here 6). Finally, we shuffle the rows and organize the chunked text into batches (here, batch size 2), which we can use for model training.
 
 For visualization purposes, Figure 5.9 uses [a](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=119---book-markup-container) max\_length=6 due to spatial constraints. However, for the actual data loaders we are implementing, we set the max\_length equal to the 256-token context length that the LLM supports so that the LLM sees longer texts during training.
 
@@ -4158,7 +4158,7 @@ As illustrated in the chapter overview in Figure 5.16, we cover how to save and 
 
 ![](_page_192_Figure_3.jpeg)
 
-#### Figure 5.16 After training and inspecting the model, it is often helpful to save the model so that we can use or continue training it later, which is the topic of this section before we load the pretrained model weights from OpenAI in the final section of this chapter.
+Figure 5.16 After training and inspecting the model, it is often helpful to save the model so that we can use or continue training it later, which is the topic of this section before we load the pretrained model weights from OpenAI in the final section of this chapter.
 
 Fortunately, saving a PyTorch model is relativ[e](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=247---book-markup-container)ly straightforward. The recommended way is to save a model's so-called state\_dict, a dictionary mapping each layer to its parameters, using the torch.save function as follows:
 
@@ -4479,7 +4479,7 @@ The most common ways to finetune language models are *instruction-finetuning* an
 
 ![](_page_204_Figure_5.jpeg)
 
-#### Figure 6.2 Illustration of two different instruction-finetuning scenarios. At the top, the model is tasked with determining whether a given text is spam. At the bottom, the model is given an instruction on how to translate an English sentence into German.
+Figure 6.2 Illustration of two different instruction-finetuning scenarios. At the top, the model is tasked with determining whether a given text is spam. At the bottom, the model is given an instruction on how to translate an English sentence into German.
 
 The next chapter will discuss instruction-finet[u](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6?potentialInternalRefId=13---book-markup-container)ning, as illustrated in figure 6.2. Meanwhile, this chapter is centered on classification-finetuning, a concept you might already be acquainted with if you have a background in machine learning.
 
@@ -4507,7 +4507,7 @@ In the remainder of this chapter, we will modify and classification-finetune the
 
 ![](_page_206_Figure_5.jpeg)
 
-#### Figure 6.4 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. Stage 1 involves dataset preparation. Stage 2 focuses on model setup. Stage 3 covers the finetuning and evaluation of the model.
+Figure 6.4 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. Stage 1 involves dataset preparation. Stage 2 focuses on model setup. Stage 3 covers the finetuning and evaluation of the model.
 
 To provide an intuitive and useful example o[f](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6?potentialInternalRefId=24---book-markup-container) classification-finetuning, we will work with a text message dataset that consists of spam and non-spam messages.
 
@@ -4759,7 +4759,7 @@ Using the datasets as inputs, we can instantiate the data loaders similarly to w
 
 ![](_page_215_Figure_0.jpeg)
 
-#### Figure 6.7 An illustration of a single training batch consisting of 8 text messages represented as token IDs. Each text message consists of 120 token IDs. In addition, a class label array stores the 8 class labels corresponding to the text messages, which can be either 0 (not spam) or 1 (spam).
+Figure 6.7 An illustration of a single training batch consisting of 8 text messages represented as token IDs. Each text message consists of 120 token IDs. In addition, a class label array stores the 8 class labels corresponding to the text messages, which can be either 0 (not spam) or 1 (spam).
 
 The following code creates the training, valid[a](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6?potentialInternalRefId=76---book-markup-container)tion, and test set data loaders that load the text messages and labels in batches of size 8, as illustrated in figure 6.7:
 
@@ -5002,7 +5002,7 @@ This new model.out\_head output layer has its requires\_grad attribute set to Tr
 
 ![](_page_225_Figure_0.jpeg)
 
-#### Figure 6.10 The GPT model we developed in earlier chapters, which we loaded previously, includes 12 repeated transformer blocks. Alongside the output layer, we set the final LayerNorm and the last transformer block as trainable, while the remaining 11 transformer blocks and the embedding layers are kept non-trainable.
+Figure 6.10 The GPT model we developed in earlier chapters, which we loaded previously, includes 12 repeated transformer blocks. Alongside the output layer, we set the final LayerNorm and the last transformer block as trainable, while the remaining 11 transformer blocks and the embedding layers are kept non-trainable.
 
 To make the final LayerNorm and last transf[o](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6?potentialInternalRefId=127---book-markup-container)rmer block trainable, as illustrated in figure 6.10, we set their respective requires\_grad to True:
 
@@ -5087,7 +5087,7 @@ So far in this chapter, we have prepared the dataset, loaded a pretrained model,
 
 ![](_page_231_Figure_0.jpeg)
 
-#### Figure 6.13 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. This section implements the last step of stage 2, implementing the functions to evaluate the model's performance to classify spam messages before, during, and after the finetuning.
+Figure 6.13 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. This section implements the last step of stage 2, implementing the functions to evaluate the model's performance to classify spam messages before, during, and after the finetuning.
 
 Before implementing the evaluation utilities, l[e](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6?potentialInternalRefId=155---book-markup-container)t's briefly discuss how we convert the model outputs into class label predictions.
 
@@ -5529,7 +5529,7 @@ In previous chapters, we implemented the LLM architecture, carried out pretraini
 
 ![](_page_248_Figure_0.jpeg)
 
-#### Figure 7.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it. This chapter focuses on finetuning a pretrained LLM to follow human instructions.
+Figure 7.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it. This chapter focuses on finetuning a pretrained LLM to follow human instructions.
 
 Figure 7.1 shows two main ways of finetunin[g](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-7?potentialInternalRefId=9---book-markup-container) an LLM: finetuning for classification (step 8) and finetuning an LLM to follow instructions (step 9). We implemented step 8 in the previous chapter. This chapter focuses on finetuning an LLM using an *instruction dataset*, a process that will be further explained in the next section.
 
@@ -5548,13 +5548,13 @@ However, pretrained LLMs often struggle with specific instructions, such as "Fix
 | Provide a synonym for "bright".                                                                       |                                                                               | A synonym for "bright" is "radiant". |  |
 | Edit the following sentence to<br>remove all passive voice: "The<br>song was composed by the artist." |                                                                               | The artist composed the song.        |  |
 
-#### Figure 7.2 This figure shows examples of instructions that are processed by an LLM to generate desired responses.
+Figure 7.2 This figure shows examples of instructions that are processed by an LLM to generate desired responses.
 
 In the remainder of this chapter, we will im[p](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-7?potentialInternalRefId=15---book-markup-container)lement the instruction finetuning process in several steps, beginning with the dataset preparation, as shown in figure 7.3.
 
 ![](_page_250_Figure_0.jpeg)
 
-#### Figure 7.3 Illustration of the three-stage process for instruction finetuning the LLM in this chapter. Stage 1 involves dataset preparation. Stage 2 focuses on model setup and finetuning. Stage 3 covers the evaluation of the model.
+Figure 7.3 Illustration of the three-stage process for instruction finetuning the LLM in this chapter. Stage 1 involves dataset preparation. Stage 2 focuses on model setup and finetuning. Stage 3 covers the evaluation of the model.
 
 Preparing the dataset is a key aspect of inst[ru](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-7?potentialInternalRefId=17---book-markup-container)ction finetuning where most of the time in this chapter is spent. The next section, as illustrated in figure 7.3, implements the code to download and format the dataset, which is the first step in the dataset preparation process.
 
@@ -5629,7 +5629,7 @@ Instruction finetuning, also known as *supervised instruction finetuning*, invol
 
 ![](_page_252_Figure_5.jpeg)
 
-#### Figure 7.4 Comparison of prompt styles for instruction finetuning in LLMs. The Alpaca style (left) uses a structured format with defined sections for instruction, input, and response, while the Phi-3 style (right) employs a simpler format with designated <|user|> and <|assistant|> tokens.
+Figure 7.4 Comparison of prompt styles for instruction finetuning in LLMs. The Alpaca style (left) uses a structured format with defined sections for instruction, input, and response, while the Phi-3 style (right) employs a simpler format with designated <|user|> and <|assistant|> tokens.
 
 The rest of this chapter uses the Alpaca pro[m](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-7?potentialInternalRefId=34---book-markup-container)pt style since it is one of the most popular ones, largely because it helped define the original approach to finetuning.
 
@@ -5733,7 +5733,7 @@ First, to implement steps 2.1 and 2.2 [a](https://livebook.manning.com/book/buil
 
 ![](_page_257_Figure_0.jpeg)
 
-#### Figure 7.7 This diagram shows how entries are first formatted using a specific prompt template and then tokenized, resulting in a sequence of token IDs that the model can process.
+Figure 7.7 This diagram shows how entries are first formatted using a specific prompt template and then tokenized, resulting in a sequence of token IDs that the model can process.
 
 The 2-step process illustrated in figure 7.7 [is](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-7?potentialInternalRefId=61---book-markup-container) implemented in the \_\_init\_\_ constructor method of the InstructionDataset:
 
@@ -6141,7 +6141,7 @@ Before beginning instruction finetuning, we first load a pretrained GPT model, a
 
 ![](_page_273_Figure_0.jpeg)
 
-#### Figure 7.15 After the dataset preparation, the process of finetuning an LLM for instruction-following begins with loading a pretrained LLM, which serves as the foundation for subsequent training. This pretrained model, having already learned general language patterns and knowledge from vast amounts of text data, is then adapted for instruction following through the finetuning process in the next section.
+Figure 7.15 After the dataset preparation, the process of finetuning an LLM for instruction-following begins with loading a pretrained LLM, which serves as the foundation for subsequent training. This pretrained model, having already learned general language patterns and knowledge from vast amounts of text data, is then adapted for instruction following through the finetuning process in the next section.
 
 As shown in the chapter overview diagram i[n](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-7?potentialInternalRefId=139---book-markup-container) figure 7.15, this section focuses on step 4, loading a pretrained LLM to serve as the starting point for instruction finetuning, similar to the process in previous chapters. However, instead of using the smallest 124 million parameter model as before, we load the medium-sized model with 355 million parameters. The reason for this choice is that the 124 million parameter model is too limited in capacity to achieve qualitatively satisfactory results via instruction finetuning.
 
@@ -6749,7 +6749,7 @@ This chapter marks the conclusion of our journey through the LLM development cyc
 
 ![](_page_300_Figure_0.jpeg)
 
-#### Figure 7.21 An overview of the different stages of implementing, pretraining, and finetuning an LLM covered in this book.
+Figure 7.21 An overview of the different stages of implementing, pretraining, and finetuning an LLM covered in this book.
 
 The next subsection will give you some ideas [f](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-7?potentialInternalRefId=272---book-markup-container)or what to look into next after the essential steps shown in figure 7.21.
 
@@ -6849,7 +6849,7 @@ Machine learning has been integral in th[e](https://livebook.manning.com/book/bu
 
 ![](_page_306_Figure_0.jpeg)
 
-#### Figure A.3 The supervised learning workflow for predictive modeling consists of a training stage where a model is trained on labeled examples in a training dataset. The trained model can then be used to predict the labels of new observations.
+Figure A.3 The supervised learning workflow for predictive modeling consists of a training stage where a model is trained on labeled examples in a training dataset. The trained model can then be used to predict the labels of new observations.
 
 Using a learning algorithm, a model is traine[d](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=31---book-markup-container) on a training dataset consisting of examples and corresponding labels. In the case of an email spam classifier, for example, the training dataset consists of emails and their *spam* and *not-spam* labels that a human identified. Then, the trained model can be used on new observations (new emails) to predict their unknown label (*spam* or *not spam*).
 
@@ -6879,7 +6879,7 @@ However, to explicitly install the CUDA-compatible version of PyTorch, it's ofte
 
 ![](_page_308_Figure_0.jpeg)
 
-#### Figure A.4 Access the PyTorch installation recommendation on [https://pytorch.org](https://pytorch.org/) to customize and select the installation command for your system.
+Figure A.4 Access the PyTorch installation recommendation on [https://pytorch.org](https://pytorch.org/) to customize and select the installation command for your system.
 
 (Note that the command shown in figure [A](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=45---book-markup-container).4 will also install the torchvision and torchaudio libraries, which are optional for this book.)
 
@@ -6945,7 +6945,7 @@ Tensors represent a mathematical concept that generalizes vectors and matrices t
 
 ![](_page_311_Figure_2.jpeg)
 
-#### Figure A.6 An illustration of tensors with different ranks. Here 0D corresponds to rank 0, 1D to rank 1, and 2D to rank 2. Note that a 3D vector, which consists of 3 elements, is still a rank 1 tensor.
+Figure A.6 An illustration of tensors with different ranks. Here 0D corresponds to rank 0, 1D to rank 1, and 2D to rank 2. Note that a 3D vector, which consists of 3 elements, is still a rank 1 tensor.
 
 From a computational perspective, tensors se[rv](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=74---book-markup-container)e as data containers. For instance, they hold multi-dimensional data, where each dimension represents a different feature. Tensor libraries, such as PyTorch, can create, manipulate, and compute with these multidimensional arrays efficiently. In this context, a tensor library functions as an array library.
 
@@ -7107,7 +7107,7 @@ If not all components in the code above make sense to you, don't worry. The poin
 
 ![](_page_317_Figure_1.jpeg)
 
-#### Figure A.7 A logistic regression forward pass as a computation graph. The input feature x1 is multiplied by a model weight w<sup>1</sup> and passed through an activation function σ after adding the bias. The loss is computed by comparing the model output a with a given label y.
+Figure A.7 A logistic regression forward pass as a computation graph. The input feature x1 is multiplied by a model weight w<sup>1</sup> and passed through an activation function σ after adding the bias. The loss is computed by comparing the model output a with a given label y.
 
 In fact, PyTorch builds such a computation gr[ap](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=138---book-markup-container)h in the background, and we can use this to calculate gradients of a loss function with respect to the model parameters (here w1 and b) to train the model, which is the topic of the upcoming sections.
 
@@ -7359,7 +7359,7 @@ In the previous section, we defined a custom neural network model. Before we can
 
 ![](_page_327_Figure_2.jpeg)
 
-#### Figure A.10 PyTorch implements a Dataset and a DataLoader class. The Dataset class is used to instantiate objects that define how each data record is loaded. The DataLoader handles how the data is shuffled and assembled into batches.
+Figure A.10 PyTorch implements a Dataset and a DataLoader class. The Dataset class is used to instantiate objects that define how each data record is loaded. The DataLoader handles how the data is shuffled and assembled into batches.
 
 Following the illustration in figure A.10, in thi[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=213---book-markup-container) section, we will implement a custom Dataset class that we will use to create a training and a test dataset that we'll then use to create the data loaders.
 
@@ -7499,7 +7499,7 @@ Lastly, let's discuss the setting num\_workers=0 in the DataLoader. This paramet
 
 ![](_page_332_Figure_1.jpeg)
 
-#### Figure A.11 Loading data without multiple workers (setting num\_workers=0) will create a data loading bottleneck where the model sits idle until the next batch is loaded as illustrated in the left subpanel. If multiple workers are enabled, the data loader can already queue up the next batch in the background as shown in the right subpanel.
+Figure A.11 Loading data without multiple workers (setting num\_workers=0) will create a data loading bottleneck where the model sits idle until the next batch is loaded as illustrated in the left subpanel. If multiple workers are enabled, the data loader can already queue up the next batch in the background as shown in the right subpanel.
 
 However, if we are working with very small [d](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=243---book-markup-container)atasets, setting num\_workers to 1 or larger may not be necessary since the total training time takes only fractions of a second anyway. On the contrary, if you are working with tiny datasets or interactive environments such as Jupyter notebooks, increasing num\_workers may not provide any noticeable speedup. They might, in fact, lead to some issues. One potential issue is the overhead of spinning up multiple worker processes, which could take longer than the actual data loading when your dataset is small.
 
@@ -7856,7 +7856,7 @@ How does this work? PyTorch launches a separate process on each GPU, and each pr
 
 ![](_page_345_Figure_0.jpeg)
 
-#### Figure A.12 The model and data transfer in DDP involves two key steps. First, we create a copy of the model on each of the GPUs. Then we divide the input data into unique minibatches that we pass on to each model copy.
+Figure A.12 The model and data transfer in DDP involves two key steps. First, we create a copy of the model on each of the GPUs. Then we divide the input data into unique minibatches that we pass on to each model copy.
 
 Each of the two GPUs will receive a copy of [t](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=357---book-markup-container)he model. Then, in every training iteration, each model will receive a minibatch (or just batch) from the data loader. We can use a DistributedSampler to ensure that each GPU will receive a different, non-overlapping batch when using DDP.
 
@@ -9385,7 +9385,7 @@ We have now implemented all the necessary code to replace the Linear layers in t
 
 ![](_page_400_Figure_0.jpeg)
 
-#### Figure E.4 A diagram representing the architecture of the GPT model. It highlights the parts of the model where Linear layers are being upgraded to LinearWithLoRA layers for parameter-efficient finetuning.
+Figure E.4 A diagram representing the architecture of the GPT model. It highlights the parts of the model where Linear layers are being upgraded to LinearWithLoRA layers for parameter-efficient finetuning.
 
 Before we apply the LinearWithLoRA layer u[pg](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=72---book-markup-container)rades depicted in Figure E.4, we first freeze the original model parameters:
 
