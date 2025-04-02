@@ -592,38 +592,38 @@ In the next section, we will test the tokenizer further on text that contains un
 
 In the previous section, we implemented a simple tokenizer and applied it to a passage from the training set. In this section, we will modify this tokenizer to handle unknown words.
 
-In particular, we will modify the vocabulary and tokenizer we implemented in the previous section, SimpleTokenizerV2, to support two new tokens, <|unk|> and <|endoftext|>, as illustrated in Figure 2.9.
+In particular, we will modify the vocabulary and tokenizer we implemented in the previous section, `SimpleTokenizerV2`, to support two new tokens, `<|unk|>` and `<|endoftext|>`, as illustrated in Figure 2.9.
 
 33
 
 ![](_page_37_Figure_0.jpeg)
 
-Figure 2.9 We add special tokens to a vocabulary to deal with certain contexts. For instance, we add an <|unk|> token to represent new and unknown words that were not part of the training data and thus not part of the existing vocabulary. Furthermore, we add an <|endoftext|> token that we can use to separate two unrelated text sources.
+> Figure 2.9 We add special tokens to a vocabulary to deal with certain contexts. For instance, we add an `<|unk|>` token to represent new and unknown words that were not part of the training data and thus not part of the existing vocabulary. Furthermore, we add an `<|endoftext|>` token that we can use to separate two unrelated text sources.
 
-As shown in Figure 2.9, we can modify t[he](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=99---book-markup-container) tokenizer to use an <|unk|> token if it encounters a word that is not part of the vocabulary. Furthermore, we add a token between unrelated texts. For example, when training GPT-like LLMs on multiple independent documents or books, it is common to insert a token before each document or book that follows a previous text source, as illustrated in Figure 2.10. This helps the LLM understand that, although these text sources are concatenated for training, they are, in fact, unrelated.
+As shown in Figure 2.9, we can modify the tokenizer to use an <|unk|> token if it encounters a word that is not part of the vocabulary. Furthermore, we add a token between unrelated texts. For example, when training GPT-like LLMs on multiple independent documents or books, it is common to insert a token before each document or book that follows a previous text source, as illustrated in Figure 2.10. This helps the LLM understand that, although these text sources are concatenated for training, they are, in fact, unrelated.
 
 34
 
 ![](_page_38_Figure_0.jpeg)
 
-Figure 2.10 When working with multiple independent text source, we add <|endoftext|> tokens between these texts. These <|endoftext|> tokens act as markers, signaling the start or end of a particular segment, allowing for more effective processing and understanding by the LLM.
+> Figure 2.10 When working with multiple independent text source, we add `<|endoftext|>` tokens between these texts. These `<|endoftext|>` tokens act as markers, signaling the start or end of a particular segment, allowing for more effective processing and understanding by the LLM.
 
-Let's now modify the vocabulary to incl[ud](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=101---book-markup-container)e these two special tokens, <unk> and <|endoftext|>, by adding these to the list of all unique words that we created in the previous section:
+Let's now modify the vocabulary to include these two special tokens, `<|unk|>` and `<|endoftext|>`, by adding these to the list of all unique words that we created in the previous section:
 
-```
+```python
 all_tokens = sorted(list(set(preprocessed)))
 all_tokens.extend(["<|endoftext|>", "<|unk|>"])
 vocab = {token:integer for integer,token in enumerate(all_tokens)}
 ```
 
-```
+```python
 print(len(vocab.items()))
 ```
 Based on the output of the print statement above, the new vocabulary size is 1161 (the vocabulary size in the previous section was 1159).
 
 As an additional quick check, let's print the last 5 entries of the updated vocabulary:
 
-```
+```python
 for i, item in enumerate(list(vocab.items())[-5:]):
     print(item)
 ```
@@ -640,8 +640,8 @@ The code above prints the following:
 ```
 Based on the code output above, we can confirm that the two new special tokens were indeed successfully incorporated into the vocabulary. Next, we adjust the tokenizer from code listing 2.3 accordingly, as shown in listing 2.4:
 
-```
-Listing 2.4 A simple text tokenizer that handles unknown words
+```python
+# Listing 2.4 A simple text tokenizer that handles unknown words
 class SimpleTokenizerV2:
     def __init__(self, vocab):
         self.str_to_int = vocab
@@ -657,12 +657,12 @@ class SimpleTokenizerV2:
         text = " ".join([self.int_to_str[i] for i in ids])
         text = re.sub(r'\s+([,.?!"()\'])', r'\1', text) #B
         return text
+#A replace unknown words by <|unk|> tokens
+#B Replace spaces before the specified punctuations
 ```
-#A replace unknown words by <|unk|> tokens #B Replace spaces before the specified punctuations
-
 Compared to the SimpleTokenizerV1 we implemented in code listing 2.3 in the previous section, the new SimpleTokenizerV2 replaces unknown words by <|unk|> tokens.
 
-```
+```python
 text1 = "Hello, do you like tea?"
 text2 = "In the sunlit terraces of the palace."
 text = " <|endoftext|> ".join((text1, text2))
@@ -673,25 +673,33 @@ print(text)
 
 The output is as follows:
 
+```
 'Hello, do you like tea? <|endoftext|> In the sunlit terraces of the palace.'
+```
 
 Next, let's tokenize the sample text using the SimpleTokenizerV2 on the vocab we previously created in listing 2.2:
 
-```
+```python
 tokenizer = SimpleTokenizerV2(vocab)
 print(tokenizer.encode(text))
 ```
 This prints the following token IDs:
 
+```
 [1160, 5, 362, 1155, 642, 1000, 10, 1159, 57, 1013, 981, 1009, 738, 1013, 1160, 7]
+```
 
-Above, we can see that the list of token IDs contains 1159 for the <|endoftext|> separator token as well as two 1160 tokens, which are used for unknown words.
+Above, we can see that the list of token IDs contains 1159 for the `<|endoftext|>` separator token as well as two 1160 tokens, which are used for unknown words.
 
+```python
 print(tokenizer.decode(tokenizer.encode(text)))
+```
 
 The output is as follows:
 
+```
 '<|unk|>, do you like tea? <|endoftext|> In the sunlit terraces of the <|unk|>.'
+```
 
 Based on comparing the de-tokenized text above with the original input text, we know that the training dataset, Edith Wharton's short story *The Verdict*, did not contain the words "Hello" and "palace."
 
@@ -703,32 +711,36 @@ So far, we have discussed tokenization as an essential step in processing text a
 
 37
 
-Note that the tokenizer used for GPT models does not need any of these tokens mentioned above but only uses an <|endoftext|> token for simplicity. The <|endoftext|> is analogous to the [EOS] token mentioned above. Also, <|endoftext|> is used for padding as well. However, as we'll explore in subsequent chapters when training on batched inputs, we typically use a mask, meaning we don't attend to padded tokens. Thus, the specific token chosen for padding becomes inconsequential.
+Note that the tokenizer used for GPT models does not need any of these tokens mentioned above but only uses an `<|endoftext|>` token for simplicity. The `<|endoftext|>` is analogous to the [EOS] token mentioned above. Also, `<|endoftext|>` is used for padding as well. However, as we'll explore in subsequent chapters when training on batched inputs, we typically use a mask, meaning we don't attend to padded tokens. Thus, the specific token chosen for padding becomes inconsequential.
 
 Moreover, the tokenizer used for GPT models also doesn't use an <|unk|> token for outof-vocabulary words. Instead, GPT models use a *byte pair encoding* tokenizer, which breaks down words into subword units, which we will discuss in the next section.
 
-## 2[.5](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=129---book-markup-container) Byte pair encoding
+## 2.5 Byte pair encoding
 
 We implemented a simple tokenization scheme in the previous sections for illustration purposes. This section covers a more sophisticated tokenization scheme based on a concept called byte pair encoding (BPE). The BPE tokenizer covered in this section was used to train LLMs such as GPT-2, GPT-3, and the original model used in ChatGPT.
 
 Since implementing BPE can be relatively complicated, we will use an existing Python open-source library called *tiktoken* [\(https://github.com/openai/tiktoken](https://github.com/openai/tiktoken)), which implements the BPE algorithm very efficiently based on source code in Rust. Similar to other Python libraries, we can install the tiktoken library via Python's pip installer from the terminal:
 
-pip [in](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=132---book-markup-container)stall tiktoken
+```python
+pip install tiktoken
+```
 
 The code in this chapter is based on tiktoken 0.5.1. You can use the following code to check the version you currently have installed:
 
-```
+```python
 from importlib.metadata import version
 import tiktoken
 print("tiktoken version:", version("tiktoken"))
 ```
 Once installed, we can instantiate the BPE tokenizer from tiktoken as follows:
 
+```python
 tokenizer = tiktoken.get\_encoding("gpt2")
-
-The usage of this tokenizer is similar to SimpleTokenizerV2 we implemented previously via an encode method:
-
 ```
+
+The usage of this tokenizer is similar to `SimpleTokenizerV2` we implemented previously via an `encode` method:
+
+```python
 text = "Hello, do you like tea? <|endoftext|> In the sunlit terraces of
 someunknownPlace."
 integers = tokenizer.encode(text, allowed_special={"<|endoftext|>"})
@@ -737,31 +749,41 @@ print(integers)
 
 The code above prints the following token IDs:
 
+```
 [15496, 11, 466, 345, 588, 8887, 30, 220, 50256, 554, 262, 4252, 18250, 8812, 2114, 286, 617, 34680, 27271, 13]
+```
 
 We can then convert the token IDs back into text using the decode method, similar to our SimpleTokenizerV2 earlier:
 
-strings = tokenizer.decode(integers) print(strings)
+```python
+strings = tokenizer.decode(integers) 
+print(strings)
+```
 
 The above code prints the following:
 
+```
 'Hello, do you like tea? <|endoftext|> In the sunlit terraces of someunknownPlace.'
+```
 
-We can make two noteworthy observations based on the token IDs and decoded text above. First, the <|endoftext|> token is assigned a relatively large token ID, namely, 50256. In fact, the BPE tokenizer, which was used to train models such as GPT-2, GPT-3, and the original model used in ChatGPT, has a total vocabulary size of 50,257, with <|endoftext|> being assigned the largest token ID.
+We can make two noteworthy observations based on the token IDs and decoded text above. First, the <|endoftext|> token is assigned a relatively large token ID, namely, 50256. In fact, the BPE tokenizer, which was used to train models such as GPT-2, GPT-3, and the original model used in ChatGPT, has a total vocabulary size of 50,257, with `<|endoftext|>` being assigned the largest token ID.
 
-Second, the BPE tokenizer above encodes and decodes unknown words, such as "someunknownPlace" correctly. The BPE tokenizer can handle any unknown word. How does it achieve this without using <|unk|> tokens?
+Second, the BPE tokenizer above encodes and decodes unknown words, such as "someunknownPlace" correctly. The BPE tokenizer can handle any unknown word. How does it achieve this without using `<|unk|>` tokens?
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=147---book-markup-container) algorithm underlying BPE breaks down words that aren't in its predefined vocabulary into smaller subword units or even individual characters, enabling it to handle out-ofvocabulary words. So, thanks to the BPE algorithm, if the tokenizer encounters an unfamiliar word during tokenization, it can represent it as a sequence of subword tokens or characters, as illustrated in Figure 2.11.
+The algorithm underlying BPE breaks down words that aren't in its predefined vocabulary into smaller subword units or even individual characters, enabling it to handle out-ofvocabulary words. So, thanks to the BPE algorithm, if the tokenizer encounters an unfamiliar word during tokenization, it can represent it as a sequence of subword tokens or characters, as illustrated in Figure 2.11.
 
 ![](_page_43_Figure_0.jpeg)
 
-Figure 2.11 BPE tokenizers break down unknown words into subwords and individual characters. This way, a BPE tokenizer can parse any word and doesn't need to replace unknown words with special tokens, such as <|unk|>.
+> Figure 2.11 BPE tokenizers break down unknown words into subwords and individual characters. This way, a BPE tokenizer can parse any word and doesn't need to replace unknown words with special tokens, such as <|unk|>.
 
 As illustrated in Figure 2.11, the ability to [b](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=149---book-markup-container)reak down unknown words into individual characters ensures that the tokenizer, and consequently the LLM that is trained with it, can process any text, even if it contains words that were not present in its training data.
 
-#### EXERCISE 2.1 BYTE PAIR ENCODING OF UNKNOWN WORDS
-
-Try the BPE tokenizer from the tiktoken library on the unknown words "Akwirw ier" and print the individual token IDs. Then, call the decode function on each of the resulting integers in this list to reproduce the mapping shown in Figure 2.11. Lastly, call the decode method on the token IDs to check whether it can reconstruct the original input, "Akwirw ier".
+> [!NOTE]
+>
+> **EXERCISE 2.1 BYTE PAIR ENCODING OF UNKNOWN WORDS**
+>
+> Try the BPE tokenizer from the tiktoken library on the unknown words "Akwirw ier" and print the individual token IDs. Then, call the decode function on each of the resulting integers in this list to reproduce the mapping shown in Figure 2.11. Lastly, call the decode method on the token IDs to check whether it can reconstruct the original input, "Akwirw ier".
+>
 
 A detailed discussion and implementation of BPE is out of the scope of this book, but in short, it builds its vocabulary by iteratively merging frequent characters into subwords and frequent subwords into words. For example, BPE starts with adding all individual single characters to its vocabulary ("a", "b", ...). In the next stage, it merges character combinations that frequently occur together into subwords. For example, "d" and "e" may be merged into the subword "de," which is common in many English words like "define", "depend", "made", and "hidden". The merges are determined by a frequency cutoff.
 
@@ -773,13 +795,13 @@ What do these input-target pairs look like? As we learned in chapter 1, LLMs are
 
 ![](_page_44_Figure_3.jpeg)
 
-Figure 2.12 Given a text sample, extract input blocks as subsamples that serve as input to the LLM, and the LLM's prediction task during training is to predict the next word that follows the input block. During training, we mask out all words that are past the target. Note that the text shown in this figure would undergo tokenization before the LLM can process it; however, this figure omits the tokenization step for clarity.
+> Figure 2.12 Given a text sample, extract input blocks as subsamples that serve as input to the LLM, and the LLM's prediction task during training is to predict the next word that follows the input block. During training, we mask out all words that are past the target. Note that the text shown in this figure would undergo tokenization before the LLM can process it; however, this figure omits the tokenization step for clarity.
 
 In this section we implement a data loader t[h](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=157---book-markup-container)at fetches the input-target pairs depicted in Figure 2.12 from the training dataset using a sliding window approach.
 
 To get started, we will first tokenize the whole The Verdict short story we worked with earlier using the BPE tokenizer introduced in the previous section:
 
-```
+```python
 with open("the-verdict.txt", "r", encoding="utf-8") as f:
     raw_text = f.read()
 enc_text = tokenizer.encode(raw_text)
@@ -791,27 +813,29 @@ Executing the code above will return 5145, the total number of tokens in the tra
 
 Next, we remove the first 50 tokens from the dataset for demonstration purposes as it results in a slightly more interesting text passage in the next steps:
 
-```
+```python
 enc_sample = enc_text[50:]
 ```
 One of the easiest and most intuitive ways to create the input-target pairs for the nextword prediction task is to create two variables, x and y, where x contains the input tokens and y contains the targets, which are the inputs shifted by 1:
 
-```
+```python
 context_size = 4 #A
 x = enc_sample[:context_size]
 y = enc_sample[1:context_size+1]
 print(f"x: {x}")
 print(f"y: {y}")
-```
 #A The context size determines how many tokens are included in the input
-
+```
 Running the above code prints the following output:
 
-x: [290, 4920, 2241, 287] y: [4920, 2241, 287, 257]
+```
+x: [290, 4920, 2241, 287] 
+y: [4920, 2241, 287, 257]
+```
 
 Processing the inputs along with the targets, which are the inputs shifted by one position, we can then create the next-word prediction tasks depicted earlier in figure 2.12, as follows:
 
-```
+```python
 for i in range(1, context_size+1):
     context = enc_sample[:i]
     desired = enc_sample[i]
@@ -829,7 +853,7 @@ Everything left of the arrow (---->) refers to the input an LLM would receive, a
 
 For illustration purposes, let's repeat the previous code but convert the token IDs into text:
 
-```
+```python
 for i in range(1, context_size+1):
     context = enc_sample[:i]
     desired = enc_sample[i]
@@ -851,7 +875,7 @@ There's only one more task before we can turn the tokens into embeddings, as we 
 
 ![](_page_47_Figure_0.jpeg)
 
-Figure 2.13 To implement efficient data loaders, we collect the inputs in a tensor, x, where each row represents one input context. A second tensor, y, contains the corresponding prediction targets (next words), which are created by shifting the input by one position.
+> Figure 2.13 To implement efficient data loaders, we collect the inputs in a tensor, x, where each row represents one input context. A second tensor, y, contains the corresponding prediction targets (next words), which are created by shifting the input by one position.
 
 While Figure 2.13 shows the tokens in stri[ng](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=180---book-markup-container) format for illustration purposes, the code implementation will operate on token IDs directly since the encode method of the BPE tokenizer performs both tokenization and conversion into token IDs as a single step.
 
@@ -861,7 +885,7 @@ For the efficient data loader implementation, we will use PyTorch's built-in Dat
 
 44
 
-```
+```python
 Listing 2.5 A dataset for batched inputs and targets
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -879,23 +903,19 @@ class GPTDatasetV1(Dataset):
        return len(self.input_ids)
    def __getitem__(self, idx): #D
        return self.input_ids[idx], self.target_ids[idx]
-```
 #A Tokenize the entire text
-
 #B Use a sliding window to chunk the book into overlapping sequences of max\_length
-
 #C Return the total number of rows in the dataset
-
 #D Return a single row from the dataset
-
-The GPTDatasetV1 class in listing 2.5 is based on the PyTorch Dataset class and defines how individual rows are fetched from the dataset, where each row consists of a number of token IDs (based on a max\_length) assigned to an input\_chunk tensor. The target\_chunk tensor contains the corresponding targets. I recommend reading on to see how the data returned from this dataset looks like when we combine the dataset with a PyTorch DataLoader -- this will bring additional intuition and clarity.
+```
+The `GPTDatasetV1` class in listing 2.5 is based on the PyTorch Dataset class and defines how individual rows are fetched from the dataset, where each row consists of a number of token IDs (based on a max\_length) assigned to an input\_chunk tensor. The target\_chunk tensor contains the corresponding targets. I recommend reading on to see how the data returned from this dataset looks like when we combine the dataset with a PyTorch DataLoader -- this will bring additional intuition and clarity.
 
 If you are new to the structure of PyTorch Dataset classes, such as shown in listing 2.5, please read section *A.6, Setting up efficient data loaders*, in Appendix A, which explains the general structure and usage of PyTorch Dataset and DataLoader classes.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=186---book-markup-container) following code will use the GPTDatasetV1 to load the inputs in batches via a PyTorch DataLoader:
+The following code will use the `GPTDatasetV1` to load the inputs in batches via a PyTorch `DataLoader`:
 
-```
-Listing 2.6 A data loader to generate batches with input-with pairs
+```python
+# Listing 2.6 A data loader to generate batches with input-with pairs
 def create_dataloader_v1(txt, batch_size=4, max_length=256,
       stride=128, shuffle=True, drop_last=True, num_workers=0):
    tokenizer = tiktoken.get_encoding("gpt2") #A
@@ -907,17 +927,13 @@ def create_dataloader_v1(txt, batch_size=4, max_length=256,
       shuffle=shuffle,
       drop_last=drop_last, #C
       num_workers=0 #D
-   )
+  
+#A Initialize the tokenizer
+#B Create dataset
+#C drop_last=True drops the last batch if it is shorter than the specified batch\_size to prevent loss spikes during training
+#D The number of CPU processes to use for preprocessing
 ```
 return dataloader
-
-#A Initialize the tokenizer
-
-#B Create dataset
-
-#C drop\_last=True drops the last batch if it is shorter than the specified batch\_size to prevent loss spikes during training
-
-#D The number of CPU processes to use for preprocessing
 
 Let's test the dataloader with a batch size of 1 for an LLM with a context size of 4 to develop an intuition of how the GPTDatasetV1 class from listing 2.5 and the create\_dataloader\_v1 function from listing 2.6 work together:
 
