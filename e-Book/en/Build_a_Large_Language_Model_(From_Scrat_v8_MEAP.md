@@ -294,27 +294,27 @@ In this chapter, you'll learn how to prepare input text for training LLMs. This 
 
 Deep neural network models, including LLMs, cannot process raw text directly. Since text is categorical, it isn't compatible with the mathematical operations used to implement and train neural networks. Therefore, we need a way to represent words as continuous-valued vectors. (Readers unfamiliar with vectors and tensors in a computational context can learn more in [Appendix A, section A2.2](# A.2 Understanding tensors) Understanding tensors.)
 
-The concept of converting data into a vector format is often referred to as *embedding*. Using a specific neural network layer or another pretrained neural network model, we can embed different data types, for example, video, audio, and text, as illustrated in Figure 2.2.
+The concept of converting data into a vector format is often referred to as **embedding**. Using a specific neural network layer or another pretrained neural network model, we can embed different data types, for example, video, audio, and text, as illustrated in Figure 2.2.
 
 19
 
 ![](_page_23_Figure_0.jpeg)
 
-Figure 2.2 Deep learning models cannot process data formats like video, audio, and text in their raw form. Thus, we use an embedding model to transform this raw data into a dense vector representation that deep learning architectures can easily understand and process. Specifically, this figure illustrates the process of converting raw data into a three-dimensional numerical vector.
+> Figure 2.2 Deep learning models cannot process data formats like video, audio, and text in their raw form. Thus, we use an embedding model to transform this raw data into a dense vector representation that deep learning architectures can easily understand and process. Specifically, this figure illustrates the process of converting raw data into a three-dimensional numerical vector.
 
-As shown in Figure 2.2, we can process v[ar](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=14---book-markup-container)ious different data formats via embedding models. However, it's important to note that different data formats require distinct embedding models. For example, an embedding model designed for text would not be suitable for embedding audio or video data.
+As shown in Figure 2.2, we can process various different data formats via embedding models. However, it's important to note that different data formats require distinct embedding models. For example, an embedding model designed for text would not be suitable for embedding audio or video data.
 
 At its core, an embedding is a mapping from discrete objects, such as words, images, or even entire documents, to points in a continuous vector space -- the primary purpose of embeddings is to convert non-numeric data into a format that neural networks can process.
 
-[Wh](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=16---book-markup-container)ile word embeddings are the most common form of text embedding, there are also embeddings for sentences, paragraphs, or whole documents. Sentence or paragraph embeddings are popular choices for *retrieval-augmented generation.* Retrieval-augmented generation combines generation (like producing text) with retrieval (like searching an external knowledge base) to pull relevant information when generating text, which is a technique that is beyond the scope of this book. Since our goal is to train GPT-like LLMs, which learn to generate text one word at a time, this chapter focuses on word embeddings.
+While word embeddings are the most common form of text embedding, there are also embeddings for sentences, paragraphs, or whole documents. Sentence or paragraph embeddings are popular choices for **retrieval-augmented generation**. Retrieval-augmented generation combines generation (like producing text) with retrieval (like searching an external knowledge base) to pull relevant information when generating text, which is a technique that is beyond the scope of this book. Since our goal is to train GPT-like LLMs, which learn to generate text one word at a time, this chapter focuses on word embeddings.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=17---book-markup-container)re are several algorithms and frameworks that have been developed to generate word embeddings. One of the earlier and most popular examples is the *Word2Vec* approach. Word2Vec trained neural network architecture to generate word embeddings by predicting the context of a word given the target word or vice versa. The main idea behind Word2Vec is that words that appear in similar contexts tend to have similar meanings. Consequently, when projected into 2-dimensional word embeddings for visualization purposes, it can be seen that similar terms cluster together, as shown in Figure 2.3.
+There are several algorithms and frameworks that have been developed to generate word embeddings. One of the earlier and most popular examples is the *Word2Vec* approach. Word2Vec trained neural network architecture to generate word embeddings by predicting the context of a word given the target word or vice versa. The main idea behind Word2Vec is that words that appear in similar contexts tend to have similar meanings. Consequently, when projected into 2-dimensional word embeddings for visualization purposes, it can be seen that similar terms cluster together, as shown in Figure 2.3.
 
 ![](_page_24_Figure_0.jpeg)
 
-Figure 2.3 If word embeddings are two-dimensional, we can plot them in a two-dimensional scatterplot for visualization purposes as shown here. When using word embedding techniques, such as Word2Vec, words corresponding to similar concepts often appear close to each other in the embedding space. For instance, different types of birds appear closer to each other in the embedding space compared to countries and cities.
+> Figure 2.3 If word embeddings are two-dimensional, we can plot them in a two-dimensional scatterplot for visualization purposes as shown here. When using word embedding techniques, such as Word2Vec, words corresponding to similar concepts often appear close to each other in the embedding space. For instance, different types of birds appear closer to each other in the embedding space compared to countries and cities.
 
-Word embeddings can have varying dimensio[ns](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=19---book-markup-container), from one to thousands. As shown in Figure 2.3, we can choose two-dimensional word embeddings for visualization purposes. A higher dimensionality might capture more nuanced relationships but at the cost of computational efficiency.
+Word embeddings can have varying dimensions, from one to thousands. As shown in Figure 2.3, we can choose two-dimensional word embeddings for visualization purposes. A higher dimensionality might capture more nuanced relationships but at the cost of computational efficiency.
 
 While we can use pretrained models such as Word2Vec to generate embeddings for machine learning models, LLMs commonly produce their own embeddings that are part of the input layer and are updated during training. The advantage of optimizing the embeddings as part of the LLM training instead of using Word2Vec is that the embeddings are optimized to the specific task and data at hand. We will implement such embedding layers later in this chapter. Furthermore, LLMs can also create contextualized output embeddings, as we discuss in chapter 3.
 
@@ -324,40 +324,47 @@ Unfortunately, high-dimensional embeddings present a challenge for visualization
 
 The upcoming sections in this chapter will walk through the required steps for preparing the embeddings used by an LLM, which include splitting text into words, converting words into tokens, and turning tokens into embedding vectors.
 
-## 2[.2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=23---book-markup-container) Tokenizing text
+## 2.2 Tokenizing text
 
 This section covers how we split input text into individual tokens, a required preprocessing step for creating embeddings for an LLM. These tokens are either individual words or special characters, including punctuation characters, as shown in Figure 2.4.
 
 ![](_page_26_Figure_0.jpeg)
 
-Figure 2.4 A view of the text processing steps covered in this section in the context of an LLM. Here, we split an input text into individual tokens, which are either words or special characters, such as punctuation characters. In upcoming sections, we will convert the text into token IDs and create token embeddings.
+> Figure 2.4 A view of the text processing steps covered in this section in the context of an LLM. Here, we split an input text into individual tokens, which are either words or special characters, such as punctuation characters. In upcoming sections, we will convert the text into token IDs and create token embeddings.
 
-The text we will tokenize for LLM training i[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=26---book-markup-container) a short story by Edith Wharton called *The Verdict*, which has been released into the public domain and is thus permitted to be used for LLM training tasks. The text is available on Wikisource at [https://en.wikisource.org/wiki/](https://en.wikisource.org/wiki/The_Verdict) [The\\_Verdict](https://en.wikisource.org/wiki/The_Verdict), and you can copy and paste it into a text file, which I copied into a text file "the-verdict.txt" to load using Python's standard file reading utilities:
+The text we will tokenize for LLM training is a short story by Edith Wharton called *The Verdict*, which has been released into the public domain and is thus permitted to be used for LLM training tasks. The text is available on Wikisource at [https://en.wikisource.org/wiki/The_Verdict](https://en.wikisource.org/wiki/The_Verdict) , and you can copy and paste it into a text file, which I copied into a text file "the-verdict.txt" to load using Python's standard file reading utilities:
 
-```
+```python
 Listing 2.1 Reading in a short story as text sample into Python
 with open("the-verdict.txt", "r", encoding="utf-8") as f:
     raw_text = f.read()
 print("Total number of character:", len(raw_text))
 print(raw_text[:99])
 ```
-Alternatively, you can find this "the-verdict.txt" file in this book's GitHub repository at [https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/01\\_main-chapter-code](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/01_main-chapter-code).
+Alternatively, you can find this "the-verdict.txt" file in this book's GitHub repository at [https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/01_main-chapter-code](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/01_main-chapter-code)
 
 The print command prints the total number of characters followed by the first 100 characters of this file for illustration purposes:
 
-T[otal](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=30---book-markup-container) number of character: 20479 I HAD always thought Jack Gisburn rather a cheap genius--though a good fellow enough--so it was no
+```
+Total number of character: 20479
+I HAD always thought Jack Gisburn rather a cheap genius--though a good fellow enough--so
+it was no
+```
 
 Our goal is to tokenize this 20,479-character short story into individual words and special characters that we can then turn into embeddings for LLM training in the upcoming chapters.
 
-#### TEXT SAMPLE SIZES
-
-Note that it's common to process millions of articles and hundreds of thousands of books -- many gigabytes of text -- when working with LLMs. However, for educational purposes, it's sufficient to work with smaller text samples like a single book to illustrate the main ideas behind the text processing steps and to make it possible to run it in reasonable time on consumer hardware.
+> [!NOTE]
+>
+> **TEXT SAMPLE SIZES**
+>
+> Note that it's common to process millions of articles and hundreds of thousands of books -- many gigabytes of text -- when working with LLMs. However, for educational purposes, it's sufficient to work with smaller text samples like a single book to illustrate the main ideas behind the text processing steps and to make it possible to run it in reasonable time on consumer hardware.
+>
 
 How can we best split this text to obtain a list of tokens? For this, we go on a small excursion and use Python's regular expression library re for illustration purposes. (Note that you don't have to learn or memorize any regular expression syntax since we will transition to a pre-built tokenizer later in this chapter.)
 
 Using some simple example text, we can use the re.split command with the following syntax to split a text on whitespace characters:
 
-```
+```python
 import re
 text = "Hello, world. This, is a test."
 result = re.split(r'(\s)', text)
@@ -365,37 +372,47 @@ print(result)
 ```
 The result is a list of individual words, whitespaces, and punctuation characters:
 
+```
 ['Hello,', ' ', 'world.', ' ', 'This,', ' ', 'is', ' ', 'a', ' ', 'test.']
+```
 
 Note that the simple tokenization scheme above mostly works for separating the example text into individual words, however, some words are still connected to punctuation characters that we want to have as separate list entries. We also refrain from making all text lowercase because capitalization helps LLMs distinguish between proper nouns and common nouns, understand sentence structure, and learn to generate text with proper capitalization.
 
 Let's modify the regular expression splits on whitespaces (\s) and commas, and periods ([,.]):
 
-```
+```python
 result = re.split(r'([,.]|\s)', text)
 print(result)
 ```
 We can see that the words and punctuation characters are now separate list entries just as we wanted:
 
 ```
-['Hello', ',', '', ' ', 'world', '.', '', ' ', 'This', ',', '', ' ', 'is', ' ', 'a', '
-', 'test', '.', '']
+['Hello', ',', '', ' ', 'world', '.', '', ' ', 'This', ',', '', ' ', 'is', ' ', 'a', ' ', 'test', '.', '']
 ```
 A small remaining issue is that the list still includes whitespace characters. Optionally, we can remove these redundant characters safely as follows:
 
-result = [item for item in result if item.strip()] print(result)
+```python
+result = [item for item in result if item.strip()]
+print(result)
+```
 
 The resulting whitespace-free output looks like as follows:
 
+```
 ['Hello', ',', 'world', '.', 'This', ',', 'is', 'a', 'test', '.']
+```
 
-#### REMOVING WHITESPACES OR NOT
 
-When developing a simple tokenizer, whether we should encode whitespaces as separate characters or just remove them depends on our application and its requirements. Removing whitespaces reduces the memory and computing requirements. However, keeping whitespaces can be useful if we train models that are sensitive to the exact structure of the text (for example, Python code, which is sensitive to indentation and spacing). Here, we remove whitespaces for simplicity and brevity of the tokenized outputs. Later, we will switch to a tokenization scheme that includes whitespaces.
+
+> [!NOTE]
+>
+> **REMOVING WHITESPACES OR NOT**
+>
+> When developing a simple tokenizer, whether we should encode whitespaces as separate characters or just remove them depends on our application and its requirements. Removing whitespaces reduces the memory and computing requirements. However, keeping whitespaces can be useful if we train models that are sensitive to the exact structure of the text (for example, Python code, which is sensitive to indentation and spacing). Here, we remove whitespaces for simplicity and brevity of the tokenized outputs. Later, we will switch to a tokenization scheme that includes whitespaces.
 
 The tokenization scheme we devised above works well on the simple sample text. Let's modify it a bit further so that it can also handle other types of punctuation, such as question marks, quotation marks, and the double-dashes we have seen earlier in the first 100 characters of Edith Wharton's short story, along with additional special characters:
 
-```
+```python
 text = "Hello, world. Is this-- a test?"
 result = re.split(r'([,.:;?_!"()\']|--|\s)', text)
 result = [item.strip() for item in result if item.strip()]
@@ -403,7 +420,9 @@ print(result)
 ```
 The resulting output is as follows:
 
+```
 ['Hello', ',', 'world', '.', 'Is', 'this', '--', 'a', 'test', '?']
+```
 
 As we can see based on the results summarized in Figure 2.5, our tokenization scheme can now handle the various special characters in the text successfully.
 
@@ -411,9 +430,9 @@ As we can see based on the results summarized in Figure 2.5, our tokenization sc
 
 Figure 2.5 The tokenization scheme we implemented so far splits text into individual words and punctuation characters. In the specific example shown in this figure, the sample text gets split into 10 individual tokens.
 
-Now that we got a basic tokenizer working, [le](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=56---book-markup-container)t's apply it to Edith Wharton's entire short story:
+Now that we got a basic tokenizer working, let's apply it to Edith Wharton's entire short story:
 
-```
+```python
 preprocessed = re.split(r'([,.:;?_!"()\']|--|\s)', raw_text)
 preprocessed = [item.strip() for item in preprocessed if item.strip()]
 print(len(preprocessed))
@@ -422,7 +441,9 @@ The above print statement outputs 4690, which is the number of tokens in this te
 
 Let's print the first 30 tokens for a quick visual check:
 
-p[rint\(](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=60---book-markup-container)preprocessed[:30])
+```python
+print(preprocessed[:30])
+```
 
 26
 
