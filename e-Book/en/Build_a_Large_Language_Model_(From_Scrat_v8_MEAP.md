@@ -776,7 +776,7 @@ The algorithm underlying BPE breaks down words that aren't in its predefined voc
 
 > Figure 2.11 BPE tokenizers break down unknown words into subwords and individual characters. This way, a BPE tokenizer can parse any word and doesn't need to replace unknown words with special tokens, such as <|unk|>.
 
-As illustrated in Figure 2.11, the ability to [b](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=149---book-markup-container)reak down unknown words into individual characters ensures that the tokenizer, and consequently the LLM that is trained with it, can process any text, even if it contains words that were not present in its training data.
+As illustrated in Figure 2.11, the ability to break down unknown words into individual characters ensures that the tokenizer, and consequently the LLM that is trained with it, can process any text, even if it contains words that were not present in its training data.
 
 > [!NOTE]
 >
@@ -871,17 +871,17 @@ We've now created the input-target pairs that we can turn into use for the LLM t
 
 There's only one more task before we can turn the tokens into embeddings, as we mentioned at the beginning of this chapter: implementing an efficient data loader that iterates over the input dataset and returns the inputs and targets as PyTorch tensors, which can be thought of as multidimensional arrays.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=178---book-markup-container) particular, we are interested in returning two tensors: an input tensor containing the text that the LLM sees and a target tensor that includes the targets for the LLM to predict, as depicted in Figure 2.13.
+In particular, we are interested in returning two tensors: an input tensor containing the text that the LLM sees and a target tensor that includes the targets for the LLM to predict, as depicted in Figure 2.13.
 
 ![](_page_47_Figure_0.jpeg)
 
 > Figure 2.13 To implement efficient data loaders, we collect the inputs in a tensor, x, where each row represents one input context. A second tensor, y, contains the corresponding prediction targets (next words), which are created by shifting the input by one position.
 
-While Figure 2.13 shows the tokens in stri[ng](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=180---book-markup-container) format for illustration purposes, the code implementation will operate on token IDs directly since the encode method of the BPE tokenizer performs both tokenization and conversion into token IDs as a single step.
+While Figure 2.13 shows the tokens in string format for illustration purposes, the code implementation will operate on token IDs directly since the encode method of the BPE tokenizer performs both tokenization and conversion into token IDs as a single step.
 
 For the efficient data loader implementation, we will use PyTorch's built-in Dataset and DataLoader classes. For additional information and guidance on installing PyTorch, please see section A.1.3, Installing PyTorch, in Appendix A.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=182---book-markup-container) code for the dataset class is shown in code listing 2.5:
+The code for the dataset class is shown in code listing 2.5:
 
 44
 
@@ -1015,7 +1015,7 @@ Note that we increase the stride to 4. This is to utilize the data set fully (we
 
 In the final two sections of this chapter, we will implement embedding layers that convert the token IDs into continuous vector representations, which serve as input data format for LLMs.
 
-## 2[.7](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=206---book-markup-container) Creating token embeddings
+## 2.7 Creating token embeddings
 
 The last step for preparing the input text for LLM training is to convert the token IDs into embedding vectors, as illustrated in Figure 2.15, which will be the focus of these two last remaining sections of this chapter.
 
@@ -1023,13 +1023,13 @@ The last step for preparing the input text for LLM training is to convert the to
 
 Figure 2.15 Preparing the input text for an LLM involves tokenizing text, converting text tokens to token IDs, and converting token IDs into vector embedding vectors. In this section, we consider the token IDs created in previous sections to create the token embedding vectors.
 
-In addition to the processes outlined in Figure [2](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=209---book-markup-container).15, it is important to note that we initialize these embedding weights with random values as a preliminary step. This initialization serves as the starting point for the LLM's learning process. We will optimize the embedding weights as part of the LLM training in chapter 5.
+In addition to the processes outlined in Figure 2.15, it is important to note that we initialize these embedding weights with random values as a preliminary step. This initialization serves as the starting point for the LLM's learning process. We will optimize the embedding weights as part of the LLM training in chapter 5.
 
 A continuous vector representation, or embedding, is necessary since GPT-like LLMs are deep neural networks trained with the backpropagation algorithm. If you are unfamiliar with how neural networks are trained with backpropagation, please read section A.4, *Automatic differentiation made easy*, in Appendix A.
 
-[Let](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=211---book-markup-container)'s illustrate how the token ID to embedding vector conversion works with a hands-on example. Suppose we have the following four input tokens with IDs 2, 3, 5, and 1:
+Let's illustrate how the token ID to embedding vector conversion works with a hands-on example. Suppose we have the following four input tokens with IDs 2, 3, 5, and 1:
 
-i[nput\\_](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=212---book-markup-container)ids = torch.tensor([2, 3, 5, 1])
+input\\_ids = torch.tensor([2, 3, 5, 1])
 
 For the sake of simplicity and illustration purposes, suppose we have a small vocabulary of only 6 words (instead of the 50,257 words in the BPE tokenizer vocabulary), and we want to create embeddings of size 3 (in GPT-3, the embedding size is 12,288 dimensions):
 
@@ -1059,15 +1059,11 @@ We can see that the weight matrix of the embedding layer contains small, random 
 
 After we instantiated the embedding layer, let's now apply it to a token ID to obtain the embedding vector:
 
-p[rint\(](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=221---book-markup-container)embedding\_layer(torch.tensor([3])))
+print\(embedding\_layer(torch.tensor([3])))
 
 The returned embedding vector is as follows:
 
 tensor([[-0.4015, 0.9666, -1.1481]], grad\_fn=<EmbeddingBackward0>)
-
-|  |  | Licensed to   <149533107@qq.com> |  |  |
-|--|--|----------------------------------|--|--|
-|--|--|----------------------------------|--|--|
 
 If we compare the embedding vector for token ID 3 to the previous embedding matrix, we see that it is identical to the 4th row (Python starts with a zero index, so it's the row corresponding to index 3). In other words, the embedding layer is essentially a look-up operation that retrieves rows from the embedding layer's weight matrix via a token ID.
 
@@ -1109,13 +1105,13 @@ Absolute positional embeddings are directly associated with specific positions i
 
 Figure 2.18 Positional embeddings are added to the token embedding vector to create the input embeddings for an LLM. The positional vectors have the same dimension as the original token embeddings. The token embeddings are shown with value 1 for simplicity.
 
-Instead of focusing on the absolute position [of](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=241---book-markup-container) a token, the emphasis of relative positional embeddings is on the relative position or distance between tokens. This means the model learns the relationships in terms of "how far apart" rather than "at which exact position." The advantage here is that the model can generalize better to sequences of varying lengths, even if it hasn't seen such lengths during training.
+Instead of focusing on the absolute position of a token, the emphasis of relative positional embeddings is on the relative position or distance between tokens. This means the model learns the relationships in terms of "how far apart" rather than "at which exact position." The advantage here is that the model can generalize better to sequences of varying lengths, even if it hasn't seen such lengths during training.
 
 Both types of positional embeddings aim to augment the capacity of LLMs to understand the order and relationships between tokens, ensuring more accurate and context-aware predictions. The choice between them often depends on the specific application and the nature of the data being processed.
 
-[Op](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=243---book-markup-container)enAI's GPT models use absolute positional embeddings that are optimized during the training process rather than being fixed or predefined like the positional encodings in the original Transformer model. This optimization process is part of the model training itself, which we will implement later in this book. For now, let's create the initial positional embeddings to create the LLM inputs for the upcoming chapters.
+OpenAI's GPT models use absolute positional embeddings that are optimized during the training process rather than being fixed or predefined like the positional encodings in the original Transformer model. This optimization process is part of the model training itself, which we will implement later in this book. For now, let's create the initial positional embeddings to create the LLM inputs for the upcoming chapters.
 
-[Pre](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=244---book-markup-container)viously, we focused on very small embedding sizes in this chapter for illustration purposes. We now consider more realistic and useful embedding sizes and encode the input tokens into a 256-dimensional vector representation. This is smaller than what the original GPT-3 model used (in GPT-3, the embedding size is 12,288 dimensions) but still reasonable for experimentation. Furthermore, we assume that the token IDs were created by the BPE tokenizer that we implemented earlier, which has a vocabulary size of 50,257:
+Previously, we focused on very small embedding sizes in this chapter for illustration purposes. We now consider more realistic and useful embedding sizes and encode the input tokens into a 256-dimensional vector representation. This is smaller than what the original GPT-3 model used (in GPT-3, the embedding size is 12,288 dimensions) but still reasonable for experimentation. Furthermore, we assume that the token IDs were created by the BPE tokenizer that we implemented earlier, which has a vocabulary size of 50,257:
 
 ```
 vocab_size = 50257
@@ -1154,7 +1150,7 @@ As we can see, the token ID tensor is 8x4-dimensional, meaning that the data bat
 
 Let's now use the embedding layer to embed these token IDs into 256-dimensional vectors:
 
-t[oken\\_](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=253---book-markup-container)embeddings = token\_embedding\_layer(inputs) print(token\_embeddings.shape)
+token\\_embeddings = token\_embedding\_layer(inputs) print(token\_embeddings.shape)
 
 The preceding print function call returns the following:
 
@@ -1176,7 +1172,7 @@ As shown in the preceding code example, the input to the pos\_embeddings is usua
 
 The output of the print statement is as follows:
 
-t[orch.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=261---book-markup-container)Size([4, 256])
+torch.Size([4, 256])
 
 As we can see, the positional embedding tensor consists of four 256-dimensional vectors. We can now add these directly to the token embeddings, where PyTorch will add the 4x256 dimensional pos\_embeddings tensor to each 4x256-dimensional token embedding tensor in each of the 8 batches:
 
@@ -1203,7 +1199,7 @@ LLMs require textual data to be converted into numerical vectors, known as embed
 - Embedding layers in PyTorch function as a lookup operation, retrieving vectors corresponding to token IDs. The resulting embedding vectors provide continuous representations of tokens, which is crucial for training deep learning models like LLMs[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=274---book-markup-container)
 - While token embeddings provide consistent vector representations for each token, they lack a sense of the token's position in a sequence. To rectify this, two main types of positional embeddings exist: absolute and relative. OpenAI's GPT models utilize absolute positional embeddings that are added to the token embedding vectors and are optimized during the model training.
 
-# <span id="page-63-0"></span>[3](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3/v-8/section-3?refid=1) Coding Attention Mechanisms
+# <span id="page-63-0"></span>3 Coding Attention Mechanisms
 
 #### This chapter covers
 
