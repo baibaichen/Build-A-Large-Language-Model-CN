@@ -735,7 +735,7 @@ print("tiktoken version:", version("tiktoken"))
 Once installed, we can instantiate the BPE tokenizer from tiktoken as follows:
 
 ```python
-tokenizer = tiktoken.get\_encoding("gpt2")
+tokenizer = tiktoken.get_encoding("gpt2")
 ```
 
 The usage of this tokenizer is similar to `SimpleTokenizerV2` we implemented previously via an `encode` method:
