@@ -14,15 +14,15 @@ Thank you for purchasing the MEAP edition of *Build a Large Language Model (From
 
 In this book, I invite you to embark on an educational journey with me to learn how to build Large Language Models (LLMs) from the ground up. Together, we'll delve deep into the LLM training pipeline, starting from data loading and culminating in finetuning LLMs on custom datasets.
 
-[For](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/welcome?potentialInternalRefId=3---book-markup-container) many years, I've been deeply immersed in the world of deep learning, coding LLMs, and have found great joy in explaining complex concepts thoroughly. This book has been a long-standing idea in my mind, and I'm thrilled to finally have the opportunity to write it and share it with you. Those of you familiar with my work, especially from my blog, have likely seen glimpses of my approach to coding from scratch. This method has resonated well with many readers, and I hope it will be equally effective for you.
+For many years, I've been deeply immersed in the world of deep learning, coding LLMs, and have found great joy in explaining complex concepts thoroughly. This book has been a long-standing idea in my mind, and I'm thrilled to finally have the opportunity to write it and share it with you. Those of you familiar with my work, especially from my blog, have likely seen glimpses of my approach to coding from scratch. This method has resonated well with many readers, and I hope it will be equally effective for you.
 
-[I've](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/welcome?potentialInternalRefId=4---book-markup-container) designed the book to emphasize hands-on learning, primarily using PyTorch and without relying on pre-existing libraries. With this approach, coupled with numerous figures and illustrations, I aim to provide you with a thorough understanding of how LLMs work, their limitations, and customization methods. Moreover, we'll explore commonly used workflows and paradigms in pretraining and fine-tuning LLMs, offering insights into their development and customization.
+I've designed the book to emphasize hands-on learning, primarily using PyTorch and without relying on pre-existing libraries. With this approach, coupled with numerous figures and illustrations, I aim to provide you with a thorough understanding of how LLMs work, their limitations, and customization methods. Moreover, we'll explore commonly used workflows and paradigms in pretraining and fine-tuning LLMs, offering insights into their development and customization.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/welcome?potentialInternalRefId=5---book-markup-container) book is structured with detailed step-by-step introductions, ensuring no critical detail is overlooked. To gain the most from this book, you should have a background in Python programming. Prior experience in deep learning and a foundational understanding of PyTorch, or familiarity with other deep learning frameworks like TensorFlow, will be beneficial.
+The book is structured with detailed step-by-step introductions, ensuring no critical detail is overlooked. To gain the most from this book, you should have a background in Python programming. Prior experience in deep learning and a foundational understanding of PyTorch, or familiarity with other deep learning frameworks like TensorFlow, will be beneficial.
 
-[I w](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/welcome?potentialInternalRefId=6---book-markup-container)armly invite you to engage in the [liveBook discussion forum](https://livebook.manning.com/forum?product=raschka&page=1) for any questions, suggestions, or feedback you might have. Your contributions are immensely valuable and appreciated in enhancing this learning journey.
+I warmly invite you to engage in the [liveBook discussion forum](https://livebook.manning.com/forum?product=raschka&page=1) for any questions, suggestions, or feedback you might have. Your contributions are immensely valuable and appreciated in enhancing this learning journey.
 
-— [Seb](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/welcome?potentialInternalRefId=7---book-markup-container)astian Raschka
+— Sebastian Raschka
 
 ## Brief contents
 
@@ -268,7 +268,7 @@ Next, in stage 2, we will learn how to code and pretrain a GPT-like LLM capable 
 
 <span id="page-20-1"></span><span id="page-20-0"></span>
 
-<span id="page-21-0"></span>2
+<span id="page-21-0"></span>
 
 # 2 Working with Text Data
 
@@ -879,7 +879,7 @@ In particular, we are interested in returning two tensors: an input tensor conta
 
 While Figure 2.13 shows the tokens in string format for illustration purposes, the code implementation will operate on token IDs directly since the encode method of the BPE tokenizer performs both tokenization and conversion into token IDs as a single step.
 
-For the efficient data loader implementation, we will use PyTorch's built-in Dataset and DataLoader classes. For additional information and guidance on installing PyTorch, please see section A.1.3, Installing PyTorch, in Appendix A.
+For the efficient data loader implementation, we will use PyTorch's built-in Dataset and DataLoader classes. For additional information and guidance on installing PyTorch, please see [section A.1.3, Installing PyTorch, in Appendix A](# A.1.3 Installing PyTorch).
 
 The code for the dataset class is shown in code listing 2.5:
 
@@ -893,24 +893,24 @@ class GPTDatasetV1(Dataset):
    def __init__(self, txt, tokenizer, max_length, stride):
        self.input_ids = []
        self.target_ids = []
-       token_ids = tokenizer.encode(txt) #A
+       token_ids = tokenizer.encode(txt)                       #A
        for i in range(0, len(token_ids) - max_length, stride): #B
           input_chunk = token_ids[i:i + max_length]
           target_chunk = token_ids[i + 1: i + max_length + 1]
           self.input_ids.append(torch.tensor(input_chunk))
           self.target_ids.append(torch.tensor(target_chunk))
-   def __len__(self): #C
+   def __len__(self):                                          #C
        return len(self.input_ids)
-   def __getitem__(self, idx): #D
+   def __getitem__(self, idx):                                 #D
        return self.input_ids[idx], self.target_ids[idx]
 #A Tokenize the entire text
 #B Use a sliding window to chunk the book into overlapping sequences of max\_length
 #C Return the total number of rows in the dataset
 #D Return a single row from the dataset
 ```
-The `GPTDatasetV1` class in listing 2.5 is based on the PyTorch Dataset class and defines how individual rows are fetched from the dataset, where each row consists of a number of token IDs (based on a max\_length) assigned to an input\_chunk tensor. The target\_chunk tensor contains the corresponding targets. I recommend reading on to see how the data returned from this dataset looks like when we combine the dataset with a PyTorch DataLoader -- this will bring additional intuition and clarity.
+The `GPTDatasetV1` class in listing 2.5 is based on the PyTorch `Dataset` class and defines how individual rows are fetched from the dataset, where each row consists of a number of token IDs (based on a max\_length) assigned to an `input_chunk` tensor. The `target_chunk` tensor contains the corresponding targets. I recommend reading on to see how the data returned from this dataset looks like when we combine the dataset with a PyTorch `DataLoader` -- this will bring additional intuition and clarity.
 
-If you are new to the structure of PyTorch Dataset classes, such as shown in listing 2.5, please read section *A.6, Setting up efficient data loaders*, in Appendix A, which explains the general structure and usage of PyTorch Dataset and DataLoader classes.
+If you are new to the structure of PyTorch `Dataset` classes, such as shown in listing 2.5, please read section *A.6, Setting up efficient data loaders*, in Appendix A, which explains the general structure and usage of PyTorch Dataset and DataLoader classes.
 
 The following code will use the `GPTDatasetV1` to load the inputs in batches via a PyTorch `DataLoader`:
 
@@ -918,26 +918,24 @@ The following code will use the `GPTDatasetV1` to load the inputs in batches via
 # Listing 2.6 A data loader to generate batches with input-with pairs
 def create_dataloader_v1(txt, batch_size=4, max_length=256,
       stride=128, shuffle=True, drop_last=True, num_workers=0):
-   tokenizer = tiktoken.get_encoding("gpt2") #A
+   tokenizer = tiktoken.get_encoding("gpt2")                  #A
    dataset = GPTDatasetV1(txt, tokenizer, max_length, stride) #B
    dataloader = DataLoader(
    dataloader = DataLoader(
       dataset,
       batch_size=batch_size,
       shuffle=shuffle,
-      drop_last=drop_last, #C
-      num_workers=0 #D
-  
+      drop_last=drop_last,                                    #C
+      num_workers=0                                           #D
+  return dataloader
 #A Initialize the tokenizer
 #B Create dataset
 #C drop_last=True drops the last batch if it is shorter than the specified batch\_size to prevent loss spikes during training
 #D The number of CPU processes to use for preprocessing
 ```
-return dataloader
+Let's test the dataloader with a batch size of 1 for an LLM with a context size of 4 to develop an intuition of how the `GPTDatasetV1` class from listing 2.5 and the `create_dataloader_v1` function from listing 2.6 work together:
 
-Let's test the dataloader with a batch size of 1 for an LLM with a context size of 4 to develop an intuition of how the GPTDatasetV1 class from listing 2.5 and the create\_dataloader\_v1 function from listing 2.6 work together:
-
-```
+```python
 with open("the-verdict.txt", "r", encoding="utf-8") as f:
    raw_text = f.read()
 dataloader = create_dataloader_v1(
@@ -945,16 +943,16 @@ dataloader = create_dataloader_v1(
 data_iter = iter(dataloader) #A
 first_batch = next(data_iter)
 print(first_batch)
-```
-#A convert dataloader into a Python iterator to fetch the next entry via Python's built-in next() function
 
+#A convert dataloader into a Python iterator to fetch the next entry via Python's built-in next() function
+```
 Executing the preceding code prints the following:
 
+```
 [tensor([[ 40, 367, 2885, 1464]]), tensor([[ 367, 2885, 1464, 1807]])]
+```
 
- 
-
-The first\_batch variable contains two tensors: the first tensor stores the input token IDs, and the second tensor stores the target token IDs. Since the max\_length is set to 4, each of the two tensors contains 4 token IDs. Note that an input size of 4 is relatively small and only chosen for illustration purposes. It is common to train LLMs with input sizes of at least 256.
+ The `first_batch` variable contains two tensors: the first tensor stores the input token IDs, and the second tensor stores the target token IDs. Since the `max_length` is set to 4, each of the two tensors contains 4 token IDs. Note that an input size of 4 is relatively small and only chosen for illustration purposes. It is common to train LLMs with input sizes of at least 256.
 
 To illustrate the meaning of stride=1, let's fetch another batch from this dataset:
 
@@ -973,11 +971,14 @@ If we compare the first with the second batch, we can see that the second batch'
 
 ![](_page_51_Figure_0.jpeg)
 
-Figure 2.14 When creating multiple batches from the input dataset, we slide an input window across the text. If the stride is set to 1, we shift the input window by 1 position when creating the next batch. If we set the stride equal to the input window size, we can prevent overlaps between the batches.
+> Figure 2.14 When creating multiple batches from the input dataset, we slide an input window across the text. If the stride is set to 1, we shift the input window by 1 position when creating the next batch. If we set the stride equal to the input window size, we can prevent overlaps between the batches.
 
-#### EXERCISE 2.2 DATA LOADERS WITH DIFFERENT STRIDES AND CONTEXT SIZES
-
-To develop more intuition for how the data loader works, try to run it with different settings such as max\_length=2 and stride=2 and max\_length=8 and stride=2.
+> [!NOTE]
+>
+> **EXERCISE 2.2 DATA LOADERS WITH DIFFERENT STRIDES AND CONTEXT SIZES**
+>
+> To develop more intuition for how the data loader works, try to run it with different settings such as max\_length=2 and stride=2 and max\_length=8 and stride=2.
+>
 
 Batch sizes of 1, such as we have sampled from the data loader so far, are useful for illustration purposes. If you have previous experience with deep learning, you may know that small batch sizes require less memory during training but lead to more noisy model updates. Just like in regular deep learning, the batch size is a trade-off and hyperparameter to experiment with when training LLMs.
 
@@ -985,7 +986,7 @@ Before we move on to the two final sections of this chapter that are focused on 
 
 48
 
-```
+```python
 dataloader = create_dataloader_v1(raw_text, batch_size=8, max_length=4, stride=4)
 data_iter = iter(dataloader)
 inputs, targets = next(data_iter)
@@ -1021,30 +1022,32 @@ The last step for preparing the input text for LLM training is to convert the to
 
 ![](_page_53_Figure_0.jpeg)
 
-Figure 2.15 Preparing the input text for an LLM involves tokenizing text, converting text tokens to token IDs, and converting token IDs into vector embedding vectors. In this section, we consider the token IDs created in previous sections to create the token embedding vectors.
+> Figure 2.15 Preparing the input text for an LLM involves tokenizing text, converting text tokens to token IDs, and converting token IDs into vector embedding vectors. In this section, we consider the token IDs created in previous sections to create the token embedding vectors.
 
 In addition to the processes outlined in Figure 2.15, it is important to note that we initialize these embedding weights with random values as a preliminary step. This initialization serves as the starting point for the LLM's learning process. We will optimize the embedding weights as part of the LLM training in chapter 5.
 
-A continuous vector representation, or embedding, is necessary since GPT-like LLMs are deep neural networks trained with the backpropagation algorithm. If you are unfamiliar with how neural networks are trained with backpropagation, please read section A.4, *Automatic differentiation made easy*, in Appendix A.
+A continuous vector representation, or embedding, is necessary since GPT-like LLMs are deep neural networks trained with the backpropagation algorithm. If you are unfamiliar with how neural networks are trained with backpropagation, please read [section A.4, Automatic differentiation made easy](# A.4 Automatic differentiation made easy), in Appendix A.
 
 Let's illustrate how the token ID to embedding vector conversion works with a hands-on example. Suppose we have the following four input tokens with IDs 2, 3, 5, and 1:
 
-input\\_ids = torch.tensor([2, 3, 5, 1])
+```python
+input_ids = torch.tensor([2, 3, 5, 1])
+```
 
 For the sake of simplicity and illustration purposes, suppose we have a small vocabulary of only 6 words (instead of the 50,257 words in the BPE tokenizer vocabulary), and we want to create embeddings of size 3 (in GPT-3, the embedding size is 12,288 dimensions):
 
-```
+```python
 vocab_size = 6
 output_dim = 3
 ```
-Using the vocab\_size and output\_dim, we can instantiate an embedding layer in PyTorch, setting the random seed to 123 for reproducibility purposes:
+Using the `vocab_size` and `output_dim`, we can instantiate an embedding layer in PyTorch, setting the random seed to 123 for reproducibility purposes:
 
-```
+```python
 torch.manual_seed(123)
 embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
 print(embedding_layer.weight)
 ```
-The print statement in the preceding code example prints the embedding layer's underlying weight matrix:
+The `print` statement in the preceding code example prints the embedding layer's underlying weight matrix:
 
 ```
 Parameter containing:
@@ -1059,33 +1062,47 @@ We can see that the weight matrix of the embedding layer contains small, random 
 
 After we instantiated the embedding layer, let's now apply it to a token ID to obtain the embedding vector:
 
-print\(embedding\_layer(torch.tensor([3])))
+```python
+print(embedding_layer(torch.tensor([3])))
+```
 
 The returned embedding vector is as follows:
 
-tensor([[-0.4015, 0.9666, -1.1481]], grad\_fn=<EmbeddingBackward0>)
+```
+tensor([[-0.4015, 0.9666, -1.1481]], grad_fn=<EmbeddingBackward0>)
+```
 
 If we compare the embedding vector for token ID 3 to the previous embedding matrix, we see that it is identical to the 4th row (Python starts with a zero index, so it's the row corresponding to index 3). In other words, the embedding layer is essentially a look-up operation that retrieves rows from the embedding layer's weight matrix via a token ID.
 
-#### EMBEDDING LAYERS VERSUS MATRIX MULTIPLICATION
-
-For those who are familiar with one-hot encoding, the embedding layer approach above is essentially just a more efficient way of implementing one-hot encoding followed by matrix multiplication in a fully connected layer, which is illustrated in the supplementary code on GitHub at [https://github.com/rasbt/LLMs-from-scratch/tree/](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/03_bonus_embedding-vs-matmul) [main/ch02/03\\_bonus\\_embedding-vs-matmul](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/03_bonus_embedding-vs-matmul). Because the embedding layer is just a more efficient implementation equivalent to the one-hot encoding and matrixmultiplication approach, it can be seen as a neural network layer that can be optimized via backpropagation.
+> [!NOTE]
+>
+> **EMBEDDING LAYERS VERSUS MATRIX MULTIPLICATION**
+>
+> For those who are familiar with one-hot encoding, the embedding layer approach above is essentially just a more efficient way of implementing one-hot encoding followed by matrix multiplication in a fully connected layer, which is illustrated in the supplementary code on GitHub at [https://github.com/rasbt/LLMs-from-scratch/tree/](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/03_bonus_embedding-vs-matmul) [main/ch02/03\\_bonus\\_embedding-vs-matmul](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/03_bonus_embedding-vs-matmul). Because the embedding layer is just a more efficient implementation equivalent to the one-hot encoding and matrixmultiplication approach, it can be seen as a neural network layer that can be optimized via backpropagation.
+>
 
 Previously, we have seen how to convert a single token ID into a three-dimensional embedding vector. Let's now apply that to all four input IDs we defined earlier (torch.tensor([2, 3, 5, 1])):
 
-print(embedding\_layer(input\_ids))
+```python
+print(embedding_layer(input_ids))
+```
 
 The print output reveals that this results in a 4x3 matrix:
 
-tensor([[ 1.2753, -0.2010, -0.1606], [-0.4015, 0.9666, -1.1481], [-2.8400, -0.7849, -1.4096], [ 0.9178, 1.5810, 1.3010]], grad\_fn=<EmbeddingBackward0>)
+```
+tensor([[ 1.2753, -0.2010, -0.1606],
+				[-0.4015, 0.9666, -1.1481],
+				[-2.8400, -0.7849, -1.4096],
+				[ 0.9178, 1.5810, 1.3010]], grad_fn=<EmbeddingBackward0>)
+```
 
 Each row in this output matrix is obtained via a lookup operation from the embedding weight matrix, as illustrated in Figure 2.16.
 
 ![](_page_56_Figure_0.jpeg)
 
-Figure 2.16 Embedding layers perform a look-up operation, retrieving the embedding vector corresponding to the token ID from the embedding layer's weight matrix. For instance, the embedding vector of the token ID 5 is the sixth row of the embedding layer weight matrix (it is the sixth instead of the fifth row because Python starts counting at 0). For illustration purposes, we assume that the token IDs were produced by the small vocabulary we used in section 2.3.
+> Figure 2.16 Embedding layers perform a look-up operation, retrieving the embedding vector corresponding to the token ID from the embedding layer's weight matrix. For instance, the embedding vector of the token ID 5 is the sixth row of the embedding layer weight matrix (it is the sixth instead of the fifth row because Python starts counting at 0). For illustration purposes, we assume that the token IDs were produced by the small vocabulary we used in section 2.3.
 
-This section covered how we create embeddi[ng](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=233---book-markup-container) vectors from token IDs. The next and final section of this chapter will add a small modification to these embedding vectors to encode positional information about a token within a text.
+This section covered how we create embedding vectors from token IDs. The next and final section of this chapter will add a small modification to these embedding vectors to encode positional information about a token within a text.
 
 ## 2.8 Encoding word positions
 
@@ -1095,15 +1112,15 @@ The way the previously introduced embedding layer works is that the same token I
 
 ![](_page_57_Figure_0.jpeg)
 
-Figure 2.17 The embedding layer converts a token ID into the same vector representation regardless of where it is located in the input sequence. For example, the token ID 5, whether it's in the first or third position in the token ID input vector, will result in the same embedding vector.
+> Figure 2.17 The embedding layer converts a token ID into the same vector representation regardless of where it is located in the input sequence. For example, the token ID 5, whether it's in the first or third position in the token ID input vector, will result in the same embedding vector.
 
-In principle, the deterministic, position-indep[en](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=238---book-markup-container)dent embedding of the token ID is good for reproducibility purposes. However, since the self-attention mechanism of LLMs itself is also position-agnostic, it is helpful to inject additional position information into the LLM.
+In principle, the deterministic, position-independent embedding of the token ID is good for reproducibility purposes. However, since the self-attention mechanism of LLMs itself is also position-agnostic, it is helpful to inject additional position information into the LLM.
 
 Absolute positional embeddings are directly associated with specific positions in a sequence. For each position in the input sequence, a unique embedding is added to the token's embedding to convey its exact location. For instance, the first token will have a specific positional embedding, the second token another distinct embedding, and so on, as illustrated in Figure 2.18.
 
 ![](_page_58_Figure_1.jpeg)
 
-Figure 2.18 Positional embeddings are added to the token embedding vector to create the input embeddings for an LLM. The positional vectors have the same dimension as the original token embeddings. The token embeddings are shown with value 1 for simplicity.
+>  Figure 2.18 Positional embeddings are added to the token embedding vector to create the input embeddings for an LLM. The positional vectors have the same dimension as the original token embeddings. The token embeddings are shown with value 1 for simplicity.
 
 Instead of focusing on the absolute position of a token, the emphasis of relative positional embeddings is on the relative position or distance between tokens. This means the model learns the relationships in terms of "how far apart" rather than "at which exact position." The advantage here is that the model can generalize better to sequences of varying lengths, even if it hasn't seen such lengths during training.
 
@@ -1113,7 +1130,7 @@ OpenAI's GPT models use absolute positional embeddings that are optimized during
 
 Previously, we focused on very small embedding sizes in this chapter for illustration purposes. We now consider more realistic and useful embedding sizes and encode the input tokens into a 256-dimensional vector representation. This is smaller than what the original GPT-3 model used (in GPT-3, the embedding size is 12,288 dimensions) but still reasonable for experimentation. Furthermore, we assume that the token IDs were created by the BPE tokenizer that we implemented earlier, which has a vocabulary size of 50,257:
 
-```
+```python
 vocab_size = 50257
 output_dim = 256
 token_embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
@@ -1122,7 +1139,7 @@ Using the token\_embedding\_layer above, if we sample data from the data loader,
 
 Let's instantiate the data loader from section 2.6, *Data sampling with a sliding window*, first:
 
-```
+```python
 max_length = 4
 dataloader = create_dataloader_v1(
     raw_text, batch_size=8, max_length=max_length, stride=max_length, shuffle=False)
@@ -1143,18 +1160,22 @@ tensor([[ 40, 367, 2885, 1464],
       [ 568, 340, 373, 645],
       [ 1049, 5975, 284, 502],
       [ 284, 3285, 326, 11]])
+Inputs shape: 
+    torch.Size([8, 4])      
 ```
-Inputs shape: torch.Size([8, 4])
-
 As we can see, the token ID tensor is 8x4-dimensional, meaning that the data batch consists of 8 text samples with 4 tokens each.
 
 Let's now use the embedding layer to embed these token IDs into 256-dimensional vectors:
 
-token\\_embeddings = token\_embedding\_layer(inputs) print(token\_embeddings.shape)
+```python
+token_embeddings = token_embedding_layer(inputs) print(token_embeddings.shape)
+```
 
 The preceding print function call returns the following:
 
+```
 torch.Size([8, 4, 256])
+```
 
 As we can tell based on the 8x4x256-dimensional tensor output, each token ID is now embedded as a 256-dimensional vector.
 
@@ -1162,29 +1183,35 @@ As we can tell based on the 8x4x256-dimensional tensor output, each token ID is 
 
 For a GPT model's absolute embedding approach, we just need to create another embedding layer that has the same dimension as the token\_embedding\_layer:
 
-```
+```python
 context_length = max_length
 pos_embedding_layer = torch.nn.Embedding(context_length, output_dim)
 pos_embeddings = pos_embedding_layer(torch.arange(context_length))
 print(pos_embeddings.shape)
 ```
-As shown in the preceding code example, the input to the pos\_embeddings is usually a placeholder vector torch.arange(context\_length), which contains a sequence of numbers 0, 1, ..., up to the maximum input length − 1. The context\_length is a variable that represents the supported input size of the LLM. Here, we choose it similar to the maximum length of the input text. In practice, input text can be longer than the supported context length, in which case we have to truncate the text.
+As shown in the preceding code example, the input to the pos\_embeddings is usually a placeholder vector `torch.arange(context_length)`, which contains a sequence of numbers 0, 1, ..., up to the maximum input length − 1. The `context_length` is a variable that represents the supported input size of the LLM. Here, we choose it similar to the maximum length of the input text. In practice, input text can be longer than the supported context length, in which case we have to truncate the text.
 
 The output of the print statement is as follows:
 
+```
 torch.Size([4, 256])
+```
 
 As we can see, the positional embedding tensor consists of four 256-dimensional vectors. We can now add these directly to the token embeddings, where PyTorch will add the 4x256 dimensional pos\_embeddings tensor to each 4x256-dimensional token embedding tensor in each of the 8 batches:
 
-input\_embeddings = token\_embeddings + pos\_embeddings print(input\_embeddings.shape)
+```
+input_embeddings = token_embeddings + pos_embeddings print(input_embeddings.shape)
+```
 
+```
 torch.Size([8, 4, 256])
+```
 
 The input\_embeddings we created, as summarized in Figure 2.19, are the embedded input examples that can now be processed by the main LLM modules, which we will begin implementing in chapter 3
 
 ![](_page_61_Figure_0.jpeg)
 
-Figure 2.19 As part of the input processing pipeline, input text is first broken up into individual tokens. These tokens are then converted into token IDs using a vocabulary. The token IDs are converted into embedding vectors to which positional embeddings of a similar size are added, resulting in input embeddings that are used as input for the main LLM layers.
+> Figure 2.19 As part of the input processing pipeline, input text is first broken up into individual tokens. These tokens are then converted into token IDs using a vocabulary. The token IDs are converted into embedding vectors to which positional embeddings of a similar size are added, resulting in input embeddings that are used as input for the main LLM layers.
 
 ## 2.9 Summary
 
@@ -7205,9 +7232,9 @@ Figure A.8 shows partial derivatives, which measure the rate at which a function
 
 If you are not familiar or don't remember the partial derivatives, gradients, or the chain rule from calculus, don't worry. On a high level, all you need to know for this book is that the chain rule is a way to compute gradients of a loss function with respect to the model's parameters in a computation graph. This provides the information needed to update each parameter in a way that minimizes the loss function, which serves as a proxy for measuring the model's performance, using a method such as gradient descent. We will revisit the computational implementation of this training loop in PyTorch in section 2.7, *A typical training loop*.
 
-[No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=145---book-markup-container)w, how is this all related to the second component of the PyTorch library we mentioned earlier, the automatic differentiation (autograd) engine? By tracking every operation performed on tensors, PyTorch's autograd engine constructs a computational graph in the background. Then, calling the grad function, we can compute the gradient of the loss with respect to model parameter w1 as follows:
+Now, how is this all related to the second component of the PyTorch library we mentioned earlier, the automatic differentiation (autograd) engine? By tracking every operation performed on tensors, PyTorch's autograd engine constructs a computational graph in the background. Then, calling the grad function, we can compute the gradient of the loss with respect to model parameter w1 as follows:
 
-```
+```python
 Listing A.3 Computing gradients via autograd
 import torch.nn.functional as F
 from torch.autograd import grad
@@ -7220,22 +7247,24 @@ a = torch.sigmoid(z)
 loss = F.binary_cross_entropy(a, y)
 grad_L_w1 = grad(loss, w1, retain_graph=True) #A
 grad_L_b = grad(loss, b, retain_graph=True)
-```
 #A By default, PyTorch destroys the computation graph after calculating the gradients to free memory. However, since we are going to reuse this computation graph shortly, we set retain\_graph=True so that it stays in memory.
-
+```
 Let's show the resulting values of the loss with respect to the model's parameters:
 
-```
+```python
 print(grad_L_w1)
 print(grad_L_b)
 ```
 The prints:
 
-(tensor([-0.0898]),) (tensor([-0.0817]),)
-
-Above, we have been using the grad function "manually," which can be useful for experimentation, debugging, and demonstrating concepts. But in practice, PyTorch provides even more high-level tools to automate this process. For instance, we can call .backward on the loss, and PyTorch will compute the gradients of all the leaf nodes in the graph, which will be stored via the tensors' .grad attributes:
-
+```python
+(tensor([-0.0898]),)
+(tensor([-0.0817]),)
 ```
+
+Above, we have been using the `grad` function "manually," which can be useful for experimentation, debugging, and demonstrating concepts. But in practice, PyTorch provides even more high-level tools to automate this process. For instance, we can call .backward on the loss, and PyTorch will compute the gradients of all the leaf nodes in the graph, which will be stored via the tensors' .grad attributes:
+
+```python
 loss.backward()
 print(w1.grad)
 print(b.grad)
@@ -7244,7 +7273,10 @@ print(b.grad)
 
 The outputs are:
 
-(tensor([-0.0898]),) (tensor([-0.0817]),)
+```python
+(tensor([-0.0898]),) 
+(tensor([-0.0817]),)
+```
 
 If this section is packed with a lot of information and you may be overwhelmed by the calculus concepts, don't worry. While this calculus jargon was a means to explain PyTorch's autograd component, all you need to take away from this section is that PyTorch takes care of the calculus for us via the .backward method -- we won't need to compute any derivatives or gradients by hand in this book.
 
