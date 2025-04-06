@@ -1358,6 +1358,8 @@ The first step of implementing self-attention is to compute the intermediate val
 ![](_page_72_Figure_0.jpeg)
 
 > Figure 3.8 The overall goal of this section is to illustrate the computation of the context vector $z^{(2)}$ using the second input element, $x^{(2)}$ as a query. This figure shows the first intermediate step, computing the attention scores ω between the query $x^{(2)}$ and all other input elements as a dot product. (Note that the numbers in the figure are truncated to one digit after the decimal point to reduce visual clutter.)
+>
+> 图 3.8 本节的总体目标是说明如何使用第二个输入元素 $x^{(2)}$ 作为==查询==来计算上下文向量 $z^{(2)}$。该图显示了第一个中间步骤，即计算查询 $x^{(2)}$ 与所有其他输入元素之间的注意力得分 ω 作为点积。（请注意，图中的数字被截断为小数点后一位，以减少视觉混乱。）
 
 Figure 3.8 illustrates how we calculate the intermediate attention scores between the query token and each input token. We determine these scores by computing the dot product of the query, $x^{(2)}$ , with every other input token:
 
@@ -1379,7 +1381,7 @@ tensor([0.9544, 1.4950, 1.4754, 0.8434, 0.7070, 1.0865])
 
 > [!NOTE]
 >
-> **UNDERSTANDING DOT PRODUCTS**
+> [**UNDERSTANDING DOT PRODUCTS**](https://www.shuxuele.com/algebra/vectors-dot-product.html)
 >
 > A dot product is essentially just a concise way of multiplying two vectors elementwise and then summing the products, which we can demonstrate as follows:
 >
@@ -1397,14 +1399,14 @@ tensor([0.9544, 1.4950, 1.4754, 0.8434, 0.7070, 1.0865])
 > tensor(0.9544)
 > ```
 >
-> Beyond viewing the dot product operation as a mathematical tool that combines two vectors to yield a scalar value, the dot product is a measure of similarity because it quantifies how much two vectors are aligned: a higher dot product indicates a greater degree of alignment or similarity between the vectors. In the context of selfattention mechanisms, the dot product determines the extent to which elements in a sequence attend to each other: the higher the dot product, the higher the similarity and attention score between two elements.
+> Beyond viewing the dot product operation as a mathematical tool that combines two vectors to yield a scalar value, the dot product is a measure of similarity because **it quantifies how much two vectors are aligned**: a higher dot product indicates a greater degree of alignment or similarity between the vectors. In the context of selfattention mechanisms, the dot product determines the extent to which elements in a sequence attend to each other: the higher the dot product, the higher the similarity and attention score between two elements.
 >
 
 In the next step, as shown in Figure 3.9, we normalize each of the attention scores that we computed previously.
 
 ![](_page_73_Figure_5.jpeg)
 
-Figure 3.9 After computing the attention scores <sup>ω</sup>21 to <sup>ω</sup>2T with respect to the input query x (2) , the next step is to obtain the attention weights <sup>α</sup>21to <sup>α</sup>2Tby normalizing the attention scores.
+> Figure 3.9 After computing the attention scores <sup>ω</sup>21 to <sup>ω</sup>2T with respect to the input query x (2) , the next step is to obtain the attention weights <sup>α</sup>21to <sup>α</sup>2Tby normalizing the attention scores.
 
 The main goal behind the normalization shown in Figure 3.9 is to obtain attention weights that sum up to 1. This normalization is a convention that is useful for interpretation and for maintaining training stability in an LLM. Here's a straightforward method for achieving this normalization step:
 
@@ -1449,11 +1451,11 @@ In this case, we can see that it yields the same results as our previous `softma
 Attention weights: tensor([0.1385, 0.2379, 0.2333, 0.1240, 0.1082, 0.1581]) Sum: tensor(1.)
 ```
 
-Now that we computed the normalized attention weights, we are ready for the final step illustrated in Figure 3.10: calculating the context vector *z (2)* by multiplying the embedded input tokens, *x (i)* , with the corresponding attention weights and then summing the resulting vectors.
+Now that we computed the normalized attention weights, we are ready for the final step illustrated in Figure 3.10: calculating the context vector $z^{(2)}$ by multiplying the embedded input tokens, $x^{(i)}$ , with the corresponding attention weights and then summing the resulting vectors.
 
 ![](_page_75_Figure_2.jpeg)
 
-> Figure 3.10 The final step, after calculating and normalizing the attention scores to obtain the attention weights for query x (2) , is to compute the context vector z (2) . This context vector is a combination of all input vectors x (1) to x (T)weighted by the attention weights.
+> Figure 3.10 The final step, after calculating and normalizing the attention scores to obtain the attention weights for query $x^{(2)}$ , is to compute the context vector $z^{(2)}$ . This context vector is a combination of all input vectors $x^{(1)}$ to $x^{(T)}$ weighted by the attention weights.
 
 The context vector $z^{(2)}$ depicted in Figure 3.10 is calculated as a weighted sum of all input vectors. This involves multiplying each input vector by its corresponding attention weight:
 
@@ -1472,6 +1474,14 @@ tensor([0.4419, 0.6515, 0.5683])
 
 In the next section, we will generalize this procedure for computing context vectors to calculate all context vectors simultaneously.
 
+$$
+\begin{align*}
+    \text{score}_i   &= \text{query} \cdot \text{input}_i = \sum_j \text{query}_j \cdot \text{input}_{i,j} \\
+    \text{weight}_i  &= \frac{e^{\text{score}_i}}{\sum_i e^{\text{score}_i}} \\
+    \text{context}   &= \sum_i \text{weight}_i \cdot \text{input}_i
+\end{align*}
+$$
+
 ### 3.3.2 Computing attention weights for all input tokens
 
 In the previous section, we computed attention weights and the context vector for input 2, as shown in the highlighted row in Figure 3.11. Now, we are extending this computation to calculate attention weights and context vectors for all inputs.
@@ -1480,15 +1490,15 @@ In the previous section, we computed attention weights and the context vector fo
 
 > Figure 3.11 The highlighted row shows the attention weights for the second input element as a query, as we computed in the previous section. This section generalizes the computation to obtain all other attention weights.
 
-We follow the same three steps as before, a[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=86---book-markup-container) summarized in Figure 3.12, except that we make a few modifications in the code to compute all context vectors instead of only the second context vector, *z (2)* .
+We follow the same three steps as before, a[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=86---book-markup-container) summarized in Figure 3.12, except that we make a few modifications in the code to compute all context vectors instead of only the second context vector, $z^{(2)}$ .
 
 ![](_page_76_Figure_5.jpeg)
 
-Figure 3.12 In self-attention, we begin by computing the attention scores, which are then normalized to obtain attention weights that sum up to 1. These attention weights are used to compute the context vectors as a weighted sum of the inputs.
+> Figure 3.12 In self-attention, we begin by computing the attention scores, which are then normalized to obtain attention weights that sum up to 1. These attention weights are used to compute the context vectors as a weighted sum of the inputs.
 
-First, in step 1 as illustrated in Figure 3.12, [w](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=88---book-markup-container)e add an additional for-loop to compute the dot products for all pairs of inputs.
+**First, in step 1** as illustrated in Figure 3.12, we add an additional for-loop to compute the dot products for all pairs of inputs.
 
-```
+```python
 attn_scores = torch.empty(6, 6)
 for i, x_i in enumerate(inputs):
     for j, x_j in enumerate(inputs):
@@ -1497,7 +1507,7 @@ print(attn_scores)
 ```
 The resulting attention scores are as follows:
 
-```
+```python
 tensor([[0.9995, 0.9544, 0.9422, 0.4753, 0.4576, 0.6310],
         [0.9544, 1.4950, 1.4754, 0.8434, 0.7070, 1.0865],
         [0.9422, 1.4754, 1.4570, 0.8296, 0.7154, 1.0605],
@@ -1524,9 +1534,9 @@ tensor([[0.9995, 0.9544, 0.9422, 0.4753, 0.4576, 0.6310],
         [0.4576, 0.7070, 0.7154, 0.3474, 0.6654, 0.2935],
         [0.6310, 1.0865, 1.0605, 0.6565, 0.2935, 0.9450]])
 ```
-In step 2, as illustrated in Figure 3.12, we now normalize each row so that the values in each row sum to 1:
+**In step 2**, as illustrated in Figure 3.12, we now normalize each row so that the values in each row sum to 1:
 
-```
+```python
 attn_weights = torch.softmax(attn_scores, dim=-1)
 print(attn_weights)
 ```
@@ -1540,23 +1550,33 @@ tensor([[0.2098, 0.2006, 0.1981, 0.1242, 0.1220, 0.1452],
         [0.1526, 0.1958, 0.1975, 0.1367, 0.1879, 0.1295],
         [0.1385, 0.2184, 0.2128, 0.1420, 0.0988, 0.1896]])
 ```
-In the context of using PyTorch, the dim parameter in functions like torch.softmax specifies the dimension of the input tensor along which the function will be computed. By setting dim=-1, we are instructing the softmax function to apply the normalization along the last dimension of the attn\_scores tensor. If attn\_scores is a 2D tensor (for example, with a shape of [rows, columns]), dim=-1 will normalize across the columns so that the values in each row (summing over the column dimension) sum up to 1.
+In the context of using PyTorch, the dim parameter in functions like `torch.softmax` specifies the dimension of the input tensor along which the function will be computed. By setting `dim=-1`, we are instructing the `softmax` function to apply the normalization along the last dimension of the `attn_scores` tensor. If `attn_scores` is a 2D tensor (for example, with a shape of `[rows, columns]`), `dim=-1` will normalize across the columns so that the values in each row (summing over the column dimension) sum up to 1.
 
 Before we move on to step 3, the final step shown in Figure 3.12, let's briefly verify that the rows indeed all sum to 1:
 
-r[ow\\_2\\_](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=103---book-markup-container)sum = sum([0.1385, 0.2379, 0.2333, 0.1240, 0.1082, 0.1581]) print("Row 2 sum:", row\_2\_sum) print("All row sums:", attn\_weights.sum(dim=-1))
+```python
+row_2_sum = sum([0.1385, 0.2379, 0.2333, 0.1240, 0.1082, 0.1581])
+print("Row 2 sum:", row_2_sum)
+print("All row sums:", attn_weights.sum(dim=-1))
+```
 
 The result is as follows:
 
-Row 2 sum: 1.0 All row sums: tensor([1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000])
+```python
+Row 2 sum: 1.0
+All row sums: tensor([1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000])
+```
 
 In the third and last step, we now use these attention weights to compute all context vectors via matrix multiplication:
 
-all\_context\_vecs = attn\_weights @ inputs print(all\_context\_vecs)
+```python
+all_context_vecs = attn_weights @ inputs
+print(all_context_vecs)
+```
 
 In the resulting output tensor, each row contains a 3-dimensional context vector:
 
-```
+```python
 tensor([[0.4421, 0.5931, 0.5790],
         [0.4419, 0.6515, 0.5683],
         [0.4431, 0.6496, 0.5671],
@@ -1564,13 +1584,17 @@ tensor([[0.4421, 0.5931, 0.5790],
         [0.4671, 0.5910, 0.5266],
         [0.4177, 0.6503, 0.5645]])
 ```
-We can double-check that the code is correct by comparing the 2nd row with the context vector *z (2)* that we computed previously in section 3.3.1:
+We can double-check that the code is correct by comparing the 2nd row with the context vector $z^{(2)}$ that we computed previously in section 3.3.1:
 
-print("Previous 2nd context vector:", context\_vec\_2)
+```python
+ print("Previous 2nd context vector:", context_vec_2)
+```
 
-Based on the result, we can see that the previously calculated context\_vec\_2 matches the second row in the previous tensor exactly:
+Based on the result, we can see that the previously calculated `context_vec_2` matches the second row in the previous tensor exactly:
 
-Previous 2nd context vector: tensor([0.4419, 0.6515, 0.5683])
+```python
+ Previous 2nd context vector: tensor([0.4419, 0.6515, 0.5683])
+```
 
 This concludes the code walkthrough of a simple self-attention mechanism. In the next section, we will add trainable weights, enabling the LLM to learn from data and improve its performance on specific tasks.
 
@@ -1580,27 +1604,27 @@ In this section, we are implementing the self-attention mechanism that is used i
 
 ![](_page_80_Figure_0.jpeg)
 
-Figure 3.13 A mental model illustrating how the self-attention mechanism we code in this section fits into the broader context of this book and chapter. In the previous section, we coded a simplified attention mechanism to understand the basic mechanism behind attention mechanisms. In this section, we add trainable weights to this attention mechanism. In the upcoming sections, we will then extend this self-attention mechanism by adding a causal mask and multiple heads.
+> Figure 3.13 A mental model illustrating how the self-attention mechanism we code in this section fits into the broader context of this book and chapter. In the previous section, we coded a simplified attention mechanism to understand the basic mechanism behind attention mechanisms. In this section, we add trainable weights to this attention mechanism. In the upcoming sections, we will then extend this self-attention mechanism by adding a causal mask and multiple heads.
 
-As illustrated in Figure 3.13 the self-attentio[n](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=118---book-markup-container) mechanism with trainable weights builds on the previous concepts: we want to compute context vectors as weighted sums over the input vectors specific to a certain input element. As you will see, there are only slight differences compared to the basic self-attention mechanism we coded earlier in section 3.3.
+As illustrated in Figure 3.13 the self-attention mechanism with trainable weights builds on the previous concepts: we want to compute context vectors as weighted sums over the input vectors specific to a certain input element. As you will see, there are only slight differences compared to the basic self-attention mechanism we coded earlier in section 3.3.
 
 The most notable difference is the introduction of weight matrices that are updated during model training. These trainable weight matrices are crucial so that the model (specifically, the attention module inside the model) can learn to produce "good" context vectors. (Note that we will train the LLM in chapter 5.)
 
-[We](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=120---book-markup-container) will tackle this self-attention mechanism in the two subsections. First, we will code it step-by-step as before. Second, we will organize the code into a compact Python class that can be imported into an LLM architecture, which we will code in chapter 4.
+We will tackle this self-attention mechanism in the two subsections. First, we will code it step-by-step as before. Second, we will organize the code into a compact Python class that can be imported into an LLM architecture, which we will code in chapter 4.
 
-#### 3[.4.1](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=121---book-markup-container) Computing the attention weights step by step
+#### 3.4.1 Computing the attention weights step by step
 
-We will implement the self-attention mechanism step by step by introducing the three trainable weight matrices *W<sup>q</sup>* , *W<sup>k</sup>* , and *W<sup>v</sup>* . These three matrices are used to project the embedded input tokens, *x (i)* , into query, key, and value vectors as illustrated in Figure 3.14.
+We will implement the self-attention mechanism step by step by introducing the three trainable weight matrices $W_q$, $W_k$, and $W_v$. These three matrices are used to project the embedded input tokens,$x^{(i)}$ , into query, key, and value vectors as illustrated in Figure 3.14.
 
 ![](_page_81_Figure_0.jpeg)
 
-Figure 3.14 In the first step of the self-attention mechanism with trainable weight matrices, we compute query (q), key (k), and value (v) vectors for input elements x. Similar to previous sections, we designate the second input, x (2) , as the query input. The query vector q (2) is obtained via matrix multiplication between the input x (2) and the weight matrix <sup>W</sup>q . Similarly, we obtain the key and value vectors via matrix multiplication involving the weight matrices <sup>W</sup>k and <sup>W</sup>v.
+> Figure 3.14 In the first step of the self-attention mechanism with trainable weight matrices, we compute query (q), key (k), and value (v) vectors for input elements x. Similar to previous sections, we designate the second input, $x^{(2)}$, as the query input. The query vector $q^{(2)}$ is obtained via matrix multiplication between the input $x^{(2)}$ and the weight matrix $W_q$ . Similarly, we obtain the key and value vectors via matrix multiplication involving the weight matrices $W_k$ and $W_v$.
 
 Earlier in section 3.3.1, we defined the seco[n](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=124---book-markup-container)d input element *x (2)* as the query when we computed the simplified attention weights to compute the context vector *z (2)* . Later, in section 3.3.2, we generalized this to compute all context vectors *z (1) ... z (T)* for the sixword input sentence *"Your journey starts with one step."*
 
 Similarly, we will start by computing only one context vector, *z (2)* , for illustration purposes. In the next section, we will modify this code to calculate all context vectors.
 
-[Let](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=126---book-markup-container)'s begin by defining a few variables:
+Let's begin by defining a few variables:
 
 | x_2 = inputs[1]        | #A |
 |------------------------|----|
