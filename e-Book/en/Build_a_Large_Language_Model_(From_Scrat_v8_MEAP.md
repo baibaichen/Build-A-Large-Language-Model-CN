@@ -797,7 +797,7 @@ What do these input-target pairs look like? As we learned in chapter 1, LLMs are
 
 > Figure 2.12 Given a text sample, extract input blocks as subsamples that serve as input to the LLM, and the LLM's prediction task during training is to predict the next word that follows the input block. During training, we mask out all words that are past the target. Note that the text shown in this figure would undergo tokenization before the LLM can process it; however, this figure omits the tokenization step for clarity.
 
-In this section we implement a data loader t[h](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=157---book-markup-container)at fetches the input-target pairs depicted in Figure 2.12 from the training dataset using a sliding window approach.
+In this section we implement a data loader that fetches the input-target pairs depicted in Figure 2.12 from the training dataset using a sliding window approach.
 
 To get started, we will first tokenize the whole The Verdict short story we worked with earlier using the BPE tokenizer introduced in the previous section:
 
@@ -867,7 +867,7 @@ and established ----> himself
 and established himself ----> in
 and established himself in ----> a
 ```
-We've now created the input-target pairs that we can turn into use for the LLM training in upcoming chapters.
+**We've now created the input-target pairs that we can turn into use for the LLM training in upcoming chapters**.
 
 There's only one more task before we can turn the tokens into embeddings, as we mentioned at the beginning of this chapter: implementing an efficient data loader that iterates over the input dataset and returns the inputs and targets as PyTorch tensors, which can be thought of as multidimensional arrays.
 
@@ -877,7 +877,7 @@ In particular, we are interested in returning two tensors: an input tensor conta
 
 > Figure 2.13 To implement efficient data loaders, we collect the inputs in a tensor, x, where each row represents one input context. A second tensor, y, contains the corresponding prediction targets (next words), which are created by shifting the input by one position.
 
-While Figure 2.13 shows the tokens in string format for illustration purposes, the code implementation will operate on token IDs directly since the encode method of the BPE tokenizer performs both tokenization and conversion into token IDs as a single step.
+While Figure 2.13 shows the tokens in string format for illustration purposes, the code implementation will operate on token IDs directly since the `encode` method of the BPE tokenizer performs both tokenization and conversion into token IDs as a single step.
 
 For the efficient data loader implementation, we will use PyTorch's built-in Dataset and DataLoader classes. For additional information and guidance on installing PyTorch, please see [section A.1.3, Installing PyTorch, in Appendix A](# A.1.3 Installing PyTorch).
 
@@ -886,7 +886,7 @@ The code for the dataset class is shown in code listing 2.5:
 44
 
 ```python
-Listing 2.5 A dataset for batched inputs and targets
+# Listing 2.5 A dataset for batched inputs and targets
 import torch
 from torch.utils.data import Dataset, DataLoader
 class GPTDatasetV1(Dataset):
@@ -904,7 +904,7 @@ class GPTDatasetV1(Dataset):
    def __getitem__(self, idx):                                 #D
        return self.input_ids[idx], self.target_ids[idx]
 #A Tokenize the entire text
-#B Use a sliding window to chunk the book into overlapping sequences of max\_length
+#B Use a sliding window to chunk the book into overlapping sequences of max_length
 #C Return the total number of rows in the dataset
 #D Return a single row from the dataset
 ```
@@ -1222,7 +1222,7 @@ LLMs require textual data to be converted into numerical vectors, known as embed
 - As the first step, raw text is broken into tokens, which can be words or characters. Then, the tokens are converted into integer representations, termed token IDs.
 - Special tokens, such as <|unk|> and <|endoftext|>, can be added to enhance the model's understanding and handle various contexts, such as unknown words or marking the boundary between unrelated texts[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=271---book-markup-container)
 - The byte pair encoding (BPE) tokenizer used for LLMs like GPT-2 and GPT-3 can efficiently handle unknown words by breaking them down into subword units or individual characters.
-- We use a sliding window approach on tokenized data to generate inputtarget pairs for LLM training.
+- We use a sliding window approach on tokenized data to generate input-target pairs for LLM training.
 - Embedding layers in PyTorch function as a lookup operation, retrieving vectors corresponding to token IDs. The resulting embedding vectors provide continuous representations of tokens, which is crucial for training deep learning models like LLMs[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-2?potentialInternalRefId=274---book-markup-container)
 - While token embeddings provide consistent vector representations for each token, they lack a sense of the token's position in a sequence. To rectify this, two main types of positional embeddings exist: absolute and relative. OpenAI's GPT models utilize absolute positional embeddings that are added to the token embedding vectors and are optimized during the model training.
 
