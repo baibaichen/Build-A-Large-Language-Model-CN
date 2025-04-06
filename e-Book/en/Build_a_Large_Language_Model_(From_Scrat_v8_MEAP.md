@@ -1078,8 +1078,7 @@ If we compare the embedding vector for token ID 3 to the previous embedding matr
 >
 > **EMBEDDING LAYERS VERSUS MATRIX MULTIPLICATION**
 >
-> For those who are familiar with one-hot encoding, the embedding layer approach above is essentially just a more efficient way of implementing one-hot encoding followed by matrix multiplication in a fully connected layer, which is illustrated in the supplementary code on GitHub at [https://github.com/rasbt/LLMs-from-scratch/tree/](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/03_bonus_embedding-vs-matmul) [main/ch02/03\\_bonus\\_embedding-vs-matmul](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/03_bonus_embedding-vs-matmul). Because the embedding layer is just a more efficient implementation equivalent to the one-hot encoding and matrixmultiplication approach, it can be seen as a neural network layer that can be optimized via backpropagation.
->
+> For those who are familiar with one-hot encoding, the embedding layer approach above is essentially just a more efficient way of implementing one-hot encoding followed by matrix multiplication in a fully connected layer, which is illustrated in the supplementary code on GitHub at [https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/03_bonus_embedding-vs-matmul](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/03_bonus_embedding-vs-matmul). Because the embedding layer is just a more efficient implementation equivalent to the one-hot encoding and matrix multiplication approach, it can be seen as a neural network layer that can be optimized via backpropagation.
 
 Previously, we have seen how to convert a single token ID into a three-dimensional embedding vector. Let's now apply that to all four input IDs we defined earlier (torch.tensor([2, 3, 5, 1])):
 
