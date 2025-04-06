@@ -146,7 +146,7 @@ Most modern LLMs rely on the **transformer** architecture, which is a deep neura
 
 The transformer architecture depicted in Figure 1.4 consists of two submodules, an encoder and a decoder. The encoder module processes the input text and encodes it into a series of numerical representations or vectors that capture the contextual information of the input. Then, the decoder module takes these encoded vectors and generates the output text from them. In a translation task, for example, the encoder would encode the text from the source language into vectors, and the decoder would decode these vectors to generate text in the target language. Both the encoder and decoder consist of many layers connected by a so-called self-attention mechanism. You may have many questions regarding how the inputs are preprocessed and encoded. These will be addressed in a step-by-step implementation in the subsequent chapters.
 
-A key component of transformers and LLMs is the self-attention mechanism (not shown), which allows the model to weigh the importance of different words or tokens in a sequence relative to each other. This mechanism enables the model to capture long-range dependencies and contextual relationships within the input data, enhancing its ability to generate coherent and contextually relevant output. However, due to its complexity, we will defer the explanation to chapter 3, where we will discuss and implement it step by step. Moreover, we will also discuss and implement the data preprocessing steps to create the model inputs in *chapter 2, Working with Text Data*.
+A key component of transformers and LLMs is the self-attention mechanism (not shown), which allows the model to weigh the importance of different words or tokens in a sequence relative to each other. This mechanism enables the model to capture long-range dependencies and contextual relationships within the input data, enhancing its ability to generate coherent and contextually relevant output. However, due to its complexity, we will defer the explanation to chapter 3, where we will discuss and implement it step by step. Moreover, we will also discuss and implement the data preprocessing steps to create the model inputs in [chapter 2, Working with Text Data](# 2 Working with Text Data).
 
 Later variants of the transformer architecture, such as the so-called BERT (short for *bidirectional encoder representations from transformers*) and the various GPT models (short for *generative pretrained transformers*), built on this concept to adapt this architecture for different tasks. (References can be found in Appendix B.)
 
@@ -154,7 +154,7 @@ BERT, which is built upon the original transformer's encoder submodule, differs 
 
 ![](_page_13_Figure_0.jpeg)
 
-Figure 1.5 A visual representation of the transformer's encoder and decoder submodules. On the left, the encoder segment exemplifies BERT-like LLMs, which focus on masked word prediction and are primarily used for tasks like text classification. On the right, the decoder segment showcases GPT-like LLMs, designed for generative tasks and producing coherent text sequences.
+> Figure 1.5 A visual representation of the transformer's encoder and decoder submodules. On the left, the encoder segment exemplifies BERT-like LLMs, which focus on masked word prediction and are primarily used for tasks like text classification. On the right, the decoder segment showcases GPT-like LLMs, designed for generative tasks and producing coherent text sequences.
 
 GPT, on the other hand, focuses on the decoder portion of the original transformer architecture and is designed for tasks that require generating texts. This includes machine translation, text summarization, fiction writing, writing computer code, and more. We will discuss the GPT architecture in more detail in the remaining sections of this chapter and implement it from scratch in this book.
 
@@ -164,7 +164,7 @@ GPT models, primarily designed and trained to perform text completion tasks, als
 
 ![](_page_14_Figure_0.jpeg)
 
->  Figure 1.6 In addition to text completion, GPT-like LLMs can solve various tasks based on their inputs without needing retraining, finetuning, or task-specific model architecture changes. Sometimes, it is helpful to provide examples of the target within the input, which is known as a few-shot setting. However, GPT-like LLMs are also capable of carrying out tasks without a specific example, which is called zero-shot setting.
+> Figure 1.6 In addition to text completion, GPT-like LLMs can solve various tasks based on their inputs without needing retraining, finetuning, or task-specific model architecture changes. Sometimes, it is helpful to provide examples of the target within the input, which is known as a few-shot setting. However, GPT-like LLMs are also capable of carrying out tasks without a specific example, which is called zero-shot setting.
 
 > [!NOTE]
 >
@@ -1266,7 +1266,7 @@ Before we dive into the **self-attention** mechanism that is at the heart of LLM
 
 To address the issue that we cannot translate text word by word, it is common to use a deep neural network with two submodules, a so-called **encoder** and **decoder**. The job of the encoder is to first read in and process the entire text, and the decoder then produces the translated text.
 
-We already briefly discussed encoder-decoder networks when we introduced the transformer architecture in chapter 1 ([section 1.4, Using LLMs for different tasks](# 1.4 Introducing the transformer architecture)*)*. Before the advent of transformers, *recurrent neural networks* (RNNs) were the most popular encoder-decoder architecture for language translation.
+We already briefly discussed encoder-decoder networks when we introduced the transformer architecture in chapter 1 ([section 1.4, Using LLMs for different tasks](# 1.4 Introducing the transformer architecture)*)*. Before the advent of transformers, **recurrent neural networks** (RNNs) were the most popular encoder-decoder architecture for language translation.
 
 An RNN is a type of neural network where outputs from previous steps are fed as inputs to the current step, making them well-suited for sequential data like text. If you are unfamiliar with RNNs, don't worry, you don't need to know the detailed workings of RNNs to follow this discussion; our focus here is more on the general concept of the encoderdecoder setup.
 
@@ -1274,13 +1274,13 @@ In an encoder-decoder RNN, the input text is fed into the encoder, which process
 
 ![](_page_66_Figure_2.jpeg)
 
-Figure 3.4 Before the advent of transformer models, encoder-decoder RNNs were a popular choice for machine translation. The encoder takes a sequence of tokens from the source language as input, where a hidden state (an intermediate neural network layer) of the encoder encodes a compressed representation of the entire input sequence. Then, the decoder uses its current hidden state to begin the translation, token by token.
+> Figure 3.4 Before the advent of transformer models, encoder-decoder RNNs were a popular choice for machine translation. The encoder takes a sequence of tokens from the source language as input, where a hidden state (an intermediate neural network layer) of the encoder encodes a compressed representation of the entire input sequence. Then, the decoder uses its current hidden state to begin the translation, token by token.
 
-While we don't need to know the inner work[in](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=21---book-markup-container)gs of these encoder-decoder RNNs, the key idea here is that the encoder part processes the entire input text into a hidden state (memory cell). The decoder then takes in this hidden state to produce the output. You can think of this hidden state as an embedding vector, a concept we discussed in chapter 2.
+While we don't need to know the inner workings of these encoder-decoder RNNs, the key idea here is that the encoder part processes the entire input text into a hidden state (memory cell). The decoder then takes in this hidden state to produce the output. You can think of this hidden state as an embedding vector, a concept we discussed in chapter 2.
 
 The big issue and limitation of encoder-decoder RNNs is that the RNN can't directly access earlier hidden states from the encoder during the decoding phase. Consequently, it relies solely on the current hidden state, which encapsulates all relevant information. This can lead to a loss of context, especially in complex sentences where dependencies might span long distances.
 
-[For](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=23---book-markup-container) readers unfamiliar with RNNs, it is not essential to understand or study this architecture as we will not be using it in this book. The takeaway message of this section is that encoder-decoder RNNs had a shortcoming that motivated the design of attention mechanisms.
+For readers unfamiliar with RNNs, it is not essential to understand or study this architecture as we will not be using it in this book. **The takeaway message of this section is that encoder-decoder RNNs had a shortcoming that motivated the design of attention mechanisms**.
 
 63
 
@@ -1290,55 +1290,59 @@ Before transformer LLMs, it was common to use RNNs for language modeling tasks s
 
 One major shortcoming in this approach is that the RNN must remember the entire encoded input in a single hidden state before passing it to the decoder, as illustrated in Figure 3.4 in the previous section.
 
-[He](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=27---book-markup-container)nce, researchers developed the so-called *Bahdanau attention* mechanism for RNNs in 2014 (named after the first author of the respective paper), which modifies the encoderdecoder RNN such that the decoder can selectively access different parts of the input sequence at each decoding step as illustrated in Figure 3.5.
+Hence, researchers developed the so-called **Bahdanau attention** mechanism for RNNs in 2014 (named after the first author of the respective paper), which modifies the encoder-decoder RNN such that the decoder can selectively access different parts of the input sequence at each decoding step as illustrated in Figure 3.5.
 
 ![](_page_67_Figure_4.jpeg)
 
-Figure 3.5 Using an attention mechanism, the text-generating decoder part of the network can access all input tokens selectively. This means that some input tokens are more important than others for generating a given output token. The importance is determined by the so-called attention weights, which we will compute later. Note that this figure shows the general idea behind attention and does not depict the exact implementation of the Bahdanau mechanism, which is an RNN method outside this book's scope.
+> Figure 3.5 Using an attention mechanism, the text-generating decoder part of the network can access all input tokens selectively. This means that some input tokens are more important than others for generating a given output token. The importance is determined by the so-called attention weights, which we will compute later. Note that this figure shows the general idea behind attention and does not depict the exact implementation of the Bahdanau mechanism, which is an RNN method outside this book's scope.
 
-Interestingly, only three years later, resear[ch](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=29---book-markup-container)ers found that RNN architectures are not required for building deep neural networks for natural language processing and proposed the original *transformer* architecture (discussed in chapter 1) with a self-attention mechanism inspired by the Bahdanau attention mechanism.
+Interestingly, only three years later, researchers found that RNN architectures are not required for building deep neural networks for natural language processing and proposed the original *transformer* architecture (discussed in chapter 1) with a self-attention mechanism inspired by the Bahdanau attention mechanism.
 
 Self-attention is a mechanism that allows each position in the input sequence to attend to all positions in the same sequence when computing the representation of a sequence. Self-attention is a key component of contemporary LLMs based on the transformer architecture, such as the GPT series.
 
-[Thi](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=31---book-markup-container)s chapter focuses on coding and understanding this self-attention mechanism used in GPT-like models, as illustrated in Figure 3.6. In the next chapter, we will then code the remaining parts of the LLM.
+This chapter focuses on coding and understanding this self-attention mechanism used in GPT-like models, as illustrated in Figure 3.6. In the next chapter, we will then code the remaining parts of the LLM.
 
 ![](_page_68_Figure_2.jpeg)
 
-Figure 3.6 Self-attention is a mechanism in transformers that is used to compute more efficient input representations by allowing each position in a sequence to interact with and weigh the importance of all other positions within the same sequence. In this chapter, we will code this self-attention mechanism from the ground up before we code the remaining parts of the GPT-like LLM in the following chapter.
+> Figure 3.6 Self-attention is a mechanism in transformers that is used to compute more efficient input representations by allowing each position in a sequence to interact with and weigh the importance of all other positions within the same sequence. In this chapter, we will code this self-attention mechanism from the ground up before we code the remaining parts of the GPT-like LLM in the following chapter.
 
 ## 3.3 Attending to different parts of the input with self-attention
 
 We'll now cover the inner workings of the self-attention mechanism and learn how to code it from the ground up. Self-attention serves as the cornerstone of every LLM based on the transformer architecture. It's worth noting that this topic may require a lot of focus and attention (no pun intended), but once you grasp its fundamentals, you will have conquered one of the toughest aspects of this book and implementing LLMs in general.
 
-#### THE "SELF" IN SELF-ATTENTION
-
-In self-attention, the "self" refers to the mechanism's ability to compute attention weights by relating different positions within a single input sequence. It assesses and learns the relationships and dependencies between various parts of the input itself, such as words in a sentence or pixels in an image. This is in contrast to traditional attention mechanisms, where the focus is on the relationships between elements of two different sequences, such as in sequence-to-sequence models where the attention might be between an input sequence and an output sequence, such as the example depicted in Figure 3.5.
+> [!NOTE]
+>
+> **THE "SELF" IN SELF-ATTENTION**
+>
+> In self-attention, the "self" refers to the mechanism's ability to compute attention weights by relating different positions within a single input sequence. It assesses and learns the relationships and dependencies between various parts of the input itself, such as words in a sentence or pixels in an image. This is in contrast to traditional attention mechanisms, where the focus is on the relationships between elements of two different sequences, such as in sequence-to-sequence models where the attention might be between an input sequence and an output sequence, such as the example depicted in Figure 3.5.
+>
 
 Since self-attention can appear complex, especially if you are encountering it for the first time, we will begin by introducing a simplified version of self-attention in the next subsection. Afterwards, in section 3.4, we will then implement the self-attention mechanism with trainable weights, which is used in LLMs.
 
-#### 3.3.1 A simple self-attention mechanism without trainable weights
+### 3.3.1 A simple self-attention mechanism without trainable weights
 
 In this section, we implement a simplified variant of self-attention, free from any trainable weights, which is summarized in Figure 3.7. The goal of this section is to illustrate a few key concepts in self-attention before adding trainable weights next in section 3.4.
 
 ![](_page_70_Figure_0.jpeg)
 
-Figure 3.7 The goal of self-attention is to compute a context vector, for each input element, that combines information from all other input elements. In the example depicted in this figure, we compute the context vector z (2) . The importance or contribution of each input element for computing z (2) is determined by the attention weights <sup>α</sup>21 to <sup>α</sup>2T . When computing z (2) , the attention weights are calculated with respect to input element x (2) and all other inputs. The exact computation of these attention weights is discussed later in this section.
+> Figure 3.7 The goal of self-attention is to compute a context vector, for each input element, that combines information from all other input elements. In the example depicted in this figure, we compute the context vector $z^{(2)}$ . The importance or contribution of each input element for computing $z^{(2)}$ is determined by the attention weights $α_{21}$ to $α_{2T}$ . When computing $z^{(2)}$, the attention weights are calculated with respect to input element $x^{(2)}$ and all other inputs. The exact computation of these attention weights is discussed later in this section.
+> 图 3.7 自注意力的目标是为每个输入元素计算一个上下文向量，该向量结合了来自所有其他输入元素的信息。在该图所示的示例中，我们计算上下文向量 $z^{(2)}$ 。每个输入元素对于计算 $z^{(2)}$ 的重要性或贡献由注意力权重 $α_{21}$ 到 $α_{2T}$ 决定。在计算 $z^{(2)}$ 时，注意力权重是根据输入元素 $x^{(2)}$ 和所有其他输入计算的。这些注意力权重的确切计算将在本节后面讨论。
 
-Figure 3.7 shows an input sequence, denoted [a](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=41---book-markup-container)s *x*, consisting of *T* elements represented as *x (1)* to *x (T)* . This sequence typically represents text, such as a sentence, that has already been transformed into token embeddings, as explained in chapter 2.
+Figure 3.7 shows an input sequence, denoted as $x$, consisting of $T$ elements represented as $x^{(1)}$ to $x^{(T)}$ . This sequence typically represents text, such as a sentence, that has already been transformed into [token embeddings, as explained in chapter 2](# 2.7 Creating token embeddings).
 
-For example, consider an input text like *"Your journey starts with one step."* In this case, each element of the sequence, such as *x (1)* , corresponds to a *d*-dimensional embedding vector representing a specific token, like "Your." In Figure 3.7, these input vectors are shown as 3-dimensional embeddings.
+For example, consider an input text like "**Your journey starts with one step.**" In this case, each element of the sequence, such as $x^{(1)}$, corresponds to a `d`-dimensional embedding vector representing a specific token, like "Your". In Figure 3.7, these input vectors are shown as 3-dimensional embeddings.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=43---book-markup-container) self-attention, our goal is to calculate context vectors *z (i)* for each element *x (i)* in the input sequence. A *context vector* can be interpreted as an enriched embedding vector.
+In self-attention, our goal is to calculate context vectors $z^{(i)}$ for each element $x^{(i)}$ in the input sequence. A **context vector** can be interpreted as an enriched embedding vector.
 
-[To](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=44---book-markup-container) illustrate this concept, let's focus on the embedding vector of the second input element, *x (2)* (which corresponds to the token "journey"), and the corresponding context vector, *z (2)* , shown at the bottom of Figure 3.7. This enhanced context vector, *z (2)* , is an embedding that contains information about *x (2)* and all other input elements *x (1)* to *x (T)* .
+To illustrate this concept, let's focus on the embedding vector of the second input element, $x^{(2)}$ (which corresponds to the token "journey"), and the corresponding context vector, $z^{(2)}$, shown at the bottom of Figure 3.7. This enhanced context vector, $z^{(2)}$, is an embedding that contains information about $x^{(2)}$ and all other input elements $x^{(1)}$ to $x^{(T)}$ .
 
 In self-attention, context vectors play a crucial role. Their purpose is to create enriched representations of each element in an input sequence (like a sentence) by incorporating information from all other elements in the sequence, as illustrated in Figure 3.7. This is essential in LLMs, which need to understand the relationship and relevance of words in a sentence to each other. Later, we will add trainable weights that help an LLM learn to construct these context vectors so that they are relevant for the LLM to generate the next token.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=46---book-markup-container) this section, we implement a simplified self-attention mechanism to compute these weights and the resulting context vector one step at a time.
+In this section, we implement a simplified self-attention mechanism to compute these weights and the resulting context vector one step at a time.
 
-[Co](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=47---book-markup-container)nsider the following input sentence, which has already been embedded into 3 dimensional vectors as discussed in chapter 2. We choose a small embedding dimension for illustration purposes to ensure it fits on the page without line breaks:
+Consider the following input sentence, which has already been embedded into 3 dimensional vectors [as discussed in chapter 2](# 2.7 Creating token embeddings). We choose a small embedding dimension for illustration purposes to ensure it fits on the page without line breaks:
 
-```
+```python
 import torch
 inputs = torch.tensor(
  [[0.43, 0.15, 0.89], # Your (x^1)
@@ -1349,38 +1353,52 @@ inputs = torch.tensor(
   [0.05, 0.80, 0.55]] # step (x^6)
 )
 ```
-The first step of implementing self-attention is to compute the intermediate values *ω,* referred to as attention scores, as illustrated in Figure 3.8. (Please note that Figure 3.8 displays the values of the preceding inputs tensor in a truncated version; for example, 0.87 is truncated to 0.8 due to spatial constraints. In this truncated version, the embeddings of the words "journey" and "starts" may appear similar by random chance.)
+The first step of implementing self-attention is to compute the intermediate values **ω**, referred to as attention scores, as illustrated in Figure 3.8. (Please note that Figure 3.8 displays the values of the preceding inputs tensor in a truncated version; for example, 0.87 is truncated to 0.8 due to spatial constraints. In this truncated version, the embeddings of the words "journey" and "starts" may appear similar by random chance.)
 
 ![](_page_72_Figure_0.jpeg)
 
-Figure 3.8 The overall goal of this section is to illustrate the computation of the context vector z (2) using the second input element, x (2) as a query. This figure shows the first intermediate step, computing the attention scores ω between the query x (2) and all other input elements as a dot product. (Note that the numbers in the figure are truncated to one digit after the decimal point to reduce visual clutter.)
+> Figure 3.8 The overall goal of this section is to illustrate the computation of the context vector $z^{(2)}$ using the second input element, $x^{(2)}$ as a query. This figure shows the first intermediate step, computing the attention scores ω between the query $x^{(2)}$ and all other input elements as a dot product. (Note that the numbers in the figure are truncated to one digit after the decimal point to reduce visual clutter.)
 
-Figure 3.8 illustrates how we calculate the int[er](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=51---book-markup-container)mediate attention scores between the query token and each input token. We determine these scores by computing the dot product of the query, *x (2)* , with every other input token:
+Figure 3.8 illustrates how we calculate the intermediate attention scores between the query token and each input token. We determine these scores by computing the dot product of the query, $x^{(2)}$ , with every other input token:
 
-query = inputs[1] #A attn\_scores\_2 = torch.empty(inputs.shape[0]) for i, x\_i in enumerate(inputs): attn\_scores\_2[i] = torch.dot(x\_i, query) print(attn\_scores\_2)
+```python
+query = inputs[1]                  #A
+attn_scores_2 = torch.empty(inputs.shape[0])
+for i, x_i in enumerate(inputs):
+    attn_scores_2[i] = torch.dot(x_i, query)
+print(attn_scores_2)
 
 #A The second input token serves as the query
+```
 
 The computed attention scores are as follows:
 
+```python
 tensor([0.9544, 1.4950, 1.4754, 0.8434, 0.7070, 1.0865])
-
-#### UNDERSTANDING DOT PRODUCTS
-
-A dot product is essentially just a concise way of multiplying two vectors elementwise and then summing the products, which we can demonstrate as follows:
-
 ```
-res = 0.
-for idx, element in enumerate(inputs[0]):
-    res += inputs[0][idx] * query[idx]
-print(res)
-print(torch.dot(inputs[0], query))
-```
-The outputs confirms that the sum of the element-wise multiplication gives the same results as the dot product:
 
-tensor(0.9544) tensor(0.9544)
-
-Beyond viewing the dot product operation as a mathematical tool that combines two vectors to yield a scalar value, the dot product is a measure of similarity because it quantifies how much two vectors are aligned: a higher dot product indicates a greater degree of alignment or similarity between the vectors. In the context of selfattention mechanisms, the dot product determines the extent to which elements in a sequence attend to each other: the higher the dot product, the higher the similarity and attention score between two elements.
+> [!NOTE]
+>
+> **UNDERSTANDING DOT PRODUCTS**
+>
+> A dot product is essentially just a concise way of multiplying two vectors elementwise and then summing the products, which we can demonstrate as follows:
+>
+> ```python
+> res = 0.
+> for idx, element in enumerate(inputs[0]):
+>     res += inputs[0][idx] * query[idx]
+> print(res)
+> print(torch.dot(inputs[0], query))
+> ```
+> The outputs confirms that the sum of the element-wise multiplication gives the same results as the dot product:
+>
+> ```python
+> tensor(0.9544) 
+> tensor(0.9544)
+> ```
+>
+> Beyond viewing the dot product operation as a mathematical tool that combines two vectors to yield a scalar value, the dot product is a measure of similarity because it quantifies how much two vectors are aligned: a higher dot product indicates a greater degree of alignment or similarity between the vectors. In the context of selfattention mechanisms, the dot product determines the extent to which elements in a sequence attend to each other: the higher the dot product, the higher the similarity and attention score between two elements.
+>
 
 In the next step, as shown in Figure 3.9, we normalize each of the attention scores that we computed previously.
 
@@ -1388,34 +1406,31 @@ In the next step, as shown in Figure 3.9, we normalize each of the attention sco
 
 Figure 3.9 After computing the attention scores <sup>ω</sup>21 to <sup>ω</sup>2T with respect to the input query x (2) , the next step is to obtain the attention weights <sup>α</sup>21to <sup>α</sup>2Tby normalizing the attention scores.
 
-The main goal behind the normalization sho[wn](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=63---book-markup-container) in Figure 3.9 is to obtain attention weights that sum up to 1. This normalization is a convention that is useful for interpretation and for maintaining training stability in an LLM. Here's a straightforward method for achieving this normalization step:
+The main goal behind the normalization shown in Figure 3.9 is to obtain attention weights that sum up to 1. This normalization is a convention that is useful for interpretation and for maintaining training stability in an LLM. Here's a straightforward method for achieving this normalization step:
 
-```
+```python
 attn_weights_2_tmp = attn_scores_2 / attn_scores_2.sum()
 print("Attention weights:", attn_weights_2_tmp)
 print("Sum:", attn_weights_2_tmp.sum())
 ```
 As the output shows, the attention weights now sum to 1:
 
-```
+```python
 Attention weights: tensor([0.1455, 0.2278, 0.2249, 0.1285, 0.1077, 0.1656])
 Sum: tensor(1.0000)
 ```
 In practice, it's more common and advisable to use the softmax function for normalization. This approach is better at managing extreme values and offers more favorable gradient properties during training. Below is a basic implementation of the softmax function for normalizing the attention scores:
 
-```
+```python
 def softmax_naive(x):
     return torch.exp(x) / torch.exp(x).sum(dim=0)
-```
-
-```
 attn_weights_2_naive = softmax_naive(attn_scores_2)
 print("Attention weights:", attn_weights_2_naive)
 print("Sum:", attn_weights_2_naive.sum())
 ```
 As the output shows, the softmax function also meets the objective and normalizes the attention weights such that they sum to 1:
 
-```
+```python
 Attention weights: tensor([0.1385, 0.2379, 0.2333, 0.1240, 0.1082, 0.1581])
 Sum: tensor(1.)
 ```
@@ -1423,24 +1438,26 @@ In addition, the softmax function ensures that the attention weights are always 
 
 Note that this naive softmax implementation (softmax\_naive) may encounter numerical instability problems, such as overflow and underflow, when dealing with large or small input values. Therefore, in practice, it's advisable to use the PyTorch implementation of softmax, which has been extensively optimized for performance:
 
-```
+```python
 attn_weights_2 = torch.softmax(attn_scores_2, dim=0)
 print("Attention weights:", attn_weights_2)
 print("Sum:", attn_weights_2.sum())
 ```
-In this case, we can see that it yields the same results as our previous softmax\_naive function:
+In this case, we can see that it yields the same results as our previous `softmax_naive` function:
 
+```python
 Attention weights: tensor([0.1385, 0.2379, 0.2333, 0.1240, 0.1082, 0.1581]) Sum: tensor(1.)
+```
 
 Now that we computed the normalized attention weights, we are ready for the final step illustrated in Figure 3.10: calculating the context vector *z (2)* by multiplying the embedded input tokens, *x (i)* , with the corresponding attention weights and then summing the resulting vectors.
 
 ![](_page_75_Figure_2.jpeg)
 
-Figure 3.10 The final step, after calculating and normalizing the attention scores to obtain the attention weights for query x (2) , is to compute the context vector z (2) . This context vector is a combination of all input vectors x (1) to x (T)weighted by the attention weights.
+> Figure 3.10 The final step, after calculating and normalizing the attention scores to obtain the attention weights for query x (2) , is to compute the context vector z (2) . This context vector is a combination of all input vectors x (1) to x (T)weighted by the attention weights.
 
-The context vector *z (2)* depicted in Figure 3.1[0](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=78---book-markup-container) is calculated as a weighted sum of all input vectors. This involves multiplying each input vector by its corresponding attention weight:
+The context vector $z^{(2)}$ depicted in Figure 3.10 is calculated as a weighted sum of all input vectors. This involves multiplying each input vector by its corresponding attention weight:
 
-```
+```python
 query = inputs[1] # 2nd input token is the query
 context_vec_2 = torch.zeros(query.shape)
 for i,x_i in enumerate(inputs):
@@ -1449,17 +1466,19 @@ print(context_vec_2)
 ```
 The results of this computation are as follows:
 
+```python
 tensor([0.4419, 0.6515, 0.5683])
+```
 
 In the next section, we will generalize this procedure for computing context vectors to calculate all context vectors simultaneously.
 
-![](_page_76_Figure_0.jpeg)
-
-#### 3.3.2 Computing attention weights for all input tokens
+### 3.3.2 Computing attention weights for all input tokens
 
 In the previous section, we computed attention weights and the context vector for input 2, as shown in the highlighted row in Figure 3.11. Now, we are extending this computation to calculate attention weights and context vectors for all inputs.
 
-Figure 3.11 The highlighted row shows the attention weights for the second input element as a query, as we computed in the previous section. This section generalizes the computation to obtain all other attention weights.
+![](_page_76_Figure_0.jpeg)
+
+> Figure 3.11 The highlighted row shows the attention weights for the second input element as a query, as we computed in the previous section. This section generalizes the computation to obtain all other attention weights.
 
 We follow the same three steps as before, a[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=86---book-markup-container) summarized in Figure 3.12, except that we make a few modifications in the code to compute all context vectors instead of only the second context vector, *z (2)* .
 
@@ -1490,7 +1509,10 @@ Each element in the preceding tensor represents an attention score between each 
 
 When computing the preceding attention score tensor, we used for-loops in Python. However, for-loops are generally slow, and we can achieve the same results using matrix multiplication:
 
-a[ttn\\_s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-3?potentialInternalRefId=94---book-markup-container)cores = inputs @ inputs.T print(attn\_scores)
+```
+attn_scores = inputs @ inputs.T 
+print(attn_scores)
+```
 
 We can visually confirm that the results are the same as before:
 
