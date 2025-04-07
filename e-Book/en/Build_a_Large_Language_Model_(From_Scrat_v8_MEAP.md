@@ -4149,11 +4149,11 @@ The following subsections introduce two concepts to control the randomness and d
 
 This section introduces temperature scaling, a technique that adds a probabilistic selection process to the next-token generation task.
 
-Previously, inside the generate_text_simple function, we always sampled the token with the highest probability as the next token using torch.argmax, also known as *greedy decoding*. To generate text with more variety, we can replace the argmax with a function that samples from a probability distribution (here, the probability scores the LLM generates for each vocabulary entry at each token generation step).
+Previously, inside the `generate_text_simple` function, we always sampled the token with the highest probability as the next token using `torch.argmax`, also known as **greedy decoding**. To generate text with more variety, we can replace the `argmax` with a function that samples from a probability distribution (here, the probability scores the LLM generates for each vocabulary entry at each token generation step).
 
-[To](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=190---book-markup-container) illustrate the probabilistic sampling with a concrete example, let's briefly discuss the next-token generation process using a very small vocabulary for illustration purposes:
+To illustrate the probabilistic sampling with a concrete example, let's briefly discuss the next-token generation process using a very small vocabulary for illustration purposes:
 
-```
+```python
 vocab = {
     "closer": 0,
     "every": 1,
@@ -4169,32 +4169,32 @@ inverse_vocab = {v: k for k, v in vocab.items()}
 ```
 Next, assume the LLM is given the start context "every effort moves you" and generates the following next-token logits:
 
-```
+```python
 next_token_logits = torch.tensor(
     [4.51, 0.89, -1.90, 6.75, 1.63, -1.62, -1.89, 6.28, 1.79]
 )
 ```
-As discussed in the previous chapter, inside the generate_text_simple, we convert the logits into probabilities via the softmax function and obtain the token ID corresponding the generated token via the argmax function, which we can then map back into text via the inverse vocabulary:
+As discussed in the previous chapter, inside the `generate_text_simple`, we convert the logits into probabilities via the `softmax` function and obtain the token ID corresponding the generated token via the argmax function, which we can then map back into text via the inverse vocabulary:
 
-```
+```python
 probas = torch.softmax(next_token_logits, dim=0)
 next_token_id = torch.argmax(probas).item()
 print(inverse_vocab[next_token_id])
 ```
 Since the largest logit value, and correspondingly the largest softmax probability score, is in the fourth position (index position 3 since Python uses 0-indexing), the generated word is
 
-To implement a probabilistic sampling process, we can now replace the argmax with the multinomial function in PyTorch:
+To implement a **probabilistic sampling process**, we can now replace the argmax with the multinomial function in PyTorch:
 
-```
+```python
 torch.manual_seed(123)
 next_token_id = torch.multinomial(probas, num_samples=1).item()
 print(inverse_vocab[next_token_id])
 ```
 
 
-The printed output is "forward" just like before. What happened? The multinomial function samples the next token proportional to its probability score. In other words, "forward" is still the most likely token and will be selected by multinomial most of the time but not all the time. To illustrate this, let's implement a function that repeats this sampling 1000 times:
+The printed output is "forward" just like before. What happened? The `multinomial` function samples the next token proportional to its probability score. In other words, "forward" is still the most likely token and will be selected by multinomial most of the time but not all the time. To illustrate this, let's implement a function that repeats this sampling 1000 times:
 
-```
+```python
 def print_sampled_tokens(probas):
     torch.manual_seed(123)
     sample = [torch.multinomial(probas, num_samples=1).item() for i in range(1_000)]
@@ -4205,52 +4205,58 @@ print_sampled_tokens(probas)
 ```
 The sampling output is as follows:
 
-73 x closer 0 x every 0 x effort 582 x forward 2 x inches 0 x moves 0 x pizza 343 x toward
-
-As we can see based on the output, the word "forward" is sampled most of the time (582 out of 1000 times), but other tokens such as "closer", "inches", and "toward" will also be sampled some of the time. This means that if we replaced the argmax function with the multinomial function inside the generate_and_print_sample function, the LLM would sometimes generate texts such as "every effort moves you toward", "every effort moves you inches", and "every effort moves you closer" instead of "every effort moves you forward".
-
-We can further control the distribution and selection process via a concept called temperature scaling, where *temperature scaling* is just a fancy description for dividing the logits by a number greater than 0:
-
+```python
+73 x closer
+0 x every
+0 x effort
+582 x forward
+2 x inches
+0 x moves
+0 x pizza
+343 x toward
 ```
+
+As we can see based on the output, the word "forward" is sampled most of the time (582 out of 1000 times), but other tokens such as "closer", "inches", and "toward" will also be sampled some of the time. This means that if we replaced the `argmax` function with the `multinomial` function inside the `generate_and_print_sample` function, the LLM would sometimes generate texts such as "every effort moves you toward", "every effort moves you inches", and "every effort moves you closer" instead of "every effort moves you forward".
+
+We can further control the distribution and selection process via a concept called temperature scaling, where **temperature scaling** is just a fancy description for dividing the logits by a number greater than 0:
+
+```python
 def softmax_with_temperature(logits, temperature):
-   scaled_logits = logits / temperature
-   return torch.softmax(scaled_logits, dim=0)
-Temperatures greater than 1 result in more uniformly distributed token probabilities,
-and Temperatures smaller than 1 will result in more confident (sharper or more peaky)
-distributions. Let's illustrate this by plotting the original probabilities alongside
-probabilities scaled with different temperature values:
-temperatures = [1, 0.1, 5] #A
+    scaled_logits = logits / temperature
+    return torch.softmax(scaled_logits, dim=0)
+#Temperatures greater than 1 result in more uniformly distributed token probabilities, and Temperatures smaller than 1 will result in more confident (sharper or more peaky) distributions. Let's illustrate this by plotting the original probabilities alongside probabilities scaled with different temperature values:
+temperatures = [1, 0.1, 5]             #A
 scaled_probas = [softmax_with_temperature(next_token_logits, T) for T in temperatures]
 x = torch.arange(len(vocab))
 bar_width = 0.15
 fig, ax = plt.subplots(figsize=(5, 3))
 for i, T in enumerate(temperatures):
-   rects = ax.bar(x + i * bar_width, scaled_probas[i],
-                  bar_width, label=f'Temperature = {T}')
+    rects = ax.bar(x + i * bar_width, scaled_probas[i],
+                   bar_width, label=f'Temperature = {T}')
 ax.set_ylabel('Probability')
 ax.set_xticks(x)
 ax.set_xticklabels(vocab.keys(), rotation=90)
 ax.legend()
 plt.tight_layout()
 plt.show()
-```
-#A Original, lower, and higher confidence
 
+#A Original, lower, and higher confidence
+```
 The resulting plot is shown in Figure 5.14.
 
 ![](_page_186_Figure_0.jpeg)
 
-Figure 5.14 A temperature of 1 represents the unscaled probability scores for each token in the vocabulary. Decreasing the temperature to 0.1 sharpens the distribution, so the most likely token (here "forward") will have an even higher probability score. Vice versa, increasing the temperature to 5 makes the distribution more uniform.
+> Figure 5.14 A temperature of 1 represents the unscaled probability scores for each token in the vocabulary. Decreasing the temperature to 0.1 sharpens the distribution, so the most likely token (here "forward") will have an even higher probability score. Vice versa, increasing the temperature to 5 makes the distribution more uniform.
 
-A temperature of 1 divides the logits by 1 b[efo](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=208---book-markup-container)re passing them to the softmax function to compute the probability scores. In other words, using a temperature of 1 is the same as not using any temperature scaling. In this case, the tokens are selected with a probability equal to the original softmax probability scores via the multinomial sampling function in PyTorch.
+A temperature of 1 divides the logits by 1 before passing them to the softmax function to compute the probability scores. In other words, using a temperature of 1 is the same as not using any temperature scaling. In this case, the tokens are selected with a probability equal to the original softmax probability scores via the `multinomial` sampling function in PyTorch.
 
-Also, as we can see in Figure 5.14, applying very small temperatures, such as 0.1, will result in sharper distributions such that the behavior of the multinomial function selects the most likely token (here: "forward") almost 100% of the time, approaching the behavior of the argmax function. Vice versa, a temperature of 5 results in a more uniform distribution where other tokens are selected more often. This can add more variety to the generated texts but also more often results in nonsensical text. For example, using the temperature of 5 results in texts such as "every effort moves you pizza" about 4% of the time.
+Also, as we can see in Figure 5.14, applying very small temperatures, such as 0.1, will result in sharper distributions such that the behavior of the `multinomial` function selects the most likely token (here: "forward") almost 100% of the time, approaching the behavior of the `argmax` function. Vice versa, a temperature of 5 results in a more uniform distribution where other tokens are selected more often. This can add more variety to the generated texts but also more often results in nonsensical text. For example, using the temperature of 5 results in texts such as "every effort moves you pizza" about 4% of the time.
 
 > [!NOTE]
 >
 > **EXERCISE 5.1**
 >
-> Use the print_sampled_tokens function to print the sampling frequencies of the softmax probabilities scaled with the temperatures shown in Figure 5.13. How often is the word "pizza" sampled in each case? Can you think of a faster and more accurate way to determine how often the word "pizza" is sampled?
+> Use the `print_sampled_tokens` function to print the sampling frequencies of the softmax probabilities scaled with the temperatures shown in Figure 5.13. How often is the word "pizza" sampled in each case? Can you think of a faster and more accurate way to determine how often the word "pizza" is sampled?
 >
 
 183
@@ -4259,104 +4265,108 @@ Also, as we can see in Figure 5.14, applying very small temperatures, such as 0.
 
 In the previous section, we implemented a probabilistic sampling approach coupled with temperature scaling to increase the diversity of the outputs. We saw that higher temperature values result in more uniformly distributed next-token probabilities, which result in more diverse outputs as it reduces the likelihood of the model repeatedly selecting the most probable token. This method allows for exploring less likely but potentially more interesting and creative paths in the generation process. However, One downside of this approach is that it sometimes leads to grammatically incorrect or completely nonsensical outputs such as "every effort moves you pizza".
 
-In this section, we introduce another concept called *top-k sampling*, which, when combined with probabilistic sampling and temperature scaling, can improve the text generation results.
+In this section, we introduce another concept called **top-k sampling**, which, when combined with probabilistic sampling and temperature scaling, can improve the text generation results.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=215---book-markup-container) top-k sampling, we can restrict the sampled tokens to the top-k most likely tokens and exclude all other tokens from the selection process by masking their probability scores, as illustrated in Figure 5.15.
+In top-k sampling, we can restrict the sampled tokens to the top-k most likely tokens and exclude all other tokens from the selection process by masking their probability scores, as illustrated in Figure 5.15.
 
-| Vocabulary:<br>Index position: | closer<br>0   | every<br>1 | effort<br>2  | forward"<br>3 | S<br>inche<br>4 | S<br>"moves<br>5    | zza<br>ﺎ<br>d<br>6 | "toward"<br>7 | "you"<br>8 |
-|--------------------------------|---------------|------------|--------------|---------------|-----------------|---------------------|--------------------|---------------|------------|
-| Logits                         | [ 4.51,<br>ll |            | 0.89, -1.90, | 6.75,         |                 | 1.63, -1.62, -1.89, |                    | 6.28,         | 1.79 ]     |
-| Top-k (k = 3)                  | [ 4.51,<br>== |            | 0.89, -1.90, | 6.75,         |                 | 1.63, -1.62, -1.89, |                    | 6.28,         | 1.79 ]     |
-| -inf mask                      | [ 4.51,<br>ll |            | -inf, -inf,  | 6.75,         | -inf,           | -inf,               | -inf,              | 6.28,         | -inf ]     |
-| Softmax                        | [ 0.06,<br>ll | 0.00,      | 0.00,        | 0.57,         | 0.00,           | 0.00,               | 0.00,              | 0.36,         | 0.00 ]     |
+>- [ ] Figure 5.15
 
-Figure 5.15 Using top-k sampling with k=3, we focus on the 3 tokens associated with the highest logits and mask out all other tokens with negative infinity (-inf) before applying the softmax function. This results in a probability distribution with a probability value 0 assigned to all non-top-k tokens.
+>Figure 5.15 Using top-k sampling with k=3, we focus on the 3 tokens associated with the highest logits and mask out all other tokens with negative infinity (-inf) before applying the softmax function. This results in a probability distribution with a probability value 0 assigned to all non-top-k tokens.
 
 The approach outlined in Figure 5.15 replace[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=217---book-markup-container) all non-selected logits with negative infinity value (-inf), such that when computing the softmax values, the probability scores of the non-top-k tokens are 0, and the remaining probabilities sum up to 1. (Careful readers may remember this masking trick from the causal attention module we implemented in chapter 3 in section 3.5.1 *Applying a causal attention mask*.)
 
 In code, we can implement the top-k procedure outlined in Figure 5.15 as follows, starting with the selection of the tokens with the largest logit values:
 
-```
-top_k = 3
+```python
+Figure 5.15top_k = 3
 top_logits, top_pos = torch.topk(next_token_logits, top_k)
 print("Top logits:", top_logits)
 print("Top positions:", top_pos)
 ```
 
-```
+```python
 Top logits: tensor([6.7500, 6.2800, 4.5100])
 Top positions: tensor([3, 7, 0])
 ```
 Subsequently, we apply PyTorch's where function to set the logit values of tokens that are below the lowest logit value within our top-3 selection to negative infinity (-inf).
 
-| new_logits = torch.where(                     |    |
-|-----------------------------------------------|----|
-| condition=next_token_logits < top_logits[-1], | #A |
-| input=torch.tensor(float('-inf')),            | #B |
-| other=next_token_logits                       | #C |
-| )                                             |    |
-| print(new_logits)                             |    |
+```pyhton
+new_logits = torch.where(
+    condition=next_token_logits < top_logits[-1],   #A
+    input=torch.tensor(float('-inf')),              #B
+    other=next_token_logits                         #C
+)
+print(new_logits)
 
-```
 #A Identifies logits less than the minimum in the top 3
 #B Assigns -inf to these lower logits
 #C Retains the original logits for all other tokens
 ```
 The resulting logits for the next token in the 9-token vocabulary are as follows:
 
+```python
 tensor([4.5100, -inf, -inf, 6.7500, -inf, -inf, -inf, 6.2800, -inf])
+```
 
 Lastly, let's apply the softmax function to turn these into next-token probabilities:
 
-topk_probas = torch.softmax(new_logits, dim=0) print(topk_probas)
-
+```python
+topk_probas = torch.softmax(new_logits, dim=0)
+print(topk_probas)
+```
 As we can see, the result of this top-3 approach are 3 non-zero probability scores:
 
+```python
 tensor([0.0615, 0.0000, 0.0000, 0.5775, 0.0000, 0.0000, 0.0000, 0.3610, 0.0000])
+```
 
 We can now apply the temperature scaling and multinomial function for probabilistic sampling introduced in the previous section to select the next token among these 3 nonzero probability scores to generate the next token. We do this in the next section by modifying the text generation function.
 
 #### 5.3.3 Modifying the text generation function
 
-The previous two subsections introduced two concepts to increase the diversity of LLMgenerated text: temperature sampling and top-k sampling. In this section, we combine and add these concepts to modify the generate_simple function we used to generate text via the LLM earlier, creating a new generate function:
+The previous two subsections introduced two concepts to increase the diversity of LLM generated text: temperature sampling and top-k sampling. In this section, we combine and add these concepts to modify the `generate_simple` function we used to generate text via the LLM earlier, creating a new `generate` function:
 
 186
 
-```
-Listing 5.4 A modified text generation function with more diversity
+```python
+# Listing 5.4 A modified text generation function with more diversity
 def generate(model, idx, max_new_tokens, context_size,
-          temperature=1.0, top_k=None, eos_id=None):
-   for _ in range(max_new_tokens): #A
-      idx_cond = idx[:, -context_size:]
-      with torch.no_grad():
-         logits = model(idx_cond)
-      logits = logits[:, -1, :]
-      if top_k is not None: #B
-         top_logits, _ = torch.topk(logits, top_k)
-         min_val = top_logits[:, -1]
-         logits = torch.where(
-             logits < min_val,
-             torch.tensor(float('-inf')).to(logits.device),
-             logits
-         )
-   if temperature > 0.0: #C
-         logits = logits / temperature
-         probs = torch.softmax(logits, dim=-1)
-         idx_next = torch.multinomial(probs, num_samples=1)
-      else: #D
-         idx_next = torch.argmax(logits, dim=-1, keepdim=True)
-      if idx_next == eos_id: #E
-         break
-      idx = torch.cat((idx, idx_next), dim=1)
-   return idx
+             temperature=1.0, top_k=None, eos_id=None):
+    for _ in range(max_new_tokens):                             #A
+        idx_cond = idx[:, -context_size:]
+        with torch.no_grad():
+            logits = model(idx_cond)
+        logits = logits[:, -1, :]
+        if top_k is not None:                                   #B
+            top_logits, _ = torch.topk(logits, top_k)
+            min_val = top_logits[:, -1]
+            logits = torch.where(
+                logits < min_val,
+                torch.tensor(float('-inf')).to(logits.device),
+                logits
+            )
+
+    if temperature > 0.0:                                       #C
+        logits = logits / temperature
+        probs = torch.softmax(logits, dim=-1)
+        idx_next = torch.multinomial(probs, num_samples=1)
+    else:                                                       #D
+        idx_next = torch.argmax(logits, dim=-1, keepdim=True)
+    if idx_next == eos_id:                                      #E
+        break
+    idx = torch.cat((idx, idx_next), dim=1)
+    return idx
+
+#A For-loop is the same as before: Get logits, and only focus on last time step
+#B In this new section, we filter logits with top_k sampling
+#C This is the new section where we apply temperature scaling
+#D Carry out greedy next-token selection as before when temperature scaling is disabled
+#E Stop generating early if end-of-sequence token is encountered and eos_id is specified
 ```
-#A For-loop is the same as before: Get logits, and only focus on last time step #B In this new section, we filter logits with top_k sampling #C This is the new section where we apply temperature scaling #D Carry out greedy next-token selection as before when temperature scaling is disabled #E Stop generating early if end-of-sequence token is encountered and eos_id is specified
 
-Let's now see this new generate function in action:
+Let's now see this new `generate` function in action: 
 
- 
-
-```
+```python
 torch.manual_seed(123)
 token_ids = generate(
     model=model,
@@ -4370,9 +4380,12 @@ print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
 ```
 The generated text is as follows:
 
-Output text: Every effort moves you stand to work on surprise, a one of us had gone with random-
+```python
+Output text:
+Every effort moves you stand to work on surprise, a one of us had gone with random-
+```
 
-As we can see, the generated text is very different from the one we previously generated via the generate_simple function at the beginning of section 5.3 ("Every effort moves you know," was one of the axioms he laid...!"), which was a memorized passage from the training set.
+As we can see, the generated text is very different from the one we previously generated via the `generate_simple` function at the beginning of section 5.3 ("Every effort moves you know," was one of the axioms he laid...!"), which was a memorized passage from the training set.
 
 > [!NOTE]
 >
@@ -4928,7 +4941,7 @@ Executing the preceding code indeed returns [50256].
 
 As we have seen in chapter 2, we first need to implement a PyTorch Dataset, which specifies how the data is loaded and processed, before we can instantiate the data loaders.
 
-[For](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6?potentialInternalRefId=63---book-markup-container) this purpose, we define the SpamDataset class, which implements the concepts illustrated in figure 6.6. This SpamDataset class handles several key tasks: it identifies the longest sequence in the training dataset, encodes the text messages, and ensures that all other sequences are padded with a *padding token* to match the length of the longest sequence.
+For this purpose, we define the SpamDataset class, which implements the concepts illustrated in figure 6.6. This SpamDataset class handles several key tasks: it identifies the longest sequence in the training dataset, encodes the text messages, and ensures that all other sequences are padded with a *padding token* to match the length of the longest sequence.
 
 ```
 Listing 6.4 Setting up a Pytorch Dataset class
@@ -5256,9 +5269,9 @@ Note that in the preceding code, we use BASE_CONFIG["emb_dim"], which is equal t
 
 This new model.out_head output layer has its requires_grad attribute set to True by default, which means that it's the only layer in the model that will be updated during training.
 
-[Tec](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6?potentialInternalRefId=124---book-markup-container)hnically, training the output layer we just added is sufficient. However, as I found in experiments, finetuning additional layers can noticeably improve the predictive performance of the finetuned model. (For more details, refer to the References in appendix C.)
+Technically, training the output layer we just added is sufficient. However, as I found in experiments, finetuning additional layers can noticeably improve the predictive performance of the finetuned model. (For more details, refer to the References in appendix C.)
 
-[Ad](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6?potentialInternalRefId=125---book-markup-container)ditionally, we configure the last transformer block and the final LayerNorm module, which connects this block to the output layer, to be trainable, as depicted in figure 6.10.
+Additionally, we configure the last transformer block and the final LayerNorm module, which connects this block to the output layer, to be trainable, as depicted in figure 6.10.
 
 ![](_page_225_Figure_0.jpeg)
 
