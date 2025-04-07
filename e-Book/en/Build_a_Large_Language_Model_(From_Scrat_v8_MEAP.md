@@ -405,8 +405,6 @@ The resulting whitespace-free output looks like as follows:
 ['Hello', ',', 'world', '.', 'This', ',', 'is', 'a', 'test', '.']
 ```
 
-
-
 > [!NOTE]
 >
 > **REMOVING WHITESPACES OR NOT**
@@ -2644,8 +2642,6 @@ tensor([[[-1.2034, 0.3201, -0.7130, ..., -1.5548, -0.2390, -0.4667],
         [-0.2407, -0.7349, -0.5102, ..., 2.0057, -0.3694, 0.1814]]],
       grad_fn=<UnsafeViewBackward0>)
 ```
-
-
 The output tensor has two rows corresponding to the two text samples. Each text sample consists of 4 tokens; each token is a 50,257-dimensional vector, which matches the size of the tokenizer's vocabulary.
 
 The embedding has 50,257 dimensions because each of these dimensions refers to a unique token in the vocabulary. At the end of this chapter, when we implement the postprocessing code, we will convert these 50,257-dimensional vectors back into token IDs, which we can then decode into words.
@@ -2887,8 +2883,6 @@ As we can see in the preceding code, the FeedForward module is a small neural ne
 
 Figure 4.9 shows how the embedding size is manipulated inside this small feed forward neural network when we pass it some inputs.
 
-
-
 ![](_page_131_Figure_1.jpeg)
 
 Figure 4.9 provides a visual overview of the connections between the layers of the feed forward neural network. It is important to note that this neural network can accommodate variable batch sizes and numbers of tokens in the input. However, the embedding size for each token is determined and fixed when initializing the weights.
@@ -2910,8 +2904,6 @@ torch.Size([2, 3, 768])
 ```
 
 The FeedForward module we implemented in this section plays a crucial role in enhancing the model's ability to learn from and generalize the data. Although the input and output dimensions of this module are the same, it internally expands the embedding dimension into a higher-dimensional space through the first linear layer as illustrated in Figure 4.10. This expansion is followed by a non-linear GELU activation, and then a contraction back to the original dimension with the second linear transformation. Such a design allows for the exploration of a richer representation space.
-
-
 
 ![](_page_132_Figure_1.jpeg)
 
@@ -4190,8 +4182,6 @@ torch.manual_seed(123)
 next_token_id = torch.multinomial(probas, num_samples=1).item()
 print(inverse_vocab[next_token_id])
 ```
-
-
 The printed output is "forward" just like before. What happened? The `multinomial` function samples the next token proportional to its probability score. In other words, "forward" is still the most likely token and will be selected by multinomial most of the time but not all the time. To illustrate this, let's implement a function that repeats this sampling 1000 times:
 
 ```python
@@ -4428,8 +4418,6 @@ model = GPTModel(GPT_CONFIG_124M)
 model.load_state_dict(torch.load("model.pth"))
 model.eval()
 ```
-
-
 As discussed in chapter 4, dropout helps prevent the model from overfitting to the training data by randomly "dropping out" of a layer's neurons during training. However, during inference, we don't want to randomly drop out any of the information the network has learned. Using `model.eval()` switches the model to evaluation mode for inference, disabling the `dropout` layers of the model.
 
 If we plan to continue pretraining a model later, for example, using the `train_model_simple` function we defined earlier in this chapter, saving the optimizer state is also recommended.
@@ -4507,8 +4495,6 @@ model.ckpt.index: 100%|███████████████████
 model.ckpt.meta: 100%|██████████████████████| 471k/471k [00:00<00:00, 2.46MiB/s]
 vocab.bpe: 100%|████████████████████████████| 456k/456k [00:00<00:00, 1.70MiB/s]
 ```
-
-
 
 > [!NOTE]
 >
@@ -6194,8 +6180,6 @@ def custom_collate_fn(
        indices = torch.nonzero(mask).squeeze() #A
        if indices.numel() > 1: #A
 ```
-
-
 | targets[indices[1:]] = ignore_index                                                                                                                | #A |  |
 |----------------------------------------------------------------------------------------------------------------------------------------------------|----|--|
 | if allowed_max_length is not None:                                                                                                                 |    |  |
@@ -8096,8 +8080,6 @@ for epoch in range(num_epochs):
        optimizer.step()
        ### LOGGING
 ```
-
-
 ```
 print(f"Epoch: {epoch+1:03d}/{num_epochs:03d}"
           f" | Batch {batch_idx:03d}/{len(train_loader):03d}"
@@ -9075,8 +9057,6 @@ torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 model.eval()
 ```
-
-
 After initializing the model, we also need to initialize the data loaders we used in chapter 5. First, we load the "The Verdict" short story:
 
 ```
