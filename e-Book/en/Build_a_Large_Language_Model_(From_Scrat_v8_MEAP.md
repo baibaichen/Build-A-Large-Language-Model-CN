@@ -3896,13 +3896,13 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
 #D Average the loss over all batches
 ```
 
-By default, the calc_loss_batch function iterates over all batches in a given data loader, accumulates the loss in the total_loss variable, and then computes and averages the loss over the total number of batches. Alternatively, we can specify a smaller number of batches via num_batches to speed up the evaluation during model training.
+By default, the `calc_loss_batch` function iterates over all batches in a given data loader, accumulates the loss in the `total_loss` variable, and then computes and averages the loss over the total number of batches. Alternatively, we can specify a smaller number of batches via `num_batches` to speed up the evaluation during model training.
 
-Let's now see this calc_loss_batch function in action, applying it to the training and validation set loaders:
+Let's now see this `calc_loss_batch` function in action, applying it to the training and validation set loaders:
 
 169
 
-```
+```python
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu") #A
 model.to(device)
 with torch.no_grad(): #B
@@ -3910,16 +3910,17 @@ with torch.no_grad(): #B
    val_loss = calc_loss_loader(val_loader, model, device)
 print("Training loss:", train_loss)
 print("Validation loss:", val_loss)
-```
+
 #A If you have a machine with a CUDA-supported GPU, the LLM will train on the GPU without making any changes to the code
-
 #B Disable gradient tracking for efficiency because we are not training, yet
-
-#C Via the `device` setting, we ensure that the data is loaded onto the same device as the LLM model
-
+#C Via the device setting, we ensure that the data is loaded onto the same device as the LLM model
+```
 The resulting loss values are as follows:
 
-Training loss: 10.98758347829183 Validation loss: 10.98110580444336
+```python
+Training loss: 10.98758347829183
+Validation loss: 10.98110580444336
+```
 
 The loss values are relatively high because the model has not yet been trained. For comparison, the loss approaches 0 if the model learns to generate the next tokens as they appear in the training and validation sets.
 
@@ -3927,9 +3928,9 @@ Now that we have a way to measure the quality of the generated text, in the next
 
 ![](_page_173_Figure_8.jpeg)
 
-Figure 5.10 We have recapped the text generation process and implemented basic model evaluation techniques to compute the training and validation set losses. Next, we will go to the training functions and pretrain the LLM.
+> Figure 5.10 We have recapped the text generation process and implemented basic model evaluation techniques to compute the training and validation set losses. Next, we will go to the training functions and pretrain the LLM.
 
-As shown in Figure 5.10, the next section [fo](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=145---book-markup-container)cuses on pretraining the LLM. After model training, we implement alternative text generation strategies and save and load pretrained model weights.
+As shown in Figure 5.10, the next section focuses on pretraining the LLM. After model training, we implement alternative text generation strategies and save and load pretrained model weights.
 
 ## 5.2 Training an LLM
 
