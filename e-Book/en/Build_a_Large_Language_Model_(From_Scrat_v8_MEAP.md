@@ -3394,9 +3394,9 @@ At the beginning of this chapter, we defined a global "drop\_rate" setting in th
 - The text generation capability of a GPT-like LLM involves decoding output tensors into human-readable text by sequentially predicting one token at a time based on a given input context.
 - Without training, a GPT model generates incoherent text, which underscores the importance of model training for coherent text generation, which is the topic of subsequent chapters.
 
-# <span id="page-154-0"></span>[5](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5/v-8/section-5?refid=1) Pretraining on Unlabeled Data
+# <span id="page-154-0"></span>5 Pretraining on Unlabeled Data
 
-#### This chapter covers
+This chapter covers
 
 - Computing the training and validation set losses to assess the quality of LLMgenerated text during training
 - Implementing a training function and pretraining the LLM
@@ -3407,13 +3407,16 @@ In the previous chapters, we implemented the data sampling, attention mechanism 
 
 ![](_page_155_Figure_0.jpeg)
 
-Figure 5.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset and finetuning it on a labeled dataset. This chapter focuses on pretraining the LLM, which includes implementing the training code, evaluating the performance, and saving and loading model weights.
+> Figure 5.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset and finetuning it on a labeled dataset. This chapter focuses on pretraining the LLM, which includes implementing the training code, evaluating the performance, and saving and loading model weights.
 
 As illustrated in Figure 5.1, we will also lear[n](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=7---book-markup-container) about basic model evaluation techniques to measure the quality of the generated text, which is a requirement for optimizing the LLM during the training process. Moreover, we will discuss how to load pretrained weights, giving our LLM a solid starting point for finetuning in the upcoming chapters.
 
-#### WEIGHT PARAMETERS
-
-In the context of LLMs and other deep learning models, *weights* refer to the trainable parameters that the learning process adjusts. These weights are also known as *weight parameters* or simply *parameters*. In frameworks like PyTorch, these weights are stored in linear layers, for example, which we used to implement the multi-head attention module in chapter 3 and the GPTModel in chapter 4. After initializing a layer (new\_layer = torch.nn.Linear(...)), we can access its weights through the .weight attribute, new\_layer.weight. Additionally, for convenience, PyTorch allows direct access to all a model's trainable parameters, including weights and biases, through the method model.parameters(), which we will use later when implementing the model training.
+> [!NOTE]
+>
+> **WEIGHT PARAMETERS**
+>
+> In the context of LLMs and other deep learning models, *weights* refer to the trainable parameters that the learning process adjusts. These weights are also known as *weight parameters* or simply *parameters*. In frameworks like PyTorch, these weights are stored in linear layers, for example, which we used to implement the multi-head attention module in chapter 3 and the GPTModel in chapter 4. After initializing a layer `(new\_layer = torch.nn.Linear(...))`, we can access its weights through the `.weight` attribute, new\_layer.weight. Additionally, for convenience, PyTorch allows direct access to all a model's trainable parameters, including weights and biases, through the method `model.parameters()`, which we will use later when implementing the model training.
+>
 
 ## 5.1 Evaluating generative text models
 
@@ -3421,7 +3424,7 @@ We begin this chapter by setting up the LLM for text generation based on code fr
 
 ![](_page_156_Figure_0.jpeg)
 
-Figure 5.2 An overview of the topics covered in this chapter. We begin by recapping the text generation from the previous chapter and implementing basic model evaluation techniques that we can use during the pretraining stage.
+> Figure 5.2 An overview of the topics covered in this chapter. We begin by recapping the text generation from the previous chapter and implementing basic model evaluation techniques that we can use during the pretraining stage.
 
 As shown in Figure 5.2, the next subsection r[ec](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=13---book-markup-container)aps the text generation we set up at the end of the previous chapter before we dive into the text evaluation and calculation of the training and validation losses in the subsequent subsections.
 
@@ -3429,7 +3432,7 @@ As shown in Figure 5.2, the next subsection r[ec](https://livebook.manning.com/b
 
 In this section, we set up the LLM and briefly recap the text generation process we implemented in chapter 4. We begin by initializing the GPT model that we will evaluate and train in this chapter, using the GPTModel class and GPT\_CONFIG\_124M dictionary from chapter 4:
 
-```
+```python
 import torch
 from chapter04 import GPTModel
 GPT_CONFIG_124M = {
@@ -3438,19 +3441,21 @@ GPT_CONFIG_124M = {
    "emb_dim": 768,
    "n_heads": 12,
    "n_layers": 12,
-   "drop_rate": 0.1, #B
+   "drop_rate": 0.1,      #B
    "qkv_bias": False
 }
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 model.eval()
+
+#A We shorten the context length from 1024 to 256 tokens 
+#B It's possible and common to set dropout to 0.
 ```
-#A We shorten the context length from 1024 to 256 tokens #B It's possible and common to set dropout to 0.
-Considering the GPT\_CONFIG\_124M dictionary, the only adjustment we have made compared to the previous chapter is reducing the context length (context\_length) to 256 tokens. This modification reduces the computational demands of training the model, making it possible to carry out the training on a standard laptop computer.
+Considering the `GPT_CONFIG_124M` dictionary, the only adjustment we have made compared to the previous chapter is reducing the context length (`context_length`) to 256 tokens. This modification reduces the computational demands of training the model, making it possible to carry out the training on a standard laptop computer.
 
 Originally, the GPT-2 model with 124 million parameters was configured to handle up to 1,024 tokens. After the training process, at the end of this chapter, we will update the context size setting and load pretrained weights to work with a model configured for a 1,024-token context length.
 
-[Usi](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=19---book-markup-container)ng the GPTmodel instance, we adopt the generate\_text\_simple function introduced in the previous chapter and introduce two handy functions, text\_to\_token\_ids and token\_ids\_to\_text. These functions facilitate the conversion between text and token representations, a technique we will utilize throughout this chapter. To provide a clearer understanding, Figure 5.3 illustrates this process before we dive into the code.
+Using the `GPTmodel` instance, we adopt the `generate_text_simple` function introduced in the previous chapter and introduce two handy functions, `text_to_token_ids` and `token_ids_to_text`. These functions facilitate the conversion between text and token representations, a technique we will utilize throughout this chapter. To provide a clearer understanding, Figure 5.3 illustrates this process before we dive into the code.
 
 ![](_page_157_Figure_3.jpeg)
 
@@ -3460,8 +3465,8 @@ Figure 5.3 illustrates a three-step text gene[ra](https://livebook.manning.com/b
 
 In code, we implement the text generation process as follows:
 
-```
-Listing 5.1 Utility functions for text to token ID conversion
+```python
+# Listing 5.1 Utility functions for text to token ID conversion
 import tiktoken
 from chapter04 import generate_text_simple
 def text_to_token_ids(text, tokenizer):
@@ -3483,63 +3488,67 @@ print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
 ```
 Using the preceding code, the model generates the following text:
 
-Output text: Every effort moves you rentingetic wasnم refres RexMeCHicular stren
+```python
+Output text:
+  Every effort moves you rentingetic wasnم refres RexMeCHicular stren
+```
 
 Based on the output, it's clear the model isn't yet producing coherent text because it hasn't undergone training. To define what makes text "coherent" or "high quality," we have to implement a numerical method to evaluate the generated content. This approach will enable us to monitor and enhance the model's performance throughout its training process.
 
-The following section introduces how we calculate a *loss metric* for the generated outputs. This loss serves as a progress and success indicator of the training progress. Furthermore, in subsequent chapters on finetuning LLMs, we will review additional methodologies for assessing model quality.
+The following section introduces how we calculate a **loss metric** for the generated outputs. This loss serves as a progress and success indicator of the training progress. Furthermore, in subsequent chapters on finetuning LLMs, we will review additional methodologies for assessing model quality.
 
 155
 
 #### 5.1.2 Calculating the text generation loss
 
-This section explores techniques for numerically assessing text quality generated during training by calculating a so-called text generation loss. We go over this topic step-by-step with a practical example to make the concepts clear and applicable, beginning with a short recap of how the data is loaded from chapter 2 and how the text is generated via the generate\_text\_simple function from chapter 4.
+This section explores techniques for numerically assessing text quality generated during training by calculating a so-called **text generation loss**. We go over this topic step-by-step with a practical example to make the concepts clear and applicable, beginning with a short recap of how the data is loaded from chapter 2 and how the text is generated via the `generate_text_simple` function from chapter 4.
 
 Figure 5.4 illustrates the overall flow from input text to LLM-generated text using a fivestep procedure.
 
 ![](_page_159_Figure_3.jpeg)
 
-Figure 5.4 For each of the 3 input tokens, shown on the left, we compute a vector containing probability scores corresponding to each token in the vocabulary. The index position of the highest probability score in each vector represents the most likely next token ID. These token IDs associated with the highest probability scores are selected and mapped back into a text that represents the text generated by the model.
+> Figure 5.4 For each of the 3 input tokens, shown on the left, we compute a vector containing probability scores corresponding to each token in the vocabulary. The index position of the highest probability score in each vector represents the most likely next token ID. These token IDs associated with the highest probability scores are selected and mapped back into a text that represents the text generated by the model.
 
-The text generation process in Figure 5.[4](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=32---book-markup-container) outlines what the generate\_text\_simple function from chapter 4 does internally. We need to perform these same initial steps before we can compute a loss that measures the generated text quality later in this section.
+The text generation process in Figure 5.4 outlines what the `generate_text_simple` function from chapter 4 does internally. We need to perform these same initial steps before we can compute a loss that measures the generated text quality later in this section.
 
-Figure 5.4 outlines the text generation process with a small 7-token vocabulary to fit this image on a single page. However, our GPTModel works with a much larger vocabulary consisting of 50,257 words; hence, the token IDs in the following codes will range from 0 to 50,256 rather than 0 to 6.
+Figure 5.4 outlines the text generation process with a small 7-token vocabulary to fit this image on a single page. However, our `GPTModel` works with a much larger vocabulary consisting of 50,257 words; hence, the token IDs in the following codes will range from 0 to 50,256 rather than 0 to 6.
 
-[Als](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=34---book-markup-container)o, Figure 5.4 only shows a single text example ("every effort moves") for simplicity. In the following hands-on code example that implements the steps in Figure 5.4, we will work with two input examples ("every effort moves" and "I really like") as inputs for the GPT model:
+Also, Figure 5.4 only shows a single text example ("every effort moves") for simplicity. In the following hands-on code example that implements the steps in Figure 5.4, we will work with two input examples ("every effort moves" and "I really like") as inputs for the GPT model:
 
-[Co](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=35---book-markup-container)nsider the two input examples, which have already been mapped to token IDs, corresponding to step 1 in Figure 5.4:
+Consider the two input examples, which have already been mapped to token IDs, corresponding to step 1 in Figure 5.4:
 
-```
+```python
 inputs = torch.tensor([[16833, 3626, 6100], # ["every effort moves",
-                      [40, 1107, 588]]) # "I really like"]
-Matching these inputs, the `targets` contain the token IDs we aim for the model to
-produce:
+                      [40, 1107, 588]])     # "I really like"]
+# Matching these inputs, the `targets` contain the token IDs we aim for the model to produce:
 targets = torch.tensor([[3626, 6100, 345 ], # [" effort moves you",
-                       [107, 588, 11311]]) # " really like chocolate"]
+                       [107, 588, 11311]])  # " really like chocolate"]
 ```
 Note that the targets are the inputs but shifted one position forward, a concept we covered chapter 2 during the implementation of the data loader. This shifting strategy is crucial for teaching the model to predict the next token in a sequence.
 
 When we feed the inputs into the model to calculate logit vectors for the two input examples, each comprising three tokens, and apply the softmax function to transform these logit values into probability scores, which corresponds to step 2 in Figure 5.4:
 
-```
-with torch.no_grad(): #A
+```python
+with torch.no_grad():                  # A
    logits = model(inputs)
 probas = torch.softmax(logits, dim=-1) # Probability of each token in vocabulary
 print(probas.shape)
-```
-#A Disable gradient tracking since we are not training, yet
 
+#A Disable gradient tracking since we are not training, yet
+```
 The resulting tensor dimension of the probability score (probas) tensor is as follows:
 
+```python
 torch.Size([2, 3, 50257])
+```
 
 The first number, 2, corresponds to the two examples (rows) in the inputs, also known as batch size. The second number, 3, corresponds to the number of tokens in each input (row). Finally, the last number corresponds to the embedding dimensionality, which is determined by the vocabulary size, as discussed in previous chapters.
 
-Following the conversion from logits to probabilities via the softmax function, the generate\_text\_simple function from chapter 4 then converts the resulting probability scores back into text, as illustrated in steps 3-5 in Figure 5.4.
+Following the conversion from logits to probabilities via the softmax function, the `generate_text_simple` function from chapter 4 then converts the resulting probability scores back into text, as illustrated in steps 3-5 in Figure 5.4.
 
-[We](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=44---book-markup-container) can implement steps 3 and 4 by applying the argmax function to the probability scores to obtain the corresponding token IDs:
+We can implement steps 3 and 4 by applying the argmax function to the probability scores to obtain the corresponding token IDs:
 
-```
+```python
 token_ids = torch.argmax(probas, dim=-1, keepdim=True)
 print("Token IDs:\n", token_ids)
 ```
@@ -3547,7 +3556,7 @@ Given that we have 2 input batches, each containing 3 tokens, applying the argma
 
 157
 
-```
+```python
 Token IDs:
  tensor([[[16657], # First batch
          [ 339],
@@ -3558,15 +3567,21 @@ Token IDs:
 ```
 Finally, step 5 converts the token IDs back into text:
 
-print(f"Targets batch 1: {token\_ids\_to\_text(targets[0], tokenizer)}") print(f"Outputs batch 1: {token\_ids\_to\_text(token\_ids[0].flatten(), tokenizer)}") When we decode these tokens, we find that these output tokens are quite different from the target tokens we want the model to generate: Targets batch 1: effort moves you Outputs batch 1: Armed heNetflix
+```python
+print(f"Targets batch 1: {token_ids_to_text(targets[0], tokenizer)}")
+print(f"Outputs batch 1: {token_ids_to_text(token_ids[0].flatten(), tokenizer)}")
+#When we decode these tokens, we find that these output tokens are quite different from the target tokens we want the model to generate:
+Targets batch 1: effort moves you
+Outputs batch 1: Armed heNetflix
+```
 
-The model produces random text that is different from the target text because it has not been trained yet. We now get to the part where we evaluate the performance of the model's generated text numerically via a so-called loss as illustrated in Figure 5.4. Not only is this useful for measuring the quality of the generated text, but it's also a building block for implementing the training function later, which we use to update the model's weight to improve the generated text.
+The model produces random text that is different from the target text because it has not been trained yet. We now get to the part where we evaluate the performance of the model's generated text numerically via a so-called **loss** as illustrated in Figure 5.5. Not only is this useful for measuring the quality of the generated text, but it's also a building block for implementing the training function later, which we use to update the model's weight to improve the generated text.
 
 ![](_page_161_Figure_4.jpeg)
 
-Figure 5.5 We now implement the text evaluation function in the remainder of this section. In the next section, we apply this evaluation function to the entire dataset we use for model training.
+> Figure 5.5 We now implement the text evaluation function in the remainder of this section. In the next section, we apply this evaluation function to the entire dataset we use for model training.
 
-Part of the text evaluation process that we i[m](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=52---book-markup-container)plement in the remainder of this section, as shown in Figure 5.5, is to measure "how far" the generated tokens are from the correct predictions (targets). The training function we implement later in this chapter will use this information to adjust the model weights to generate text that is more similar to (or ideally matches) the target text.
+Part of the text evaluation process that we implement in the remainder of this section, as shown in Figure 5.5, is to measure "how far" the generated tokens are from the correct predictions (targets). The training function we implement later in this chapter will use this information to adjust the model weights to generate text that is more similar to (or ideally matches) the target text.
 
 158
 
@@ -3574,15 +3589,15 @@ The model training aims to increase the softmax probability in the index positio
 
 ![](_page_162_Figure_1.jpeg)
 
-Figure 5.6 Before training, the model produces random next-token probability vectors. The goal of model training is to ensure that the probability values corresponding to the highlighted target token IDs are maximized.
+> Figure 5.6 Before training, the model produces random next-token probability vectors. The goal of model training is to ensure that the probability values corresponding to the highlighted target token IDs are maximized.
 
 Remember that Figure 5.6 displays the s[of](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=55---book-markup-container)tmax probabilities for a compact 7-token vocabulary to fit everything into a single figure. This implies that the starting random values will hover around 1/7, which equals approximately 0.14.
 
 However, the vocabulary we are using for our GPT-2 model has 50,257 tokens, so most of the initial probabilities will hover around 0.00002 via 1/50,257.
 
-[For](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=57---book-markup-container) each of the two input texts, we can print the initial softmax probability scores corresponding to the target tokens via the following code:
+For each of the two input texts, we can print the initial softmax probability scores corresponding to the target tokens via the following code:
 
-```
+```python
 text_idx = 0
 target_probas_1 = probas[text_idx, [0, 1, 2], targets[text_idx]]
 print("Text 1:", target_probas_1)
@@ -3592,75 +3607,92 @@ print("Text 2:", target_probas_2)
 ```
 The 3 target token ID probabilities for each batch are as follows:
 
-```
+```python
 Text 1: tensor([7.4541e-05, 3.1061e-05, 1.1563e-05])
 Text 2: tensor([1.0337e-05, 5.6776e-05, 4.7559e-06])
 ```
 The goal of training an LLM is to maximize these values, aiming to get them as close to a probability of 1. This way, we ensure the LLM consistently picks the target token essentially the next word in the sentence—as the next token it generates.
 
-#### BACKPROPAGATION
+> [!NOTE]
+>
+> **BACKPROPAGATION**
+>
+> How do we maximize the softmax probability values corresponding to the target tokens? The big picture is that we update the model weights so that the model outputs higher values for the respective token IDs we want to generate. The weight update is done via a process called **backpropagation**, a standard technique for training deep neural networks (see sections A.3 to A.7 in Appendix A for more details about backpropagation and model training).
+>
+> Backpropagation requires a loss function, which calculates the difference between the model's predicted output (here, the probabilities corresponding to the target token IDs) and the actual desired output. This loss function measures how far off the model's predictions are from the target values.
+>
 
-How do we maximize the softmax probability values corresponding to the target tokens? The big picture is that we update the model weights so that the model outputs higher values for the respective token IDs we want to generate. The weight update is done via a process called *backpropagation*, a standard technique for training deep neural networks (see sections A.3 to A.7 in Appendix A for more details about backpropagation and model training).
-
-Backpropagation requires a loss function, which calculates the difference between the model's predicted output (here, the probabilities corresponding to the target token IDs) and the actual desired output. This loss function measures how far off the model's predictions are from the target values.
-
-In the remainder of this section, we calculate the loss for the probability scores of the two example batches, target\_probas\_1 and target\_probas\_2. The main steps are illustrated in Figure 5.7.
+In the remainder of this section, we calculate the loss for the probability scores of the two example batches, `target_probas_1` and `target_probas_2`. The main steps are illustrated in Figure 5.7.
 
 ![](_page_164_Figure_0.jpeg)
 
-Figure 5.7 Calculating the loss involves several steps. Steps 1 to 3 calculate the token probabilities corresponding to the target tensors. These probabilities are then transformed via a logarithm and averaged in steps 4-6.
+> Figure 5.7 Calculating the loss involves several steps. Steps 1 to 3 calculate the token probabilities corresponding to the target tensors. These probabilities are then transformed via a logarithm and averaged in steps 4-6.
 
-Since we already applied steps 1-3 listed i[n](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=67---book-markup-container) Figure 5.7 to obtain target\_probas\_1 and target\_probas\_2, we proceed with step 4, applying the *logarithm* to the probability scores:
+Since we already applied steps 1-3 listed i[n](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=67---book-markup-container) Figure 5.7 to obtain `target_probas_1` and `target_probas_2`, we proceed with step 4, applying the **logarithm** to the probability scores:
 
-log\_probas = torch.log(torch.cat((target\_probas\_1, target\_probas\_2))) print(log\_probas)
+```python
+log_probas = torch.log(torch.cat((target_probas_1, target_probas_2)))
+print(log_probas)
+```
 
 This results in the following values:
 
+```pyhton
 tensor([ -9.5042, -10.3796, -11.3677, -11.4798, -9.7764, -12.2561])
+```
 
 Working with logarithms of probability scores is more manageable in mathematical optimization than handling the scores directly. This topic is outside the scope of this book, but I've detailed it further in a lecture, which is linked in the reference section in appendix B.
 
 Next, we combine these log probabilities into a single score by computing the average (step 5 in Figure 5.7):
 
-```
+```python
 avg_log_probas = torch.mean(log_probas)
 print(avg_log_probas)
 ```
-The resulting average log probability score is as follows:
+The resulting average log probability score is as follows: 
 
- 
-
+```python
 tensor(-10.7940)
+```
 
 The goal is to get the average log probability as close to 0 as possible by updating the model's weights as part of the training process, which we will implement later in section 5.2.
 
 However, in deep learning, the common practice isn't to push the average log probability up to 0 but rather to bring the negative average log probability down to 0. The negative average log probability is simply the average log probability multiplied by -1, which corresponds to step 6 in Figure 5.7:
 
-```
+```python
 neg_avg_log_probas = avg_log_probas * -1
 print(neg_avg_log_probas)
 ```
-This prints tensor(-10.7940).
+This prints `tensor(-10.7940)`.
 
-The term for this negative value, -10.7940 turning into 10.7940, is known as the *cross entropy* loss in deep learning.
+The term for this negative value, `-10.7940` turning into `10.7940`, is known as the **cross entropy loss** in deep learning.
 
-[PyT](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=81---book-markup-container)orch comes in handy here, as it already has a built-in cross\_entropy function that takes care of all these 6 steps in Figure 5.7 for us.
+PyTorch comes in handy here, as it already has a built-in `cross_entropy` function that takes care of all these 6 steps in Figure 5.7 for us.
 
-#### CROSS ENTROPY LOSS
-
-At its core, the cross entropy loss is a popular measure in machine learning and deep learning that measures the difference between two probability distributions typically, the true distribution of labels (here, tokens in a dataset) and the predicted distribution from a model (for instance, the token probabilities generated by an LLM).
-
-In the context of machine learning and specifically in frameworks like PyTorch, the cross\_entropy function computes this measure for discrete outcomes, which is similar to the negative average log probability of the target tokens given the model's generated token probabilities, making the terms cross entropy and negative average log probability related and often used interchangeably in practice.
+> [!NOTE]
+>
+> **CROSS ENTROPY LOSS**
+>
+> At its core, the cross entropy loss is a popular measure in machine learning and deep learning that measures the difference between two probability distributions typically, the true distribution of labels (here, tokens in a dataset) and the predicted distribution from a model (for instance, the token probabilities generated by an LLM).
+>
+> In the context of machine learning and specifically in frameworks like PyTorch, the cross\_entropy function computes this measure for discrete outcomes, which is similar to the negative average log probability of the target tokens given the model's generated token probabilities, making the terms cross entropy and negative average log probability related and often used interchangeably in practice.
+>
 
 Before we apply the cross entropy function, let's briefly recall the shape of the logits and target tensors:
 
-print("Logits shape:", logits.shape) print("Targets shape:", targets.shape) The resulting shapes are as follows: Logits shape: torch.Size([2, 3, 50257]) Targets shape: torch.Size([2, 3])
-
-As we can see, the logits tensor has three dimensions: batch size, number of tokens, and vocabulary size. The targets tensor has two dimensions: batch size and number of tokens.
-
-For the cross entropy\_loss function in PyTorch, we want to flatten these tensors by combining them over the batch dimension:
-
+```python
+print("Logits shape:", logits.shape)
+print("Targets shape:", targets.shape)
+# The resulting shapes are as follows:
+Logits shape: torch.Size([2, 3, 50257])
+Targets shape: torch.Size([2, 3])
 ```
+
+As we can see, the logits tensor has three dimensions: batch size, number of tokns, and vocabulary size. The targets tensor has two dimensions: batch size and number of tokens.
+
+For the cross `entropy_loss` function in PyTorch, we want to flatten these tensors by combining them over the batch dimension:
+
+```python
 logits_flat = logits.flatten(0, 1)
 targets_flat = targets.flatten()
 print("Flattened logits:", logits_flat.shape)
@@ -3668,7 +3700,7 @@ print("Flattened targets:", targets_flat.shape)
 ```
 The resulting tensor dimensions are as follows:
 
-```
+```python
 Flattened logits: torch.Size([6, 50257])
 Flattened targets: torch.Size([6])
 ```
@@ -3676,23 +3708,28 @@ Remember that the targets are the token IDs we want the LLM to generate, and the
 
 Previously, we applied the softmax function, selected the probability scores corresponding to the target IDs, and computed the negative average log probabilities. PyTorch's cross\_entropy function will take care of all these steps for us:
 
-```
+```python
 loss = torch.nn.functional.cross_entropy(logits_flat, targets_flat)
 print(loss)
 ```
 The resulting loss is the same that we obtained previously when applying the individual steps shown in Figure 5.7 manually:
 
+```python
 tensor(10.7940)
+```
 
-#### PERPLEXITY
-
-*Perplexity* is a measure often used alongside cross entropy loss to evaluate the performance of models in tasks like language modeling. It can provide a more interpretable way to understand the uncertainty of a model in predicting the next token in a sequence.
-
-Perplexity measures how well the probability distribution predicted by the model matches the actual distribution of the words in the dataset. Similar to the loss, a lower perplexity indicates that the model predictions are closer to the actual distribution.
-
-Perplexity can be calculated as perplexity = torch.exp(loss), which returns tensor(48725.8203) when applied to the previously calculated loss.
-
-Perplexity is often considered more interpretable than the raw loss value because it signifies the effective vocabulary size about which the model is uncertain at each step. In the given example, this would translate to the model being unsure about which among 47,678 words or tokens in the vocabulary to generate as the next token.
+> [!NOTE]
+>
+> **PERPLEXITY**
+>
+> **Perplexity** is a measure often used alongside cross entropy loss to evaluate the performance of models in tasks like language modeling. It can provide a more interpretable way to understand the uncertainty of a model in predicting the next token in a sequence.
+>
+> Perplexity measures how well the probability distribution predicted by the model matches the actual distribution of the words in the dataset. Similar to the loss, a lower perplexity indicates that the model predictions are closer to the actual distribution.
+>
+> Perplexity can be calculated as `perplexity = torch.exp(loss)`, which returns `tensor(48725.8203)` when applied to the previously calculated loss.
+>
+> Perplexity is often considered more interpretable than the raw loss value because it signifies the effective vocabulary size about which the model is uncertain at each step. In the given example, this would translate to the model being unsure about which among 47,678 words or tokens in the vocabulary to generate as the next token.
+>
 
 In this section, we calculated the loss for two small text inputs for illustration purposes. In the next section, we apply the loss computation to the entire training and validation sets.
 
@@ -3702,26 +3739,29 @@ In this section, we first prepare the training and validation datasets that we w
 
 ![](_page_167_Figure_5.jpeg)
 
-Figure 5.8 After computing the cross entropy loss in the previous section, we now apply this loss computation to the entire text dataset that we will use for model training.
+> Figure 5.8 After computing the cross entropy loss in the previous section, we now apply this loss computation to the entire text dataset that we will use for model training.
 
 To compute the loss on the training and valid[a](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=106---book-markup-container)tion datasets as illustrated in Figure 5.8, we use a very small text dataset, the "The Verdict" short story by Edith Wharton, which we have already worked with in chapter 2. By selecting a text from the public domain, we circumvent any concerns related to usage rights. Additionally, the reason why we use such a small dataset is that it allows for the execution of code examples on a standard laptop computer in a matter of minutes, even without a high-end GPU, which is particularly advantageous for educational purposes.
 
 Interested readers can also use the supplementary code of this book to prepare a largerscale dataset consisting of more than 60,000 public domain books from Project Gutenberg and train an LLM on these (see appendix D for details).
 
-#### [TH](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=108---book-markup-container)E COST OF PRETRAINING LLMS
-
-To put the scale of our project into perspective, consider the training of the 7 billion parameter Llama 2 model, a relatively popular openly available LLM. This model required 184,320 GPU hours on expensive A100 GPUs, processing 2 trillion tokens. At the time of writing, running an 8xA100 cloud server on AWS costs around \$30 per hour. A rough estimate puts the total training cost of such an LLM at around \$690,000 (calculated as 184,320 hours divided by 8, then multiplied by \$30).
+> [!NOTE]
+>
+> **THE COST OF PRETRAINING LLMS**
+>
+> To put the scale of our project into perspective, consider the training of the 7 billion parameter Llama 2 model, a relatively popular openly available LLM. This model required 184,320 GPU hours on expensive A100 GPUs, processing 2 trillion tokens. At the time of writing, running an 8xA100 cloud server on AWS costs around \$30 per hour. A rough estimate puts the total training cost of such an LLM at around \$690,000 (calculated as 184,320 hours divided by 8, then multiplied by \$30).
+>
 
 The following code loads the "The Verdict" short story we used in chapter 2:
 
-```
+```python
 file_path = "the-verdict.txt"
 with open(file_path, "r", encoding="utf-8") as file:
     text_data = file.read()
 ```
 After loading the dataset, we can check the number of characters and tokens in the dataset:
 
-```
+```python
 total_characters = len(text_data)
 total_tokens = len(tokenizer.encode(text_data))
 print("Characters:", total_characters)
@@ -3729,9 +3769,12 @@ print("Tokens:", total_tokens)
 ```
 The output is as follows:
 
-Characters: 20479 Tokens: 5145
+```python
+Characters: 20479 
+Tokens: 5145
+```
 
-With just 5,145 tokens, the text might seem too small to train an LLM, but as mentioned earlier, it's for educational purposes so that we can run the code in minutes instead of weeks. Plus, we will be loading pretrained weights from OpenAI into our GPTModel code at the end of this chapter.
+With just 5,145 tokens, the text might seem too small to train an LLM, but as mentioned earlier, it's for educational purposes so that we can run the code in minutes instead of weeks. Plus, we will be loading pretrained weights from OpenAI into our `GPTModel` code at the end of this chapter.
 
 Next, we divide the dataset into a training and a validation set and use the data loaders from chapter 2 to prepare the batches for LLM training. This process is visualized in Figure 5.9.
 
@@ -3741,25 +3784,28 @@ Next, we divide the dataset into a training and a validation set and use the dat
 
 ![](_page_169_Figure_1.jpeg)
 
-Figure 5.9 When preparing the data loaders, we split the input text into training and validation set portions. Then, we tokenize the text (only shown for the training set portion for simplicity) and divide the tokenized text into chunks of a user-specified length (here 6). Finally, we shuffle the rows and organize the chunked text into batches (here, batch size 2), which we can use for model training.
+> Figure 5.9 When preparing the data loaders, we split the input text into training and validation set portions. Then, we tokenize the text (only shown for the training set portion for simplicity) and divide the tokenized text into chunks of a user-specified length (here 6). Finally, we shuffle the rows and organize the chunked text into batches (here, batch size 2), which we can use for model training.
 
-For visualization purposes, Figure 5.9 uses [a](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=119---book-markup-container) max\_length=6 due to spatial constraints. However, for the actual data loaders we are implementing, we set the max\_length equal to the 256-token context length that the LLM supports so that the LLM sees longer texts during training.
+For visualization purposes, Figure 5.9 uses a `max_length=6` due to spatial constraints. However, for the actual data loaders we are implementing, we set the max_length equal to the 256-token context length that the LLM supports so that the LLM sees longer texts during training.
 
-#### TRAINING WITH VARIABLE LENGTHS
-
-We are training the model with training data presented in similarly-sized chunks for simplicity and efficiency. However, in practice, it can also be beneficial to train an LLM with variable-length inputs to help the LLM to better generalize across different types of inputs when it is being used.
+> [!NOTE]
+>
+> **TRAINING WITH VARIABLE LENGTHS**
+>
+> We are training the model with training data presented in similarly-sized chunks for simplicity and efficiency. However, in practice, it can also be beneficial to train an LLM with variable-length inputs to help the LLM to better generalize across different types of inputs when it is being used.
+>
 
 To implement the data splitting and loading visualized in Figure 5.9, we first define a train\_ratio to use 90% of the data for training and the remaining 10% as validation data for model evaluation during training:
 
-```
+```python
 train_ratio = 0.90
 split_idx = int(train_ratio * len(text_data))
 train_data = text_data[:split_idx]
 val_data = text_data[split_idx:]
 ```
-Using the train\_data and val\_data subsets, we can now create the respective data loader reusing the create\_dataloader\_v1 code from chapter 2:
+Using the `train_data` and `val_data` subsets, we can now create the respective data loader reusing the `create_dataloader_v1` code from chapter 2:
 
-```
+```python
 from chapter02 import create_dataloader_v1
 torch.manual_seed(123)
 train_loader = create_dataloader_v1(
@@ -3785,7 +3831,7 @@ We used a relatively small batch size in the preceding code to reduce the comput
 
 As an optional check, we can iterate through the data loaders to ensure that they were created correctly:
 
-```
+```python
 print("Train loader:")
 for x, y in train_loader:
     print(x.shape, y.shape)
@@ -3795,7 +3841,7 @@ for x, y in val_loader:
 ```
 We should see the following outputs:
 
-```
+```python
 Train loader:
 torch.Size([2, 256]) torch.Size([2, 256])
 torch.Size([2, 256]) torch.Size([2, 256])
@@ -3813,9 +3859,9 @@ Based on the preceding code output, we have 9 training set batches with 2 sample
 
 As expected, the input data (x) and target data (y) have the same shape (the batch size times the number of tokens in each batch) since the targets are the inputs shifted by one position, as discussed in chapter 2.
 
-[Ne](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=133---book-markup-container)xt, we implement a utility function to calculate the cross entropy loss of a given batch returned via the training and validation loader:
+Next, we implement a utility function to calculate the cross entropy loss of a given batch returned via the training and validation loader:
 
-```
+```python
 def calc_loss_batch(input_batch, target_batch, model, device):
     input_batch, target_batch = input_batch.to(device), target_batch.to(device) #A
     logits = model(input_batch)
@@ -3823,35 +3869,32 @@ def calc_loss_batch(input_batch, target_batch, model, device):
         logits.flatten(0, 1), target_batch.flatten()
     )
     return loss
-```
 #A the transfer to a given device allows us to transfer the data to a GPU
-
-We can now use this calc\_loss\_batch utility function, which computes the loss for a single batch, to implement the following calc\_loss\_loader function that computes the loss over all the batches sampled by a given data loader:
-
-#### Listing 5.2 Function to compute the training and validation loss
-
 ```
+We can now use this `calc_loss_batch` utility function, which computes the loss for a single batch, to implement the following `calc_loss_loader` function that computes the loss over all the batches sampled by a given data loader:
+
+```python
+# Listing 5.2 Function to compute the training and validation loss
 def calc_loss_loader(data_loader, model, device, num_batches=None):
    total_loss = 0.
    if len(data_loader) == 0:
       return float("nan")
    elif num_batches is None:
-      num_batches = len(data_loader) #A
+      num_batches = len(data_loader)                   #A
    else:
       num_batches = min(num_batches, len(data_loader)) #B
    for i, (input_batch, target_batch) in enumerate(data_loader):
       if i < num_batches:
           loss = calc_loss_batch(input_batch, target_batch, model, device)
-          total_loss += loss.item() #C
+          total_loss += loss.item()                    #C
       else:
           break
-   return total_loss / num_batches #D
-```
-
-```
+   return total_loss / num_batches                     #D
 #A Iterative over all batches if no fixed num_batches is specified
+#B Reduce the number of batches to match the total number of batches in the data loader if num_batches exceeds the number of batches in the data loader 
+#C Sum loss for each batch 
+#D Average the loss over all batches
 ```
-#B Reduce the number of batches to match the total number of batches in the data loader if num\_batches exceeds the number of batches in the data loader #C Sum loss for each batch #D Average the loss over all batches
 
 By default, the calc\_loss\_batch function iterates over all batches in a given data loader, accumulates the loss in the total\_loss variable, and then computes and averages the loss over the total number of batches. Alternatively, we can specify a smaller number of batches via num\_batches to speed up the evaluation during model training.
 
