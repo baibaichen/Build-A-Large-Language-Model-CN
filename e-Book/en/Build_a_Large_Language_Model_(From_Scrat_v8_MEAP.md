@@ -4113,17 +4113,17 @@ As illustrated in Figure 5.13, the next section will cover text generation strat
 
 ## 5.3 Decoding strategies to control randomness
 
-In this section, we will cover text generation strategies (also called decoding strategies) to generate more original text. First, we briefly revisit the generate_text_simple function from the previous chapter that we used inside the generate_and_print_sample earlier in this chapter. Then, we will cover two techniques, *temperature scaling*, and *top-k sampling*, to improve this function.
+In this section, we will cover text generation strategies (also called decoding strategies) to generate more original text. First, we briefly revisit the `generate_text_simple` function from the previous chapter that we used inside the `generate_and_print_sample` earlier in this chapter. Then, we will cover two techniques, **temperature scaling**, and **top-k sampling**, to improve this function.
 
 We begin by transferring the model back from the GPU to the CPU since inference with a relatively small model does not require a GPU. Also, after training, we put the model into evaluation model to turn off random components such as dropout:
 
-```
+```python
 model.to("cpu")
 model.eval()
 ```
-Next, we plug the GPTModel instance (model) into the generate_text_simple function, which uses the LLM to generate one token at a time:
+Next, we plug the `GPTModel` instance (model) into the `generate_text_simple` function, which uses the LLM to generate one token at a time:
 
-```
+```python
 tokenizer = tiktoken.get_encoding("gpt2")
 token_ids = generate_text_simple(
     model=model,
@@ -4135,15 +4135,17 @@ print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
 ```
 The generated text is as follows:
 
+```python
 Output text:
-
-Every effort moves you know," was one of the axioms he laid down across the Sevres and silver of an exquisitely appointed lun
+Every effort moves you know," was one of the axioms he laid down across the Sevres and
+silver of an exquisitely appointed lun
+```
 
 As explained earlier in section 5.1.2, the generated token is selected at each generation step corresponding to the largest probability score among all tokens in the vocabulary.
 
-The following subsections introduce two concepts to control the randomness and diversity of the generated text: temperature scaling and top-k sampling.
+The following subsections introduce two concepts to control the randomness and diversity of the generated text: **temperature scaling** and **top-k sampling**.
 
-#### 5[.3.1](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=187---book-markup-container) Temperature scaling
+#### 5.3.1 Temperature scaling
 
 This section introduces temperature scaling, a technique that adds a probabilistic selection process to the next-token generation task.
 
@@ -4244,9 +4246,12 @@ A temperature of 1 divides the logits by 1 b[efo](https://livebook.manning.com/b
 
 Also, as we can see in Figure 5.14, applying very small temperatures, such as 0.1, will result in sharper distributions such that the behavior of the multinomial function selects the most likely token (here: "forward") almost 100% of the time, approaching the behavior of the argmax function. Vice versa, a temperature of 5 results in a more uniform distribution where other tokens are selected more often. This can add more variety to the generated texts but also more often results in nonsensical text. For example, using the temperature of 5 results in texts such as "every effort moves you pizza" about 4% of the time.
 
-#### EXERCISE 5.1
-
-Use the print_sampled_tokens function to print the sampling frequencies of the softmax probabilities scaled with the temperatures shown in Figure 5.13. How often is the word "pizza" sampled in each case? Can you think of a faster and more accurate way to determine how often the word "pizza" is sampled?
+> [!NOTE]
+>
+> **EXERCISE 5.1**
+>
+> Use the print_sampled_tokens function to print the sampling frequencies of the softmax probabilities scaled with the temperatures shown in Figure 5.13. How often is the word "pizza" sampled in each case? Can you think of a faster and more accurate way to determine how often the word "pizza" is sampled?
+>
 
 183
 
@@ -4369,15 +4374,20 @@ Output text: Every effort moves you stand to work on surprise, a one of us had g
 
 As we can see, the generated text is very different from the one we previously generated via the generate_simple function at the beginning of section 5.3 ("Every effort moves you know," was one of the axioms he laid...!"), which was a memorized passage from the training set.
 
-#### EXERCISE 5.2
+> [!NOTE]
+>
+> **EXERCISE 5.2**
+>
+> Play around with different temperatures and top-k settings. Based on your observations, can you think of applications where lower temperature and top-k settings are desired? Vice versa, can you think of applications where higher temperature and top-k settings are preferred? (It's recommended to also revisit this exercise at the end of the chapter after loading the pretrained weights from OpenAI.)
+>
 
-Play around with different temperatures and top-k settings. Based on your observations, can you think of applications where lower temperature and top-k settings are desired? Vice versa, can you think of applications where higher temperature and top-k settings are preferred? (It's recommended to also revisit this exercise at the end of the chapter after loading the pretrained weights from OpenAI.)
-
-#### EXERCISE 5.3
-
-What are the different combinations of settings for the generate function to force deterministic behavior, that is, disabling the random sampling such that it always produces the same outputs similar to the generate_simple function?
-
-So far, we covered how to pretrain LLMs and use them to generate text. The last two sections of this chapter will discuss how we save and load the trained LLM and how we load pretrained weights from OpenAI.
+> [!NOTE]
+>
+> **EXERCISE 5.3**
+>
+> What are the different combinations of settings for the generate function to force deterministic behavior, that is, disabling the random sampling such that it always produces the same outputs similar to the generate_simple function?
+>
+> So far, we covered how to pretrain LLMs and use them to generate text. The last two sections of this chapter will discuss how we save and load the trained LLM and how we load pretrained weights from OpenAI.
 
 188
 
@@ -4431,9 +4441,12 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=5e-4, weight_decay=0.1)
 optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 model.train();
 ```
-#### EXERCISE 5.4
-
-After saving the weights, load the model and optimizer in a new Python session or Jupyter notebook file and continue pretraining it for 1 more epoch using the train_model_simple function.
+> [!NOTE]
+>
+> **EXERCISE 5.4**
+>
+> After saving the weights, load the model and optimizer in a new Python session or Jupyter notebook file and continue pretraining it for 1 more epoch using the train_model_simple function.
+>
 
 ## 5.5 Loading pretrained weights from OpenAI
 
@@ -4441,20 +4454,20 @@ Previously, for educational purposes, we trained a small GPT-2 model using a lim
 
 Fortunately, OpenAI openly shared the weights of their GPT-2 models, thus eliminating the need to invest tens to hundreds of thousands of dollars in retraining the model on a large corpus ourselves.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=263---book-markup-container) the remainder of this section, we load these weights into our GPTModel class and use the model for text generation. Here, *weights* refer to the weight parameters that are stored in the .weight attributes of PyTorch's Linear and Embedding layers, for example. We accessed them earlier via model.parameters() when training the model.
+In the remainder of this section, we load these weights into our GPTModel class and use the model for text generation. Here, *weights* refer to the weight parameters that are stored in the .weight attributes of PyTorch's Linear and Embedding layers, for example. We accessed them earlier via model.parameters() when training the model.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=264---book-markup-container) the next chapters, we will reuse these pretrained weights to finetune the model for a text classification task and follow instructions similar to ChatGPT.
+In the next chapters, we will reuse these pretrained weights to finetune the model for a text classification task and follow instructions similar to ChatGPT.
 
-[No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=265---book-markup-container)te that OpenAI originally saved the GPT-2 weights via TensorFlow, which we have to install to load the weights in Python. Moreover, the following code will use a progress bar tool called tqdm to track the download process, which we also have to install.
+Note that OpenAI originally saved the GPT-2 weights via TensorFlow, which we have to install to load the weights in Python. Moreover, the following code will use a progress bar tool called tqdm to track the download process, which we also have to install.
 
-[You](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=266---book-markup-container) can install these libraries by executing the following command in your terminal:
+You can install these libraries by executing the following command in your terminal:
 
-```
+```python
 pip install tensorflow>=2.15.0 tqdm>=4.66
 ```
 The download code is relatively long, mostly boilerplate, and not very interesting. Hence, instead of devoting precious space in this chapter to discussing Python code for fetching files from the internet, we download the gpt_download.py Python module directly from this chapter's online repository:
 
-```
+```python
 import urllib.request
 url = (
     "https://raw.githubusercontent.com/rasbt/"
@@ -4466,35 +4479,52 @@ urllib.request.urlretrieve(url, filename)
 ```
 Next, after downloading this file to the local directory of your Python session, readers are encouraged to briefly inspect the contents of this file to ensure that it was saved correctly and contains valid Python code.
 
-We can now import the download_and_load_gpt2 function from the gpt_download.py file as follows, which will load the GPT-2 architecture settings (settings) and weight parameters (params) into our Python session:
+We can now import the `download_and_load_gpt2` function from the `gpt_download.py` file as follows, which will load the GPT-2 architecture settings (settings) and weight parameters (params) into our Python session:
 
-from gpt_download import download_and_load_gpt2 s[ettin](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=272---book-markup-container)gs, params = download_and_load_gpt2(model_size="124M", models_dir="gpt2") Executing the proceeding code downloads the following 7 files associated with the 124M parameter GPT-2 model: checkpoint: 100%|███████████████████████████| 77.0/77.0 [00:00<00:00, 63.9kiB/s] encoder.json: 100%|█████████████████████████| 1.04M/1.04M [00:00<00:00, 2.20MiB/s] hprams.json: 100%|██████████████████████████| 90.0/90.0 [00:00<00:00, 78.3kiB/s] model.ckpt.data-00000-of-00001: 100%|███████| 498M/498M [01:09<00:00, 7.16MiB/s] model.ckpt.index: 100%|█████████████████████| 5.21k/5.21k [00:00<00:00, 3.24MiB/s] model.ckpt.meta: 100%|██████████████████████| 471k/471k [00:00<00:00, 2.46MiB/s] vocab.bpe: 100%|████████████████████████████| 456k/456k [00:00<00:00, 1.70MiB/s]
+```
+from gpt_download import download_and_load_gpt2
+settings, params = download_and_load_gpt2(model_size="124M", models_dir="gpt2")
+Executing the proceeding code downloads the following 7 files associated with the 124M
+parameter GPT-2 model:
+checkpoint: 100%|███████████████████████████| 77.0/77.0 [00:00<00:00, 63.9kiB/s]
+encoder.json: 100%|█████████████████████████| 1.04M/1.04M [00:00<00:00, 2.20MiB/s]
+hprams.json: 100%|██████████████████████████| 90.0/90.0 [00:00<00:00, 78.3kiB/s]
+model.ckpt.data-00000-of-00001: 100%|███████| 498M/498M [01:09<00:00, 7.16MiB/s]
+model.ckpt.index: 100%|█████████████████████| 5.21k/5.21k [00:00<00:00, 3.24MiB/s]
+model.ckpt.meta: 100%|██████████████████████| 471k/471k [00:00<00:00, 2.46MiB/s]
+vocab.bpe: 100%|████████████████████████████| 456k/456k [00:00<00:00, 1.70MiB/s]
+```
 
-#### UPDATED DOWNLOAD INSTRUCTIONS
 
-If the download code does not work for you, it could be due to intermittent internet connection, server issues, or changes in how OpenAI shares the weights of the opensource GPT-2 model. In this case, please visit this chapter's online code repository at <https://github.com/rasbt/LLMs-from-scratch> for alternative and updated instructions, and please reach out via the Manning Forum for further questions.
+
+> [!NOTE]
+>
+> **UPDATED DOWNLOAD INSTRUCTIONS**
+>
+> If the download code does not work for you, it could be due to intermittent internet connection, server issues, or changes in how OpenAI shares the weights of the opensource GPT-2 model. In this case, please visit this chapter's online code repository at <https://github.com/rasbt/LLMs-from-scratch> for alternative and updated instructions, and please reach out via the Manning Forum for further questions.
+>
 
 After the execution of the previous code has been completed, let's inspect the contents of settings and params:
 
-```
+```python
 print("Settings:", settings)
 print("Parameter dictionary keys:", params.keys())
 ```
 The contents are as follows:
 
-```
+```python
 Settings: {'n_vocab': 50257, 'n_ctx': 1024, 'n_embd': 768, 'n_head': 12, 'n_layer': 12}
 Parameter dictionary keys: dict_keys(['blocks', 'b', 'g', 'wpe', 'wte'])
 ```
-Both settings and params are Python dictionaries. The settings dictionary stores the LLM architecture settings similarly to our manually defined GPT_CONFIG_124M settings. The params dictionary contains the actual weight tensors. Note that we only printed the dictionary keys because printing the weight contents would take up too much screen space, however, we can inspect these weight tensors by printing the whole dictionary via print(params) or by selecting individual tensors via the respective dictionary keys, for example, the embedding layer weights:
+Both `settings` and `params` are Python dictionaries. The `settings` dictionary stores the LLM architecture settings similarly to our manually defined `GPT_CONFIG_124M` settings. The `params` dictionary contains the actual weight tensors. Note that we only printed the dictionary keys because printing the weight contents would take up too much screen space, however, we can inspect these weight tensors by printing the whole dictionary via `print(params)` or by selecting individual tensors via the respective dictionary keys, for example, the embedding layer weights:
 
-```
+```python
 print(params["wte"])
 print("Token embedding weight tensor dimensions:", params["wte"].shape)
 ```
 The weights of the token embedding layer are as follows:
 
-```
+```python
 [[-0.11010301 ... -0.1363697 0.01506208 0.04531523]
 [ 0.04034033 ... 0.08605453 0.00253983 0.04318958]
 [-0.12746179 ... 0.08991534 -0.12972379 -0.08785918]
@@ -4504,56 +4534,49 @@ The weights of the token embedding layer are as follows:
 [ 0.05135201 ... 0.00704835 0.15519823 0.12067825]]
 Token embedding weight tensor dimensions: (50257, 768)
 ```
-We downloaded and loaded the weights of the smallest GPT-2 model via the download_and_load_gpt2(model_size="124M", ...) setting. However, note that OpenAI also shares the weights of larger models: "355M", "774M", and "1558M". The overall architecture of these differently-sized GPT models is the same, as illustrated in Figure 5.17.
+We downloaded and loaded the weights of the smallest GPT-2 model via the `download_and_load_gpt2(model_size="124M", ...)` setting. However, note that OpenAI also shares the weights of larger models: "355M", "774M", and "1558M". The overall architecture of these differently-sized GPT models is the same, as illustrated in Figure 5.17.
 
 ![](_page_197_Figure_0.jpeg)
 
 194
 
-Figure 5.17 GPT-2 LLMs come in several different model sizes, ranging from 124 million to 1,558 million parameters. The core architecture is the same, with the only difference being the embedding sizes and the number of times individual components like the attention heads and transformer blocks are repeated.
+> Figure 5.17 GPT-2 LLMs come in several different model sizes, ranging from 124 million to 1,558 million parameters. The core architecture is the same, with the only difference being the embedding sizes and the number of times individual components like the attention heads and transformer blocks are repeated.
 
 As illustrated in Figure 5.17, the overall arch[it](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=285---book-markup-container)ecture of the differently-sized GPT-2 models remains the same, except that different architectural elements are repeated different numbers of times, and the embedding size differs. The remaining code in this chapter is also compatible with these larger models.
 
 After loading the GPT-2 model weights into Python, we still need to transfer them from the settings and params dictionaries into our GPTModel instance.
 
-```
-First, we create a dictionary that lists the differences between the different GPT model
-sizes, as explained in Figure 5.17:
+```python
+# First, we create a dictionary that lists the differences between the different GPT model sizes, as explained in Figure 5.17:
 model_configs = {
     "gpt2-small (124M)": {"emb_dim": 768, "n_layers": 12, "n_heads": 12},
     "gpt2-medium (355M)": {"emb_dim": 1024, "n_layers": 24, "n_heads": 16},
     "gpt2-large (774M)": {"emb_dim": 1280, "n_layers": 36, "n_heads": 20},
     "gpt2-xl (1558M)": {"emb_dim": 1600, "n_layers": 48, "n_heads": 25},
 }
-Suppose we are interested in loading the smallest model, "gpt2-small (124M)". We can use
-the corresponding settings from the model_configs table able to update our full-length
-GPT_CONFIG_124M we defined and used earlier throughout the chapter as follows:
+# Suppose we are interested in loading the smallest model, "gpt2-small (124M)". We can use the corresponding settings from the model_configs table able to update our full-length GPT_CONFIG_124M we defined and used earlier throughout the chapter as follows:
 model_name = "gpt2-small (124M)"
 NEW_CONFIG = GPT_CONFIG_124M.copy()
 NEW_CONFIG.update(model_configs[model_name])
 ```
 Careful readers may remember that we used a 256-token length earlier, but the original GPT-2 models from OpenAI were trained with a 1,024-token length, so we have to update the NEW_CONFIG accordingly:
 
-```
+```python
 NEW_CONFIG.update({"context_length": 1024})
 ```
 Also, OpenAI used bias vectors in the multi-head attention module's linear layers to implement the query, key, and value matrix computations. Bias vectors are not commonly used in LLMs anymore as they don't improve the modeling performance and are thus unnecessary. However, since we are working with pretrained weights, we need to match the settings for consistency and enable these bias vectors:
 
-```
+```python
 NEW_CONFIG.update({"qkv_bias": True})
 We can now use the updated NEW_CONFIG dictionary to initialize a new GPTModel instance:
 gpt = GPTModel(NEW_CONFIG)
 gpt.eval()
 ```
-By default, the GPTModel instance is initialized with random weights for pretraining. The last step to using OpenAI's model weights is to override these random weights with the weights we loaded into the params dictionary.
+By default, the `GPTModel` instance is initialized with random weights for pretraining. The last step to using OpenAI's model weights is to override these random weights with the weights we loaded into the `params` dictionary.
 
-For this, we will first define a small assign utility function that checks whether two tensors or arrays (left and right) have the same dimensions or shape and returns the right tensor as trainable PyTorch parameters:
+For this, we will first define a small `assign` utility function that checks whether two tensors or arrays (left and right) have the same dimensions or shape and returns the right tensor as trainable PyTorch parameters:
 
-```
-Licensed to   <149533107@qq.com>
-```
-
-```
+```python
 def assign(left, right):
     if left.shape != right.shape:
         raise ValueError(f"Shape mismatch. Left: {left.shape}, Right: {right.shape}")
@@ -4561,88 +4584,88 @@ def assign(left, right):
 ```
 Next, we define a load_weights_into_gpt function that loads the weights from the params dictionary into a GPTModel instance gpt:
 
-```
-Listing 5.5 Loading OpenAI weights into our GPT model code
+```python
+# Listing 5.5 Loading OpenAI weights into our GPT model code
 import numpy as np
+
 def load_weights_into_gpt(gpt, params):
-   gpt.pos_emb.weight = assign(gpt.pos_emb.weight, params['wpe']) #A
-   gpt.tok_emb.weight = assign(gpt.tok_emb.weight, params['wte'])
-   for b in range(len(params["blocks"])): #B
-       q_w, k_w, v_w = np.split( #C
-           (params["blocks"][b]["attn"]["c_attn"])["w"], 3, axis=-1)
-       gpt.trf_blocks[b].att.W_query.weight = assign(
-           gpt.trf_blocks[b].att.W_query.weight, q_w.T)
-       gpt.trf_blocks[b].att.W_key.weight = assign(
-           gpt.trf_blocks[b].att.W_key.weight, k_w.T)
-       gpt.trf_blocks[b].att.W_value.weight = assign(
-           gpt.trf_blocks[b].att.W_value.weight, v_w.T)
-       q_b, k_b, v_b = np.split(
-           (params["blocks"][b]["attn"]["c_attn"])["b"], 3, axis=-1)
-       gpt.trf_blocks[b].att.W_query.bias = assign(
-           gpt.trf_blocks[b].att.W_query.bias, q_b)
-       gpt.trf_blocks[b].att.W_key.bias = assign(
-           gpt.trf_blocks[b].att.W_key.bias, k_b)
-       gpt.trf_blocks[b].att.W_value.bias = assign(
-           gpt.trf_blocks[b].att.W_value.bias, v_b)
-       gpt.trf_blocks[b].att.out_proj.weight = assign(
-           gpt.trf_blocks[b].att.out_proj.weight,
-           params["blocks"][b]["attn"]["c_proj"]["w"].T)
-       gpt.trf_blocks[b].att.out_proj.bias = assign(
-           gpt.trf_blocks[b].att.out_proj.bias,
-           params["blocks"][b]["attn"]["c_proj"]["b"])
-       gpt.trf_blocks[b].ff.layers[0].weight = assign(
-           gpt.trf_blocks[b].ff.layers[0].weight,
-```
+    gpt.pos_emb.weight = assign(gpt.pos_emb.weight, params['wpe'])               #A
+    gpt.tok_emb.weight = assign(gpt.tok_emb.weight, params['wte'])
+    for b in range(len(params["blocks"])):                                       #B
+        q_w, k_w, v_w = np.split(                                                #C
+            (params["blocks"][b]["attn"]["c_attn"])["w"], 3, axis=-1)
+        gpt.trf_blocks[b].att.W_query.weight = assign(
+            gpt.trf_blocks[b].att.W_query.weight, q_w.T)
+        gpt.trf_blocks[b].att.W_key.weight = assign(
+            gpt.trf_blocks[b].att.W_key.weight, k_w.T)
+        gpt.trf_blocks[b].att.W_value.weight = assign(
+            gpt.trf_blocks[b].att.W_value.weight, v_w.T)
 
-```
-params["blocks"][b]["mlp"]["c_fc"]["w"].T)
-    gpt.trf_blocks[b].ff.layers[0].bias = assign(
-        gpt.trf_blocks[b].ff.layers[0].bias,
-        params["blocks"][b]["mlp"]["c_fc"]["b"])
-    gpt.trf_blocks[b].ff.layers[2].weight = assign(
-        gpt.trf_blocks[b].ff.layers[2].weight,
-        params["blocks"][b]["mlp"]["c_proj"]["w"].T)
-    gpt.trf_blocks[b].ff.layers[2].bias = assign(
-        gpt.trf_blocks[b].ff.layers[2].bias,
-        params["blocks"][b]["mlp"]["c_proj"]["b"])
-    gpt.trf_blocks[b].norm1.scale = assign(
-        gpt.trf_blocks[b].norm1.scale,
-        params["blocks"][b]["ln_1"]["g"])
-    gpt.trf_blocks[b].norm1.shift = assign(
-        gpt.trf_blocks[b].norm1.shift,
-        params["blocks"][b]["ln_1"]["b"])
-    gpt.trf_blocks[b].norm2.scale = assign(
-        gpt.trf_blocks[b].norm2.scale,
-        params["blocks"][b]["ln_2"]["g"])
-    gpt.trf_blocks[b].norm2.shift = assign(
-        gpt.trf_blocks[b].norm2.shift,
-        params["blocks"][b]["ln_2"]["b"])
+        q_b, k_b, v_b = np.split(
+            (params["blocks"][b]["attn"]["c_attn"])["b"], 3, axis=-1)
+        gpt.trf_blocks[b].att.W_query.bias = assign(
+            gpt.trf_blocks[b].att.W_query.bias, q_b)
+        gpt.trf_blocks[b].att.W_key.bias = assign(
+            gpt.trf_blocks[b].att.W_key.bias, k_b)
+        gpt.trf_blocks[b].att.W_value.bias = assign(
+            gpt.trf_blocks[b].att.W_value.bias, v_b)
+
+        gpt.trf_blocks[b].att.out_proj.weight = assign(
+            gpt.trf_blocks[b].att.out_proj.weight,
+            params["blocks"][b]["attn"]["c_proj"]["w"].T)
+        gpt.trf_blocks[b].att.out_proj.bias = assign(
+            gpt.trf_blocks[b].att.out_proj.bias,
+            params["blocks"][b]["attn"]["c_proj"]["b"])
+
+        gpt.trf_blocks[b].ff.layers[0].weight = assign(
+            gpt.trf_blocks[b].ff.layers[0].weight,
+            params["blocks"][b]["mlp"]["c_fc"]["w"].T)
+        gpt.trf_blocks[b].ff.layers[0].bias = assign(
+            gpt.trf_blocks[b].ff.layers[0].bias,
+            params["blocks"][b]["mlp"]["c_fc"]["b"])
+        gpt.trf_blocks[b].ff.layers[2].weight = assign(
+            gpt.trf_blocks[b].ff.layers[2].weight,
+            params["blocks"][b]["mlp"]["c_proj"]["w"].T)
+        gpt.trf_blocks[b].ff.layers[2].bias = assign(
+            gpt.trf_blocks[b].ff.layers[2].bias,
+            params["blocks"][b]["mlp"]["c_proj"]["b"])
+
+        gpt.trf_blocks[b].norm1.scale = assign(
+            gpt.trf_blocks[b].norm1.scale,
+            params["blocks"][b]["ln_1"]["g"])
+        gpt.trf_blocks[b].norm1.shift = assign(
+            gpt.trf_blocks[b].norm1.shift,
+            params["blocks"][b]["ln_1"]["b"])
+        gpt.trf_blocks[b].norm2.scale = assign(
+            gpt.trf_blocks[b].norm2.scale,
+            params["blocks"][b]["ln_2"]["g"])
+        gpt.trf_blocks[b].norm2.shift = assign(
+            gpt.trf_blocks[b].norm2.shift,
+            params["blocks"][b]["ln_2"]["b"])
+
 gpt.final_norm.scale = assign(gpt.final_norm.scale, params["g"])
-```
-
-```
 gpt.final_norm.shift = assign(gpt.final_norm.shift, params["b"])
-gpt.out_head.weight = assign(gpt.out_head.weight, params["wte"]) #D
-```
-#A Setting the model's positional and token embedding weights to those specified in params. #B Iterate over each transformer block in the model.
+gpt.out_head.weight = assign(gpt.out_head.weight, params["wte"])                   #D
 
+#A Setting the model's positional and token embedding weights to those specified in params. 
+#B Iterate over each transformer block in the model.
 #C The np.split function is used to divide the attention and bias weights into three equal parts for the query, key, and value components.
-
 #D The original GPT-2 model by OpenAI reused the token embedding weights in the output layer to reduce the total number of parameters, which is a concept known as weight tying.
-
-In the load_weights_into_gpt function, we carefully match the weights from OpenAI's implementation with our GPTModel implementation. To pick a specific example, OpenAI stored the weight tensor for the output projection layer for the first transformer block as params["blocks"][0]["attn"]["c_proj"]["w"]. In our implementation, this weight tensor corresponds to gpt.trf_blocks[b].att.out_proj.weight, where gpt is a GPTModel instance.
-
-Developing the load_weights_into_gpt function took a lot of guesswork since OpenAI used a slightly different naming convention from ours. However, the assign function would alert us if we try to match two tensors with different dimensions. Also, if we made a mistake in this function, we would notice this as the resulting GPT model would be unable to produce coherent text.
-
-[Let](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=299---book-markup-container)'s not try the load_weights_into_gpt out in practice and load the OpenAI model weights into our GPTModel instance gpt:
-
 ```
+
+In the `load_weights_into_gpt` function, we carefully match the weights from OpenAI's implementation with our `GPTModel` implementation. To pick a specific example, OpenAI stored the weight tensor for the output projection layer for the first transformer block as `params["blocks"][0]["attn"]["c_proj"]["w"]`. In our implementation, this weight tensor corresponds to `gpt.trf_blocks[b].att.out_proj.weight`, where gpt is a `GPTModel` instance.
+
+Developing the `load_weights_into_gpt` function took a lot of guesswork since OpenAI used a slightly different naming convention from ours. However, the assign function would alert us if we try to match two tensors with different dimensions. Also, if we made a mistake in this function, we would notice this as the resulting GPT model would be unable to produce coherent text.
+
+Let's not try the load_weights_into_gpt out in practice and load the OpenAI model weights into our GPTModel instance gpt:
+
+```python
 load_weights_into_gpt(gpt, params)
 gpt.to(device)
 ```
 If the model is loaded correctly, we can now use it to generate new text using our previous generate function:
 
-```
+```python
 torch.manual_seed(123)
 token_ids = generate(
     model=gpt,
@@ -4656,7 +4679,7 @@ print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
 ```
 The resulting text is as follows:
 
-```
+```python
 Output text:
  Every effort moves you toward finding an ideal new way to practice something!
 What makes us want to be on top of that?
@@ -4665,25 +4688,31 @@ We can be confident that we loaded the model weights correctly because the model
 
 In the following chapters, we will work further with this pretrained model and fine-tune it to classify text and follow instructions.
 
-#### EXERCISE 5.5
-
-Calculate the training and validation set losses of the GPTModel with the pretrained weights from OpenAI on the "The Verdict" dataset.
+> [!NOTE]
+>
+> **EXERCISE 5.5**
+>
+> Calculate the training and validation set losses of the GPTModel with the pretrained weights from OpenAI on the "The Verdict" dataset.
+>
 
 198
 
-#### EXERCISE 5.6
-
-Readers are encouraged to experiment with GPT-2 models of different sizes, for example, the largest 1558M parameter model and compare the generated text to the 124M model we loaded in this chapter.
+> [!NOTE]
+>
+> **EXERCISE 5.6**
+>
+> Readers are encouraged to experiment with GPT-2 models of different sizes, for example, the largest 1558M parameter model and compare the generated text to the 124M model we loaded in this chapter.
+>
 
 ## 5.6 Summary
 
 - When LLMs generate text, they output one token at a time.
 - By default, the next token is generated by converting the model outputs into probability scores and selecting the token from the vocabulary that corresponds to the highest probability score, which is known as "greedy decoding."
 - Using probabilistic sampling and temperature scaling, we can influence the diversity and coherence of the generated text.
-- Training and validation set losses can be used to gauge the quality of text generated by LLM during training[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=316---book-markup-container)
+- Training and validation set losses can be used to gauge the quality of text generated by LLM during training.
 - Pretraining an LLM involves changing its weights to minimize the training loss.
 - The training loop for LLMs itself is a standard procedure in deep learning, using a conventional cross entropy loss and AdamW optimizer.
-- Pretraining an LLM on a large text corpus is time- and resource-intensive so we can load openly available weights from OpenAI as an alternative to pretraining the model on a large dataset ourselves[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=319---book-markup-container)
+- Pretraining an LLM on a large text corpus is time- and resource-intensive so we can load openly available weights from OpenAI as an alternative to pretraining the model on a large dataset ourselves.
 
 # <span id="page-203-0"></span>[6](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6/v-8/section-6?refid=1) Finetuning for Classification
 
