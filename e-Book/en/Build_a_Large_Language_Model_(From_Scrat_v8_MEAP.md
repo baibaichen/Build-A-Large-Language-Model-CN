@@ -3934,35 +3934,31 @@ As shown in Figure 5.10, the next section focuses on pretraining the LLM. After 
 
 ## 5.2 Training an LLM
 
-In this section, we finally implement the code for pretraining the LLM, our GPTModel. For this, we focus on a straightforward training loop, as illustrated in Figure 5.11, to keep the code concise and readable. However, interested readers can learn about more advanced techniques, including l*earning rate warmup*, *cosine annealing*, and *gradient clipping*, in *Appendix D, Adding Bells and Whistles to the Training Loop.*
+In this section, we finally implement the code for pretraining the LLM, our `GPTModel`. For this, we focus on a straightforward training loop, as illustrated in Figure 5.11, to keep the code concise and readable. However, interested readers can learn about more advanced techniques, including **learning rate warmup**, **cosine annealing**, and **gradient clipping**, in [Appendix D, Adding Bells and Whistles to the Training Loop](#page-376-0).
 
 ![](_page_174_Figure_2.jpeg)
 
-Figure 5.11 A typical training loop for training deep neural networks in PyTorch consists of several steps, iterating over the batches in the training set for several epochs. In each loop, we calculate the loss for each training set batch to determine loss gradients, which we use to update the model weights so that the training set loss is minimized.
-The flowchart in Figure 5.11 depicts a typical PyTorch neural network training workflow, which we use for training an LLM. It outlines eight steps, starting with iterating over each epoch, processing batches, resetting and calculating gradients, updating weights, and concluding with monitoring steps like printing losses and generating text samples. If you are relatively new to training deep neural networks with PyTorch and any of these steps are unfamiliar, consider reading sections A.5 to A.8 in *Appendix A, Introduction to PyTorch*.
+> Figure 5.11 A typical training loop for training deep neural networks in PyTorch consists of several steps, iterating over the batches in the training set for several epochs. In each loop, we calculate the loss for each training set batch to determine loss gradients, which we use to update the model weights so that the training set loss is minimized.
 
-In code, we can implement this training flow via the following train_model_simple function:
-```
-Listing 5.3 The main function for pretraining LLMs
-#A Initialize lists to track losses and tokens seen
-#B Start the main training loop
-#C Reset loss gradients from previous batch iteration
-#D Calculate loss gradients
-#E Update model weights using loss gradients
+The flowchart in Figure 5.11 depicts a typical PyTorch neural network training workflow, which we use for training an LLM. It outlines eight steps, starting with iterating over each epoch, processing batches, resetting and calculating gradients, updating weights, and concluding with monitoring steps like printing losses and generating text samples. If you are relatively new to training deep neural networks with PyTorch and any of these steps are unfamiliar, consider reading sections A.5 to A.8 in [Appendix A, Introduction to PyTorch](#page-302-0).
+
+In code, we can implement this training flow via the following `train_model_simple` function:
+```python
+# Listing 5.3 The main function for pretraining LLMs
 def train_model_simple(model, train_loader, val_loader, optimizer, device, num_epochs,
                      eval_freq, eval_iter, start_context, tokenizer):
-   train_losses, val_losses, track_tokens_seen = [], [], [] #A
+   train_losses, val_losses, track_tokens_seen = [], [], []                 #A
    tokens_seen, global_step = 0, -1
-   for epoch in range(num_epochs): #B
+   for epoch in range(num_epochs):                                          #B
        model.train()
        for input_batch, target_batch in train_loader:
-          optimizer.zero_grad() #C
+          optimizer.zero_grad()                                             #C
           loss = calc_loss_batch(input_batch, target_batch, model, device)
-          loss.backward() #D
-          optimizer.step() #E
+          loss.backward()                                                   #D
+          optimizer.step()                                                  #E
           tokens_seen += input_batch.numel()
           global_step += 1
-          if global_step % eval_freq == 0: #F
+          if global_step % eval_freq == 0:                                  #F
               train_loss, val_loss = evaluate_model(
                   model, train_loader, val_loader, device, eval_iter)
               train_losses.append(train_loss)
@@ -3970,24 +3966,28 @@ def train_model_simple(model, train_loader, val_loader, optimizer, device, num_e
               track_tokens_seen.append(tokens_seen)
               print(f"Ep {epoch+1} (Step {global_step:06d}): "
                     f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}")
-       generate_and_print_sample( #G
+       generate_and_print_sample(                                            #G
           model, tokenizer, device, start_context
        )
    return train_losses, val_losses, track_tokens_seen
-```
+
+#A Initialize lists to track losses and tokens seen
+#B Start the main training loop
+#C Reset loss gradients from previous batch iteration
+#D Calculate loss gradients
+#E Update model weights using loss gradients
 #F Optional evaluation step
-
 #G Print a sample text after each epoch
+```
+Note that the `train_model_simple` function we just created uses two functions we have not defined yet: `evaluate_model` and `generate_and_print_sample`.
 
-Note that the train_model_simple function we just created uses two functions we have not defined yet: evaluate_model and generate_and_print_sample.
-
-The evaluate_model function corresponds to step 7 in Figure 5.11. It prints the training and validation set losses after each model update so we can evaluate whether the training improves the model.
+The `evaluate_model` function corresponds to step 7 in Figure 5.11. It prints the training and validation set losses after each model update so we can evaluate whether the training improves the model.
 
 173
 
-More specifically, the evaluate_model function calculates the loss over the training and v[alida](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=154---book-markup-container)tion set while ensuring the model is in evaluation mode with gradient tracking and dropout disabled when calculating the loss over the training and validation sets:
+More specifically, the `evaluate_model` function calculates the loss over the training and validation set while ensuring the model is in evaluation mode with gradient tracking and dropout disabled when calculating the loss over the training and validation sets:
 
-```
+```python
 def evaluate_model(model, train_loader, val_loader, device, eval_iter):
    model.eval() #A
    with torch.no_grad(): #B
@@ -3996,15 +3996,13 @@ num_batches=eval_iter)
       val_loss = calc_loss_loader(val_loader, model, device, num_batches=eval_iter)
    model.train()
    return train_loss, val_loss
-```
 
-```
 #A Dropout is disabled during evaluation for stable, reproducible results
 #B Disable gradient tracking, which is not required during evaluation, to reduce the computational overhead
 ```
-Similar to evaluate_model, the generate_and_print_sample function is a convenience function that we use to track whether the model improves during the training. In particular, the generate_and_print_sample function takes a text snippet (start_context) as input, converts it into token IDs, and feeds it to the LLM to generate a text sample using the generate_text_simple function we used earlier:
+Similar to `evaluate_model`, the `generate_and_print_sample` function is a convenience function that we use to track whether the model improves during the training. In particular, the `generate_and_print_sample` function takes a text snippet (`start_context`) as input, converts it into token IDs, and feeds it to the LLM to generate a text sample using the `generate_text_simple` function we used earlier:
 
-```
+```python
 def generate_and_print_sample(model, tokenizer, device, start_context):
     model.eval()
     context_size = model.pos_emb.weight.shape[0]
@@ -4018,15 +4016,17 @@ def generate_and_print_sample(model, tokenizer, device, start_context):
         print(decoded_text.replace("\n", " ")) # Compact print format
     model.train()
 ```
-While the evaluate_model function gives us a numeric estimate of the model's training progress, this generate_and_print_sample text function provides a concrete text example generated by the model to judge its capabilities during training.
+While the `evaluate_model` function gives us a numeric estimate of the model's training progress, this `generate_and_print_sample` text function provides a concrete text example generated by the model to judge its capabilities during training.
 
-#### ADAMW
-
-*Adam* optimizers are a popular choice for training deep neural networks. However, in our training loop, we opt for the *AdamW* optimizer. AdamW is a variant of Adam that improves the weight decay approach, which aims to minimize model complexity and prevent overfitting by penalizing larger weights. This adjustment allows AdamW to achieve more effective regularization and better generalization and is thus frequently used in the training of LLMs.
+> [!NOTE]
+>
+> **ADAMW**
+>
+> *Adam* optimizers are a popular choice for training deep neural networks. However, in our training loop, we opt for the *AdamW* optimizer. AdamW is a variant of Adam that improves the weight decay approach, which aims to minimize model complexity and prevent overfitting by penalizing larger weights. This adjustment allows AdamW to achieve more effective regularization and better generalization and is thus frequently used in the training of LLMs.
 
 Let's see this all in action by training a GPTModel instance for 10 epochs using an AdamW optimizer and the train_model_simple function we defined earlier.
 
-```
+```python
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 model.to(device)
@@ -4037,24 +4037,40 @@ train_losses, val_losses, tokens_seen = train_model_simple(
     num_epochs=num_epochs, eval_freq=5, eval_iter=1,
     start_context="Every effort moves you", tokenizer=tokenizer
 )
+#A The .parameters() method returns all trainable weight parameters of the model
 ```
-#### #A The .parameters() method returns all trainable weight parameters of the model
+Executing the `training_model_simple` function starts the training process, which takes about 5 minutes on a MacBook Air or a similar laptop to complete. The output printed during this execution is as follows:
 
-Executing the training_model_simple function starts the training process, which takes about 5 minutes on a MacBook Air or a similar laptop to complete. The output printed during this execution is as follows:
+```python
+Ep 1 (Step 000000): Train loss 9.781, Val loss 9.933
+Ep 1 (Step 000005): Train loss 8.111, Val loss 8.339
+Every effort moves you,,,,,,,,,,,,.
+Ep 2 (Step 000010): Train loss 6.661, Val loss 7.048
+Ep 2 (Step 000015): Train loss 5.961, Val loss 6.616
+Every effort moves you, and, and, and, and, and, and, and, and, and, and, and, and, and,
+and, and, and, and, and, and, and, and, and,, and, and,
+[...] Results are truncated to save space                 #A
+Ep 9 (Step 000080): Train loss 0.541, Val loss 6.393
+Every effort moves you?" "Yes--quite insensible to the irony. She wanted him
+vindicated--and by me!" He laughed again, and threw back the window-curtains, I had the
+donkey. "There were days when I
+Ep 10 (Step 000085): Train loss 0.391, Val loss 6.452
+Every effort moves you know," was one of the axioms he laid down across the Sevres and
+silver of an exquisitely appointed luncheon-table, when, on a later day, I had again run
+over from Monte Carlo; and Mrs. Gis
 
-Ep 1 (Step 000000): Train loss 9.781, Val loss 9.933 Ep 1 (Step 000005): Train loss 8.111, Val loss 8.339 Every effort moves you,,,,,,,,,,,,. Ep 2 (Step 000010): Train loss 6.661, Val loss 7.048 Ep 2 (Step 000015): Train loss 5.961, Val loss 6.616 Every effort moves you, and, and, and, and, and, and, and, and, and, and, and, and, and, and, and, and, and, and, and, and, and, and,, and, and, [...] Results are truncated to save space #A Ep 9 (Step 000080): Train loss 0.541, Val loss 6.393 Every effort moves you?" "Yes--quite insensible to the irony. She wanted him vindicated--and by me!" He laughed again, and threw back the window-curtains, I had the donkey. "There were days when I Ep 10 (Step 000085): Train loss 0.391, Val loss 6.452 Every effort moves you know," was one of the axioms he laid down across the Sevres and silver of an exquisitely appointed luncheon-table, when, on a later day, I had again run over from Monte Carlo; and Mrs. Gis
-
-#### #A Intermediate results removed to save space
+#A Intermediate results removed to save space
+```
 
 As we can see, based on the results printed during the training, the training loss improves drastically, starting with a value of 9.558 and converging to 0.762. The language skills of the model have improved quite a lot. In the beginning, the model is only able to append commas to the start context ("Every effort moves you,,,,,,,,,,,,") or repeat the word "and". At the end of the training, it can generate grammatically correct text.
 
 Similar to the training set loss, we can see that the validation loss starts high (9.856) and decreases during the training. However, it never becomes as small as the training set loss and remains at 6.372 after the 10th epoch.
 
-[Bef](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=167---book-markup-container)ore discussing the validation loss in more detail, let's create a simple plot that shows the training and validation set losses side by side:
+Before discussing the validation loss in more detail, let's create a simple plot that shows the training and validation set losses side by side:
 
 176
 
-```
+```python
 import matplotlib.pyplot as plt
 def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
    fig, ax1 = plt.subplots(figsize=(5, 3))
@@ -4069,13 +4085,9 @@ def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
    fig.tight_layout()
    plt.show()
 epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
-```
 
-```
 plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
-```
 
-```
 #A Create a second x-axis that shares the same y-axis
 #B Invisible plot for aligning ticks
 ```
@@ -4083,21 +4095,21 @@ The resulting training and validation loss plot is shown in Figure 5.12.
 
 ![](_page_180_Figure_4.jpeg)
 
-Figure 5.12 At the beginning of the training, we observe that both the training and validation set losses sharply decrease, which is a sign that the model is learning. However, the training set loss continues to decrease past the second epoch, whereas the validation loss stagnates. This is a sign that the model is still learning, but it's overfitting to the training set past epoch 2.
+>Figure 5.12 At the beginning of the training, we observe that both the training and validation set losses sharply decrease, which is a sign that the model is learning. However, the training set loss continues to decrease past the second epoch, whereas the validation loss stagnates. This is a sign that the model is still learning, but it's overfitting to the training set past epoch 2.
 
-As Figure 5.12 shows, both the training and [v](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=171---book-markup-container)alidation losses start to improve for the first epoch. However, the losses start to diverge past the second epoch. This divergence and the fact that the validation loss is much larger than the training loss indicate that the model is overfitting to the training data. We can confirm that the model memorizes the training data verbatim by searching for the generated text snippets, such as "quite insensible to the irony" in the "The Verdict" text file.
+As Figure 5.12 shows, both the training and validation losses start to improve for the first epoch. However, the losses start to diverge past the second epoch. This divergence and the fact that the validation loss is much larger than the training loss indicate that the model is overfitting to the training data. We can confirm that the model memorizes the training data verbatim by searching for the generated text snippets, such as "quite insensible to the irony" in the "The Verdict" text file.
 
 This memorization is expected since we are working with a very, very small training dataset and training the model for multiple epochs. Usually, it's common to train a model on a much, much larger dataset for only one epoch.
 
-[As](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=173---book-markup-container) mentioned earlier, interested readers can try to train the model on 60,000 public domain books from Project Gutenberg, where this overfitting does not occur; see appendix B for details.
+As mentioned earlier, interested readers can try to train the model on 60,000 public domain books from Project Gutenberg, where this overfitting does not occur; see appendix B for details.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=174---book-markup-container) the upcoming section, as shown in Figure 5.13, we explore sampling methods employed by LLMs to mitigate memorization effects, resulting in more novel generated text.
+In the upcoming section, as shown in Figure 5.13, we explore sampling methods employed by LLMs to mitigate memorization effects, resulting in more novel generated text.
 
 ![](_page_181_Figure_4.jpeg)
 
-Figure 5.13 Our model can generate coherent text after implementing the training function. However, it often memorizes passages from the training set verbatim. The following section covers strategies to generate more diverse output texts.
+> Figure 5.13 Our model can generate coherent text after implementing the training function. However, it often memorizes passages from the training set verbatim. The following section covers strategies to generate more diverse output texts.
 
-As illustrated in Figure 5.13, the next section [w](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=176---book-markup-container)ill cover text generation strategies for LLM to reduce training data memorization and increase the originality of the LLM-generated text before we cover weight loading and saving and loading pretrained weights from OpenAI's GPT model.
+As illustrated in Figure 5.13, the next section will cover text generation strategies for LLM to reduce training data memorization and increase the originality of the LLM-generated text before we cover weight loading and saving and loading pretrained weights from OpenAI's GPT model.
 
 ## 5.3 Decoding strategies to control randomness
 
