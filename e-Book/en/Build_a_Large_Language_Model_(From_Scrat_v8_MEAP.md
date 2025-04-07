@@ -2465,7 +2465,7 @@ Using the MultiHeadAttention class, initialize a multi-head attention module tha
 
 <span id="page-112-0"></span>
 
-#### This chapter covers
+This chapter covers
 
 - Coding a GPT-like large language model (LLM) that can be trained to generate human-like text
 - Normalizing layer activations to stabilize neural network training
@@ -2487,15 +2487,15 @@ LLMs, such as GPT (which stands for *Generative Pretrained Transformer*), are la
 
 ![](_page_114_Figure_0.jpeg)
 
-Figure 4.2 A mental model of a GPT model. Next to the embedding layers, it consists of one or more transformer blocks containing the masked multi-head attention module we implemented in the previous chapter.
+>  Figure 4.2 A mental model of a GPT model. Next to the embedding layers, it consists of one or more transformer blocks containing the masked multi-head attention module we implemented in the previous chapter.
 
-As you can see in Figure 4.2, we have already covered several aspects, such as input tokenization and embedding, as well as the masked multi-head attention module. The focus of this chapter will be on implementing the core structure of the GPT model, including its *transformer blocks*, which we will then train in the next chapter to generate human-like text.
+As you can see in Figure 4.2, we have already covered several aspects, such as input tokenization and embedding, as well as the masked multi-head attention module. The focus of this chapter will be on implementing the core structure of the GPT model, including its **transformer blocks**, which we will then train in the next chapter to generate human-like text.
 
 In the previous chapters, we used smaller embedding dimensions for simplicity, ensuring that the concepts and examples could comfortably fit on a single page. Now, in this chapter, we are scaling up to the size of a small GPT-2 model, specifically the smallest version with 124 million parameters, as described in Radford *et al.*'s paper, "Language Models are Unsupervised Multitask Learners." Note that while the original report mentions 117 million parameters, this was later corrected.
 
 Chapter 6 will focus on loading pretrained weights into our implementation and adapting it for larger GPT-2 models with 345, 762, and 1,542 million parameters. In the context of deep learning and LLMs like GPT, the term "parameters" refers to the trainable weights of the model. These weights are essentially the internal variables of the model that are adjusted and optimized during the training process to minimize a specific loss function. This optimization allows the model to learn from the training data.
 
-[For](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-4?potentialInternalRefId=15---book-markup-container) example, in a neural network layer that is represented by a 2,048x2,048 dimensional matrix (or tensor) of weights, each element of this matrix is a parameter. Since there are 2,048 rows and 2,048 columns, the total number of parameters in this layer is 2,048 multiplied by 2,048, which equals 4,194,304 parameters.
+For example, in a neural network layer that is represented by a 2,048x2,048 dimensional matrix (or tensor) of weights, each element of this matrix is a parameter. Since there are 2,048 rows and 2,048 columns, the total number of parameters in this layer is 2,048 multiplied by 2,048, which equals 4,194,304 parameters.
 
 #### GPT-2 VERSUS GPT-3
 
