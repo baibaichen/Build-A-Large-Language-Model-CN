@@ -4395,35 +4395,35 @@ As we can see, the generated text is very different from the one we previously g
 
 In this chapter, we have discussed how to numerically evaluate the training progress and pretrain an LLM from scratch. Even though both the LLM and dataset were relatively small, this exercise showed that pretraining LLMs is computationally expensive. Thus, it is important to be able to save the LLM so that we don't have to rerun the training every time we want to use it in a new session.
 
-As illustrated in the chapter overview in Figure 5.16, we cover how to save and load a pretrained model in this section. Then, in the upcoming section, we will load a more capable pretrained GPT model from OpenAI into our GPTModel instance.
+As illustrated in the chapter overview in Figure 5.16, we cover how to save and load a pretrained model in this section. Then, in the upcoming section, we will load a more capable pretrained GPT model from OpenAI into our `GPTModel` instance.
 
 ![](_page_192_Figure_3.jpeg)
 
-Figure 5.16 After training and inspecting the model, it is often helpful to save the model so that we can use or continue training it later, which is the topic of this section before we load the pretrained model weights from OpenAI in the final section of this chapter.
+> Figure 5.16 After training and inspecting the model, it is often helpful to save the model so that we can use or continue training it later, which is the topic of this section before we load the pretrained model weights from OpenAI in the final section of this chapter.
 
-Fortunately, saving a PyTorch model is relativ[e](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=247---book-markup-container)ly straightforward. The recommended way is to save a model's so-called state_dict, a dictionary mapping each layer to its parameters, using the torch.save function as follows:
+Fortunately, saving a PyTorch model is relatively straightforward. The recommended way is to save a model's so-called `state_dict`, a dictionary mapping each layer to its parameters, using the torch.save function as follows:
 
-```
+```python
 torch.save(model.state_dict(), "model.pth")
 ```
-In the preceding code, "model.pth" is the filename where the state_dict is saved. The .pth extension is a convention for PyTorch files, though we could technically use any file extension.
+In the preceding code, `model.pth` is the filename where the `state_dict` is saved. The `.pth` extension is a convention for PyTorch files, though we could technically use any file extension.
 
-Then, after saving the model weights via the state_dict, we can load the model weights into a new GPTModel model instance as follows:
+Then, after saving the model weights via the state_dict, we can load the model weights into a new `GPTModel` model instance as follows:
 
-```
+```python
 model = GPTModel(GPT_CONFIG_124M)
 model.load_state_dict(torch.load("model.pth"))
 model.eval()
 ```
 
 
-As discussed in chapter 4, dropout helps prevent the model from overfitting to the training data by randomly "dropping out" of a layer's neurons during training. However, during inference, we don't want to randomly drop out any of the information the network has learned. Using model.eval() switches the model to evaluation mode for inference, disabling the dropout layers of the model.
+As discussed in chapter 4, dropout helps prevent the model from overfitting to the training data by randomly "dropping out" of a layer's neurons during training. However, during inference, we don't want to randomly drop out any of the information the network has learned. Using `model.eval()` switches the model to evaluation mode for inference, disabling the `dropout` layers of the model.
 
-If we plan to continue pretraining a model later, for example, using the train_model_simple function we defined earlier in this chapter, saving the optimizer state is also recommended.
+If we plan to continue pretraining a model later, for example, using the `train_model_simple` function we defined earlier in this chapter, saving the optimizer state is also recommended.
 
-[Ad](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-5?potentialInternalRefId=254---book-markup-container)aptive optimizers such as AdamW store additional parameters for each model weight. AdamW uses historical data to adjust learning rates for each model parameter dynamically. Without it, the optimizer resets, and the model may learn suboptimally or even fail to converge properly, which means that it will lose the ability to generate coherent text. Using torch.save, we can save both the model and optimizer state_dict contents as follows:
+Adaptive optimizers such as AdamW store additional parameters for each model weight. AdamW uses historical data to adjust learning rates for each model parameter dynamically. Without it, the optimizer resets, and the model may learn suboptimally or even fail to converge properly, which means that it will lose the ability to generate coherent text. Using torch.save, we can save both the model and optimizer state_dict contents as follows:
 
-```
+```python
 torch.save({
     "model_state_dict": model.state_dict(),
     "optimizer_state_dict": optimizer.state_dict(),
@@ -4431,9 +4431,9 @@ torch.save({
     "model_and_optimizer.pth"
 )
 ```
-Then, we can restore the model and optimizer states as follows by first loading the saved data via torch.load and then using the load_state_dict method:
+Then, we can restore the model and optimizer states as follows by first loading the saved data via `torch.load` and then using the `load_state_dict` method:
 
-```
+```python
 checkpoint = torch.load("model_and_optimizer.pth")
 model = GPTModel(GPT_CONFIG_124M)
 model.load_state_dict(checkpoint["model_state_dict"])
