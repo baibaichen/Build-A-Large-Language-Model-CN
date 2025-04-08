@@ -1594,7 +1594,7 @@ Based on the result, we can see that the previously calculated `context_vec_2` m
  Previous 2nd context vector: tensor([0.4419, 0.6515, 0.5683])
 ```
 
-This concludes the code walkthrough of a simple self-attention mechanism. In the next section, we will add trainable weights, enabling the LLM to learn from data and improve its performance on specific tasks.
+This concludes the code walk through of a simple self-attention mechanism. In the next section, we will add trainable weights, enabling the LLM to learn from data and improve its performance on specific tasks.
 
 ## 3.4 Implementing self-attention with trainable weights
 
@@ -1667,7 +1667,7 @@ tensor([0.4306, 1.4551])
 >
 > Note that in the weight matrices *W*, the term "weight" is short for "weight parameters," the values of a neural network that are optimized during training. This is not to be confused with the attention weights. As we already saw in the previous section, attention weights determine the extent to which a context vector depends on the different parts of the input, i.e., to what extent the network focuses on different parts of the input.
 >
-> In summary, weight parameters are the fundamental, learned coefficients that define the network's connections, while attention weights are dynamic, context-specific values.
+> In summary, **weight parameters are the fundamental, learned coefficients that define the network's connections, while attention weights are dynamic, context-specific values**.
 >
 
 Even though our temporary goal is to only compute the one context vector, $z^{(2)}$, we still require the key and value vectors for all input elements as they are involved in computing the attention weights with respect to the query $q^{(2)}$, as illustrated in Figure 3.14.
@@ -1838,12 +1838,12 @@ Figure 3.18 summarizes the self-attention mechanism we just implemented.
 
 > Figure 3.18 In self-attention, we transform the input vectors in the input matrix X with the three weight matrices, Wq, Wk, and Wv. Then, we compute the attention weight matrix based on the resulting queries (Q) and keys (K). Using the attention weights and values (V), we then compute the context vectors (Z). (For visual clarity, we focus on a single input text with n tokens in this figure, not a batch of multiple inputs. Consequently, the 3D input tensor is simplified to a 2D matrix in this context. This approach allows for a more straightforward visualization and understanding of the processes involved. Also, for consistency with later figures, the values in the attention matrix do not depict the real attention weights.)
 
-As shown in Figure 3.18, self-attention involves the trainable weight matrices *W<sup>q</sup> , W<sup>k</sup> ,* and *W<sup>v</sup>* . These matrices transform input data into queries, keys, and values, which are crucial components of the attention mechanism. As the model is exposed to more data during training, it adjusts these trainable weights, as we will see in upcoming chapters.
+As shown in Figure 3.18, self-attention involves the trainable weight matrices $W_q$, $W_k$, and $W_v$. These matrices transform input data into queries, keys, and values, which are crucial components of the attention mechanism. As the model is exposed to more data during training, it adjusts these trainable weights, as we will see in upcoming chapters.
 
-We can improve the SelfAttention_v1 implementation further by utilizing PyTorch's nn.Linear layers, which effectively perform matrix multiplication when the bias units are disabled. Additionally, a significant advantage of using nn.Linear instead of manually implementing nn.Parameter(torch.rand(...)) is that nn.Linear has an optimized weight initialization scheme, contributing to more stable and effective model training.
+We can improve the `SelfAttention_v1` implementation further by utilizing PyTorch's `nn.Linear` layers, which effectively perform matrix multiplication when the bias units are disabled. Additionally, a significant advantage of using `nn.Linear` instead of manually implementing `nn.Parameter(torch.rand(...))` is that `nn.Linear` has an optimized weight initialization scheme, contributing to more stable and effective model training.
 
 ```python
-Listing 3.2 A self-attention class using PyTorch's Linear layers
+# Listing 3.2 A self-attention class using PyTorch's Linear layers
 class SelfAttention_v2(nn.Module):
     def __init__(self, d_in, d_out, qkv_bias=False):
         super().__init__()
@@ -1900,7 +1900,7 @@ In this section, we modify the standard self-attention mechanism to create a *ca
 
 87
 
-Causal attention, also known as *masked attention*, is a specialized form of self-attention. It restricts a model to only consider previous and current inputs in a sequence when processing any given token. This is in contrast to the standard self-attention mechanism, which allows access to the entire input sequence at once.
+Causal attention, also known as **masked attention**, is a specialized form of self-attention. It restricts a model to only consider previous and current inputs in a sequence when processing any given token. This is in contrast to the standard self-attention mechanism, which allows access to the entire input sequence at once.
 
 Consequently, when computing attention scores, the causal attention mechanism ensures that the model only factors in tokens that occur at or before the current token in the sequence.
 
@@ -1908,7 +1908,7 @@ To achieve this in GPT-like LLMs, for each token processed, we mask out the futu
 
 ![](_page_91_Figure_3.jpeg)
 
-Figure 3.19 In causal attention, we mask out the attention weights above the diagonal such that for a given input, the LLM can't access future tokens when computing the context vectors using the attention weights. For example, for the word "journey" in the second row, we only keep the attention weights for the words before ("Your") and in the current position ("journey").
+> Figure 3.19 In causal attention, we mask out the attention weights above the diagonal such that for a given input, the LLM can't access future tokens when computing the context vectors using the attention weights. For example, for the word "journey" in the second row, we only keep the attention weights for the words before ("Your") and in the current position ("journey").
 
 As illustrated in Figure 3.19, we mask out the attention weights above the diagonal, and we normalize the non-masked attention weights, such that the attention weights sum to 1 in each row. In the next section, we will implement this masking and normalization procedure in code.
 
@@ -1920,24 +1920,24 @@ In this section, we implement the causal attention mask in code. We start with t
 
 ![](_page_92_Figure_0.jpeg)
 
-Figure 3.20 One way to obtain the masked attention weight matrix in causal attention is to apply the softmax function to the attention scores, zeroing out the elements above the diagonal and normalizing the resulting matrix.
+> Figure 3.20 One way to obtain the masked attention weight matrix in causal attention is to apply the softmax function to the attention scores, zeroing out the elements above the diagonal and normalizing the resulting matrix.
 
 To implement the steps to apply a causal attention mask to obtain the masked attention weights as summarized in Figure 3.20, let's work with the attention scores and weights from the previous section to code the causal attention mechanism.
 
 In the first step illustrated in Figure 3.20, we compute the attention weights using the softmax function as we have done in previous sections:
 
-```
+```python
 queries = sa_v2.W_query(inputs) #A
 keys = sa_v2.W_key(inputs)
 attn_scores = queries @ keys.T
 attn_weights = torch.softmax(attn_scores / keys.shape[-1]**0.5, dim=1)
 print(attn_weights)
-```
-#A Reuse the query and key weight matrices of the SelfAttention_v2 object from the previous section for convenience
 
+#A Reuse the query and key weight matrices of the SelfAttention_v2 object from the previous section for convenience
+```
 This results in the following attention weights:
 
-```
+```python
 tensor([[0.1921, 0.1646, 0.1652, 0.1550, 0.1721, 0.1510],
         [0.2041, 0.1659, 0.1662, 0.1496, 0.1665, 0.1477],
         [0.2036, 0.1659, 0.1662, 0.1498, 0.1664, 0.1480],
@@ -1948,7 +1948,7 @@ tensor([[0.1921, 0.1646, 0.1652, 0.1550, 0.1721, 0.1510],
 ```
 We can implement step 2 in Figure 3.20 using PyTorch's tril function to create a mask where the values above the diagonal are zero:
 
-```
+```python
 context_length = attn_scores.shape[0]
 mask_simple = torch.tril(torch.ones(context_length, context_length))
 print(mask_simple)
@@ -1956,7 +1956,7 @@ print(mask_simple)
 
 The resulting mask is as follows:
 
-```
+```python
 tensor([[1., 0., 0., 0., 0., 0.],
         [1., 1., 0., 0., 0., 0.],
         [1., 1., 1., 0., 0., 0.],
@@ -1966,11 +1966,14 @@ tensor([[1., 0., 0., 0., 0., 0.],
 ```
 Now, we can multiply this mask with the attention weights to zero out the values above the diagonal:
 
-masked_simple = attn_weights\*mask_simple print(masked_simple)
+```python
+masked_simple = attn_weights*mask_simple 
+print(masked_simple)
+```
 
 As we can see, the elements above the diagonal are successfully zeroed out:
 
-```
+```python
 tensor([[0.1921, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.2041, 0.1659, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.2036, 0.1659, 0.1662, 0.0000, 0.0000, 0.0000],
@@ -1981,14 +1984,14 @@ tensor([[0.1921, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
 ```
 The third step in Figure 3.20 is to renormalize the attention weights to sum up to 1 again in each row. We can achieve this by dividing each element in each row by the sum in each row:
 
-```
+```python
 row_sums = masked_simple.sum(dim=1, keepdim=True)
 masked_simple_norm = masked_simple / row_sums
 print(masked_simple_norm)
 ```
 The result is an attention weight matrix where the attention weights above the diagonal are zeroed out and where the rows sum to 1:
 
-```
+```python
 tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.5517, 0.4483, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.3800, 0.3097, 0.3103, 0.0000, 0.0000, 0.0000],
@@ -1997,31 +2000,34 @@ tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.1935, 0.1663, 0.1666, 0.1542, 0.1666, 0.1529]],
        grad_fn=<DivBackward0>)
 ```
-#### INFORMATION LEAKAGE
-
-When we apply a mask and then renormalize the attention weights, it might initially appear that information from future tokens (which we intend to mask) could still influence the current token because their values are part of the softmax calculation. However, the key insight is that when we renormalize the attention weights after masking, what we're essentially doing is recalculating the softmax over a smaller subset (since masked positions don't contribute to the softmax value).
-
-The mathematical elegance of softmax is that despite initially including all positions in the denominator, after masking and renormalizing, the effect of the masked positions is nullified — they don't contribute to the softmax score in any meaningful way.
-
-In simpler terms, after masking and renormalization, the distribution of attention weights is as if it was calculated only among the unmasked positions to begin with. This ensures there's no information leakage from future (or otherwise masked) tokens as we intended.
+> [!NOTE]
+>
+> **INFORMATION LEAKAGE**
+>
+> When we apply a mask and then renormalize the attention weights, it might initially appear that information from future tokens (which we intend to mask) could still influence the current token because their values are part of the softmax calculation. However, the key insight is that when we renormalize the attention weights after masking, what we're essentially doing is recalculating the softmax over a smaller subset (since masked positions don't contribute to the softmax value).
+>
+> The mathematical elegance of softmax is that despite initially including all positions in the denominator, after masking and renormalizing, the effect of the masked positions is nullified — they don't contribute to the softmax score in any meaningful way.
+>
+> In simpler terms, after masking and renormalization, the distribution of attention weights is as if it was calculated only among the unmasked positions to begin with. This ensures there's no information leakage from future (or otherwise masked) tokens as we intended.
+>
 
 While we could be technically done with implementing causal attention at this point, we can take advantage of a mathematical property of the softmax function and implement the computation of the masked attention weights more efficiently in fewer steps, as shown in Figure 3.21.
 
 ![](_page_94_Figure_6.jpeg)
 
-Figure 3.21 A more efficient way to obtain the masked attention weight matrix in causal attention is to mask the attention scores with negative infinity values before applying the softmax function.
-The softmax function converts its inputs into a probability distribution. When negative infinity values (-∞) are present in a row, the softmax function treats them as zero probability. (Mathematically, this is because *e -*∞ approaches 0.)
+> Figure 3.21 A more efficient way to obtain the masked attention weight matrix in causal attention is to mask the attention scores with negative infinity values before applying the softmax function.
+> The softmax function converts its inputs into a probability distribution. When negative infinity values (-∞) are present in a row, the softmax function treats them as zero probability. (Mathematically, this is because *e -*∞ approaches 0.)
 
 We can implement this more efficient masking "trick" by creating a mask with 1's above the diagonal and then replacing these 1's with negative infinity (-inf) values:
 
-```
+```python
 mask = torch.triu(torch.ones(context_length, context_length), diagonal=1)
 masked = attn_scores.masked_fill(mask.bool(), -torch.inf)
 print(masked)
 ```
 This results in the following mask:
 
-```
+```python
 tensor([[0.2899, -inf, -inf, -inf, -inf, -inf],
        [0.4656, 0.1723, -inf, -inf, -inf, -inf],
        [0.4594, 0.1703, 0.1731, -inf, -inf, -inf],
@@ -2032,11 +2038,13 @@ tensor([[0.2899, -inf, -inf, -inf, -inf, -inf],
 ```
 Now, all we need to do is apply the softmax function to these masked results, and we are done:
 
-attn_weights = torch.softmax(masked / keys.shape[-1]\*\*0.5, dim=1) print(attn_weights)
+```python
+attn_weights = torch.softmax(masked / keys.shape[-1]**0.5, dim=1) print(attn_weights)
+```
 
 As we can see based on the output, the values in each row sum to 1, and no further normalization is necessary:
 
-```
+```python
 tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.5517, 0.4483, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.3800, 0.3097, 0.3103, 0.0000, 0.0000, 0.0000],
@@ -2045,11 +2053,11 @@ tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.1935, 0.1663, 0.1666, 0.1542, 0.1666, 0.1529]],
        grad_fn=<SoftmaxBackward0>)
 ```
-We could now use the modified attention weights to compute the context vectors via context_vec = attn_weights @ values, as in section 3.4. However, in the next section, we first cover another minor tweak to the causal attention mechanism that is useful for reducing overfitting when training LLMs.
+We could now use the modified attention weights to compute the context vectors via `context_vec = attn_weights @ values,` as in section 3.4. However, in the next section, we first cover another minor tweak to the causal attention mechanism that is useful for reducing overfitting when training LLMs.
 
 #### 3.5.2 Masking additional attention weights with dropout
 
-*Dropout* in deep learning is a technique where randomly selected hidden layer units are ignored during training, effectively "dropping" them out. This method helps prevent overfitting by ensuring that a model does not become overly reliant on any specific set of hidden layer units. It's important to emphasize that dropout is only used during training and is disabled afterward.
+**Dropout** in deep learning is a technique where randomly selected hidden layer units are ignored during training, effectively "dropping" them out. This method helps prevent overfitting by ensuring that a model does not become overly reliant on any specific set of hidden layer units. It's important to emphasize that dropout is only used during training and is disabled afterward.
 
 In the transformer architecture, including models like GPT, dropout in the attention mechanism is typically applied in two specific areas: after calculating the attention scores or after applying the attention weights to the value vectors.
 
@@ -2057,23 +2065,23 @@ Here, we will apply the dropout mask after computing the attention weights, as i
 
 ![](_page_96_Figure_4.jpeg)
 
-Figure 3.22 Using the causal attention mask (upper left), we apply an additional dropout mask (upper right) to zero out additional attention weights to reduce overfitting during training.
+> Figure 3.22 Using the causal attention mask (upper left), we apply an additional dropout mask (upper right) to zero out additional attention weights to reduce overfitting during training.
 
 In the following code example, we use a dropout rate of 50%, which means masking out half of the attention weights. (When we train the GPT model in later chapters, we will use a lower dropout rate, such as 0.1 or 0.2.)
 
 In the following code, we apply PyTorch's dropout implementation first to a 6×6 tensor consisting of ones for illustration purposes:
 
-```
+```python
 torch.manual_seed(123)
 dropout = torch.nn.Dropout(0.5) #A
 example = torch.ones(6, 6) #B
 print(dropout(example))
+#A We choose a dropout rate of 50% 
+#B Here, we create a matrix of 1's
 ```
-#A We choose a dropout rate of 50% #B Here, we create a matrix of 1's
-
 As we can see, approximately half of the values are zeroed out:
 
-```
+```python
 tensor([[2., 2., 0., 2., 2., 0.],
         [0., 0., 0., 2., 0., 2.],
         [2., 2., 2., 2., 0., 2.],
@@ -2085,13 +2093,13 @@ When applying dropout to an attention weight matrix with a rate of 50%, half of 
 
 Now, let's apply dropout to the attention weight matrix itself:
 
-```
+```python
 torch.manual_seed(123)
 print(dropout(attn_weights))
 ```
 The resulting attention weight matrix now has additional elements zeroed out and the remaining ones rescaled:
 
-```
+```python
 tensor([[2.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
         [0.7599, 0.6194, 0.6206, 0.0000, 0.0000, 0.0000],
@@ -2112,56 +2120,61 @@ But before we begin, one more thing is to ensure that the code can handle batche
 
 For simplicity, to simulate such batch inputs, we duplicate the input text example:
 
-```
+```python
 batch = torch.stack((inputs, inputs), dim=0)
 print(batch.shape) #A
-```
-#A 2 inputs with 6 tokens each, and each token has embedding dimension 3
 
+#A 2 inputs with 6 tokens each, and each token has embedding dimension 3
+```
 This results in a 3D tensor consisting of 2 input texts with 6 tokens each, where each token is a 3-dimensional embedding vector:
 
+```python
 torch.Size([2, 6, 3])
+```
 
 The following CausalAttention class is similar to the SelfAttention class we implemented earlier, except that we now added the dropout and causal mask components as highlighted in the following code:
 
 95
 
-#### Listing 3.3 A compact causal attention class
-
-```
+```python
+# Listing 3.3 A compact causal attention class
 class CausalAttention(nn.Module):
-   def __init__(self, d_in, d_out, context_length, dropout, qkv_bias=False):
-      super().__init__()
-      self.d_out = d_out
-      self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
-      self.W_key = nn.Linear(d_in, d_out, bias=qkv_bias)
-      self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
-      self.dropout = nn.Dropout(dropout) #A
-      self.register_buffer(
-         'mask',
-         torch.triu(torch.ones(context_length, context_length),
-         diagonal=1)
-      ) #B
-   def forward(self, x):
-      b, num_tokens, d_in = x.shape #C
-      keys = self.W_key(x)
-      queries = self.W_query(x)
-      values = self.W_value(x)
-      attn_scores = queries @ keys.transpose(1, 2) #C
-      attn_scores.masked_fill_( #D
-          self.mask.bool()[:num_tokens, :num_tokens], -torch.inf)
-      attn_weights = torch.softmax(attn_scores / keys.shape[-1]**0.5, dim=-1)
-      attn_weights = self.dropout(attn_weights)
-      context_vec = attn_weights @ values
-      return context_vec
+    def __init__(self, d_in, d_out, context_length, dropout, qkv_bias=False):
+        super().__init__()
+        self.d_out = d_out
+        self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_key   = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.dropout = nn.Dropout(dropout)                        #A
+        self.register_buffer(
+           'mask',
+           torch.triu(torch.ones(context_length, context_length),
+           diagonal=1)
+        )                                                         #B
+
+    def forward(self, x):
+        b, num_tokens, d_in = x.shape                             #C
+        keys = self.W_key(x)
+        queries = self.W_query(x)
+        values = self.W_value(x)
+        attn_scores = queries @ keys.transpose(1, 2)              #C
+        attn_scores.masked_fill_(                                 #D
+            self.mask.bool()[:num_tokens, :num_tokens], -torch.inf)
+        attn_weights = torch.softmax(attn_scores / keys.shape[-1]**0.5, dim=-1)
+        attn_weights = self.dropout(attn_weights)
+        context_vec = attn_weights @ values
+        return context_vec
+
+#A Compared to the previous SelfAttention_v1 class, we added a dropout layer 
+#B The register_buffer call is also a new addition (more information is provided in the following text) 
+#C We transpose dimensions 1 and 2, keeping the batch dimension at the first position (0) 
+#D In PyTorch, operations with a trailing underscore are performed in-place, avoiding unnecessary memory copies
 ```
-#A Compared to the previous SelfAttention_v1 class, we added a dropout layer #B The register_buffer call is also a new addition (more information is provided in the following text) #C We transpose dimensions 1 and 2, keeping the batch dimension at the first position (0) #D In PyTorch, operations with a trailing underscore are performed in-place, avoiding unnecessary memory copies
+While all added code lines should be familiar from previous sections, we now added a `self.register_buffer()` call in the __init__ method. The use of register_buffer in PyTorch is not strictly necessary for all use cases but offers several advantages here. For instance, when we use the `CausalAttention` class in our LLM, buffers are automatically moved to the appropriate device (CPU or GPU) along with our model, which will be relevant when training the LLM in future chapters. This means we don't need to manually ensure these tensors are on the same device as your model parameters, avoiding device mismatch errors.
 
-While all added code lines should be familiar from previous sections, we now added a self.register_buffer() call in the __init__ method. The use of register_buffer in PyTorch is not strictly necessary for all use cases but offers several advantages here. For instance, when we use the CausalAttention class in our LLM, buffers are automatically moved to the appropriate device (CPU or GPU) along with our model, which will be relevant when training the LLM in future chapters. This means we don't need to manually ensure these tensors are on the same device as your model parameters, avoiding device mismatch errors.
+We can use the CausalAttention class as follows, similar to `SelfAttention` previously:
 
-We can use the CausalAttention class as follows, similar to SelfAttention previously:
-
-```
+```python
 torch.manual_seed(123)
 context_length = batch.shape[1]
 ca = CausalAttention(d_in, d_out, context_length, 0.0)
@@ -2170,14 +2183,14 @@ print("context_vecs.shape:", context_vecs.shape)
 ```
 The resulting context vector is a 3D tensor where each token is now represented by a 2D embedding:
 
-```
+```python
 context_vecs.shape: torch.Size([2, 6, 2])
 ```
 Figure 3.23 provides a mental model that summarizes what we have accomplished so far.
 
 ![](_page_100_Figure_5.jpeg)
 
-Figure 3.23 A mental model summarizing the four different attention modules we are coding in this chapter. We began with a simplified attention mechanism, added trainable weights, and then added a casual attention mask. In the remainder of this chapter, we will extend the causal attention mechanism and code multi-head attention, which is the final module we will use in the LLM implementation in the next chapter.
+> Figure 3.23 A mental model summarizing the four different attention modules we are coding in this chapter. We began with a simplified attention mechanism, added trainable weights, and then added a casual attention mask. In the remainder of this chapter, we will extend the causal attention mechanism and code multi-head attention, which is the final module we will use in the LLM implementation in the next chapter.
 
 As illustrated in Figure 3.23, in this section, we focused on the concept and implementation of causal attention in neural networks. In the next section, we will expand on this concept and implement a multi-head attention module that implements several of such causal attention mechanisms in parallel.
 
@@ -2186,10 +2199,6 @@ As illustrated in Figure 3.23, in this section, we focused on the concept and im
 In this final section of this chapter, we are extending the previously implemented causal attention class over multiple-heads. This is also called *multi-head attention*.
 
 The term "multi-head" refers to dividing the attention mechanism into multiple "heads," each operating independently. In this context, a single causal attention module can be considered single-head attention, where there is only one set of attention weights processing the input sequentially.
-
-|  |  | Licensed to   <149533107@qq.com> |  |  |
-|--|--|----------------------------------|--|--|
-|--|--|----------------------------------|--|--|
 
 In the following subsections, we will tackle this expansion from causal attention to multihead attention. The first subsection will intuitively build a multi-head attention module by stacking multiple CausalAttention modules for illustration purposes. The second subsection will then implement the same multi-head attention module in a more complicated but computationally more efficient way.
 
@@ -2201,7 +2210,7 @@ Figure 3.24 illustrates the structure of a multi-head attention module, which co
 
 ![](_page_101_Figure_4.jpeg)
 
-Figure 3.24 The multi-head attention module in this figure depicts two single-head attention modules stacked on top of each other. So, instead of using a single matrix <sup>W</sup>v for computing the value matrices, in a multi-head attention module with two heads, we now have two value weight matrices: <sup>W</sup>v1 and <sup>W</sup>v2 . The same applies to the other weight matrices, <sup>W</sup>q and <sup>W</sup>k . We obtain two sets of context vectors <sup>Z</sup>1 and <sup>Z</sup>2 that we can combine into a single context vector matrix Z.
+> Figure 3.24 The multi-head attention module in this figure depicts two single-head attention modules stacked on top of each other. So, instead of using a single matrix <sup>W</sup>v for computing the value matrices, in a multi-head attention module with two heads, we now have two value weight matrices: <sup>W</sup>v1 and <sup>W</sup>v2 . The same applies to the other weight matrices, <sup>W</sup>q and <sup>W</sup>k . We obtain two sets of context vectors <sup>Z</sup>1 and <sup>Z</sup>2 that we can combine into a single context vector matrix Z.
 
 As mentioned before, the main idea behind multi-head attention is to run the attention mechanism multiple times (in parallel) with different, learned linear projections — the results of multiplying the input data (like the query, key, and value vectors in attention mechanisms) by a weight matrix.
 
@@ -2441,9 +2450,11 @@ In this section, we implemented the MultiHeadAttention class that we will use in
 
 For comparison, the smallest GPT-2 model (117 million parameters) has 12 attention heads and a context vector embedding size of 768. The largest GPT-2 model (1.5 billion parameters) has 25 attention heads and a context vector embedding size of 1600. Note that the embedding sizes of the token inputs and context embeddings are the same in GPT models (d_in = d_out).
 
-#### EXERCISE 3.3 INITIALIZING GPT-2 SIZE ATTENTION MODULES
-
-Using the MultiHeadAttention class, initialize a multi-head attention module that has the same number of attention heads as the smallest GPT-2 model (12 attention heads). Also ensure that you use the respective input and output embedding sizes similar to GPT-2 (768 dimensions). Note that the smallest GPT-2 model supports a context length of 1024 tokens.
+> [!NOTE]
+>
+> **EXERCISE 3.3 INITIALIZING GPT-2 SIZE ATTENTION MODULES**
+>
+> Using the MultiHeadAttention class, initialize a multi-head attention module that has the same number of attention heads as the smallest GPT-2 model (12 attention heads). Also ensure that you use the respective input and output embedding sizes similar to GPT-2 (768 dimensions). Note that the smallest GPT-2 model supports a context length of 1024 tokens.
 
 ## 3.7 Summary
 
