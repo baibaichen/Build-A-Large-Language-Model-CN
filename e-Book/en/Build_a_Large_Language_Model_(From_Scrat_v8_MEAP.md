@@ -1226,7 +1226,9 @@ LLMs require textual data to be converted into numerical vectors, known as embed
 - Embedding layers in PyTorch function as a lookup operation, retrieving vectors corresponding to token IDs. The resulting embedding vectors provide continuous representations of tokens, which is crucial for training deep learning models like LLMs.
 - While token embeddings provide consistent vector representations for each token, they lack a sense of the token's position in a sequence. To rectify this, two main types of positional embeddings exist: absolute and relative. OpenAI's GPT models utilize absolute positional embeddings that are added to the token embedding vectors and are optimized during the model training.
 
-# <span id="page-63-0"></span>3 Coding Attention Mechanisms
+# 3 Coding Attention Mechanisms
+
+<span id="page-63-0"></span>
 
 This chapter covers
 
@@ -2371,21 +2373,26 @@ The tensors are then transposed to bring the `num_heads` dimension before the `n
 
 To illustrate this batched matrix multiplication, suppose we have the following example tensor:
 
-```
-a = torch.tensor([[[[0.2745, 0.6584, 0.2775, 0.8573], #A [0.8993, 0.0390, 0.9268, 0.7388], [0.7179, 0.7058, 0.9156, 0.4340]], [[0.0772, 0.3565, 0.1479, 0.5331], [0.4066, 0.2318, 0.4545, 0.9737], [0.4606, 0.5159, 0.4220, 0.5786]]]])
+```python
+a = torch.tensor([[[[0.2745, 0.6584, 0.2775, 0.8573],             #A
+                    [0.8993, 0.0390, 0.9268, 0.7388],
+                    [0.7179, 0.7058, 0.9156, 0.4340]],
+                   [[0.0772, 0.3565, 0.1479, 0.5331],
+                    [0.4066, 0.2318, 0.4545, 0.9737],
+                    [0.4606, 0.5159, 0.4220, 0.5786]]]])
 
 #A The shape of this tensor is (b, num_heads, num_tokens, head_dim) = (1, 2, 3, 4)
 ```
 
 Now, we perform a batched matrix multiplication between the tensor itself and a view of the tensor where we transposed the last two dimensions, num_tokens and head_dim:
 
-```
+```python
 print(a @ a.transpose(2, 3))
 ```
 
 The result is as follows:
 
-```
+```python
 tensor([[[[1.3208, 1.1631, 1.2879],
           [1.1631, 2.2150, 1.8424],
           [1.2879, 1.8424, 2.0402]],
@@ -2397,7 +2404,7 @@ In this case, the matrix multiplication implementation in PyTorch handles the 4-
 
 For instance, the above becomes a more compact way to compute the matrix multiplication for each head separately:
 
-```
+```python
 first_head = a[0, 0, :, :]
 first_res = first_head @ first_head.T
 print("First head:\n", first_res)
@@ -2407,7 +2414,7 @@ print("\nSecond head:\n", second_res)
 ```
 The results are exactly the same results that we obtained when using the batched matrix multiplication `print(a @ a.transpose(2, 3))` earlier:
 
-```
+```python
 First head:
  tensor([[1.3208, 1.1631, 1.2879],
         [1.1631, 2.2150, 1.8424],
@@ -2425,7 +2432,7 @@ Even though the `MultiHeadAttention` class looks more complicated than the `Mult
 
 The `MultiHeadAttention` class can be used similar to the `SelfAttention` and `CausalAttention` classes we implemented earlier:
 
-```
+```python
 torch.manual_seed(123)
 batch_size, context_length, d_in = batch.shape
 d_out = 2
@@ -2436,7 +2443,7 @@ print("context_vecs.shape:", context_vecs.shape)
 ```
 As we can see based on the results, the output dimension is directly controlled by the d_out argument:
 
-```
+```python
 tensor([[[0.3190, 0.4858],
          [0.2943, 0.3897],
          [0.2856, 0.3593],
