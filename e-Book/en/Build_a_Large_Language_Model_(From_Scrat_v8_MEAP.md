@@ -2196,7 +2196,7 @@ As illustrated in Figure 3.23, in this section, we focused on the concept and im
 
 ## 3.6 Extending single-head attention to multi-head attention
 
-In this final section of this chapter, we are extending the previously implemented causal attention class over multiple-heads. This is also called *multi-head attention*.
+In this final section of this chapter, we are extending the previously implemented causal attention class over multiple-heads. This is also called **multi-head attention**.
 
 The term "multi-head" refers to dividing the attention mechanism into multiple "heads," each operating independently. In this context, a single causal attention module can be considered single-head attention, where there is only one set of attention weights processing the input sequentially.
 
@@ -2214,10 +2214,10 @@ Figure 3.24 illustrates the structure of a multi-head attention module, which co
 
 As mentioned before, the main idea behind multi-head attention is to run the attention mechanism multiple times (in parallel) with different, learned linear projections — the results of multiplying the input data (like the query, key, and value vectors in attention mechanisms) by a weight matrix.
 
-In code, we can achieve this by implementing a simple MultiHeadAttentionWrapper class that stacks multiple instances of our previously implemented CausalAttention module:
+In code, we can achieve this by implementing a simple `MultiHeadAttentionWrapper` class that stacks multiple instances of our previously implemented `CausalAttention` module:
 
-```
-Listing 3.4 A wrapper class to implement multi-head attention
+```python
+# Listing 3.4 A wrapper class to implement multi-head attention
 class MultiHeadAttentionWrapper(nn.Module):
     def __init__(self, d_in, d_out, context_length,
                  dropout, num_heads, qkv_bias=False):
@@ -2229,15 +2229,15 @@ class MultiHeadAttentionWrapper(nn.Module):
     def forward(self, x):
         return torch.cat([head(x) for head in self.heads], dim=-1)
 ```
-For example, if we use this MultiHeadAttentionWrapper class with two attention heads (via num_heads=2) and CausalAttention output dimension d_out=2, this results in a 4 dimensional context vectors (d_out\*num_heads=4), as illustrated in Figure 3.25.
+For example, if we use this `MultiHeadAttentionWrapper` class with two attention heads (via `num_heads=2`) and `CausalAttention` output dimension `d_out=2`, this results in a 4 dimensional context vectors (`d_out*num_heads=4`), as illustrated in Figure 3.25.
 
 ![](_page_103_Figure_0.jpeg)
 
-Figure 3.25 Using the MultiHeadAttentionWrapper, we specified the number of attention heads (num_heads). If we set num_heads=2, as shown in this figure, we obtain a tensor with two sets of context vector matrices. In each context vector matrix, the rows represent the context vectors corresponding to the tokens, and the columns correspond to the embedding dimension specified via d_out=4. We concatenate these context vector matrices along the column dimension. Since we have 2 attention heads and an embedding dimension of 2, the final embedding dimension is 2 × 2 = 4.
+> Figure 3.25 Using the `MultiHeadAttentionWrapper`, we specified the number of attention heads (`num_heads`). If we set `num_heads=2`, as shown in this figure, we obtain a tensor with two sets of context vector matrices. In each context vector matrix, the rows represent the context vectors corresponding to the tokens, and the columns correspond to the embedding dimension specified via `d_out=4`. We concatenate these context vector matrices along the column dimension. Since we have 2 attention heads and an embedding dimension of 2, the final embedding dimension is **2 × 2 = 4**.
 
-To illustrate Figure 3.25 further with a concrete example, we can use the MultiHeadAttentionWrapper class similar to the CausalAttention class before:
+To illustrate Figure 3.25 further with a concrete example, we can use the `MultiHeadAttentionWrapper` class similar to the `CausalAttention` class before:
 
-```
+```python
 torch.manual_seed(123)
 context_length = batch.shape[1] # This is the number of tokens
 d_in, d_out = 3, 2
@@ -2248,7 +2248,7 @@ print("context_vecs.shape:", context_vecs.shape)
 ```
 This results in the following tensor representing the context vectors:
 
-```
+```python
 tensor([[[-0.4519, 0.2216, 0.4772, 0.1063],
         [-0.5874, 0.0058, 0.5891, 0.3257],
         [-0.6300, -0.0632, 0.6202, 0.3860],
@@ -2263,120 +2263,121 @@ tensor([[[-0.4519, 0.2216, 0.4772, 0.1063],
         [-0.5299, -0.1081, 0.5077, 0.3493]]], grad_fn=<CatBackward0>)
 context_vecs.shape: torch.Size([2, 6, 4])
 ```
-The first dimension of the resulting context_vecs tensor is 2 since we have two input texts (the input texts are duplicated, which is why the context vectors are exactly the same for those). The second dimension refers to the 6 tokens in each input. The third dimension refers to the 4-dimensional embedding of each token.
+The first dimension of the resulting `context_vecs` tensor is 2 since we have two input texts (the input texts are duplicated, which is why the context vectors are exactly the same for those). The second dimension refers to the 6 tokens in each input. The third dimension refers to the 4-dimensional embedding of each token.
 
-#### EXERCISE 3.2 RETURNING 2-DIMENSIONAL EMBEDDING VECTORS
+> [!NOTE]
+>
+> **EXERCISE 3.2 RETURNING 2-DIMENSIONAL EMBEDDING VECTORS**
+>
+> Change the input arguments for the `MultiHeadAttentionWrapper(..., num_heads=2)` call such that the output context vectors are 2-dimensional instead of 4-dimensional while keeping the setting num_heads=2. Hint: You don't have to modify the class implementation; you just have to change one of the other input arguments.
+>
 
-Change the input arguments for the MultiHeadAttentionWrapper(..., num_heads=2) call such that the output context vectors are 2-dimensional instead of 4-dimensional while keeping the setting num_heads=2. Hint: You don't have to modify the class implementation; you just have to change one of the other input arguments.
-
-In this section, we implemented a MultiHeadAttentionWrapper that combined multiple single-head attention modules. However, note that these are processed sequentially via [head(x) for head in self.heads] in the forward method. We can improve this implementation by processing the heads in parallel. One way to achieve this is by computing the outputs for all attention heads simultaneously via matrix multiplication, as we will explore in the next section.
+In this section, we implemented a `MultiHeadAttentionWrapper` that combined multiple single-head attention modules. However, note that these are processed sequentially via `[head(x) for head in self.heads]` in the `forward` method. We can improve this implementation by processing the heads in parallel. One way to achieve this is by computing the outputs for all attention heads simultaneously via matrix multiplication, as we will explore in the next section.
 
 #### 3.6.2 Implementing multi-head attention with weight splits
 
-In the previous section, we created a MultiHeadAttentionWrapper to implement multihead attention by stacking multiple single-head attention modules. This was done by instantiating and combining several CausalAttention objects.
+In the previous section, we created a `MultiHeadAttentionWrapper` to implement multihead attention by stacking multiple single-head attention modules. This was done by instantiating and combining several `CausalAttention` objects.
 
 101
 
-Instead of maintaining two separate classes, MultiHeadAttentionWrapper and CausalAttention, we can combine both of these concepts into a single MultiHeadAttention class. Also, in addition to just merging the MultiHeadAttentionWrapper with the CausalAttention code, we will make some other modifications to implement multi-head attention more efficiently.
+Instead of maintaining two separate classes, `MultiHeadAttentionWrapper` and `CausalAttention`, we can combine both of these concepts into a single `MultiHeadAttention` class. Also, in addition to just merging the `MultiHeadAttentionWrapper` with the `CausalAttention` code, we will make some other modifications to implement multi-head attention more efficiently.
 
-In the MultiHeadAttentionWrapper, multiple heads are implemented by creating a list of CausalAttention objects (self.heads), each representing a separate attention head. The CausalAttention class independently performs the attention mechanism, and the results from each head are concatenated. In contrast, the following MultiHeadAttention class integrates the multi-head functionality within a single class. It splits the input into multiple heads by reshaping the projected query, key, and value tensors and then combines the results from these heads after computing attention.
+In the `MultiHeadAttentionWrapper`, multiple heads are implemented by creating a list of `CausalAttention` objects (self.heads), each representing a separate attention head. The `CausalAttention` class independently performs the attention mechanism, and the results from each head are concatenated. In contrast, the following MultiHeadAttention class integrates the multi-head functionality within a single class. It splits the input into multiple heads by reshaping the projected query, key, and value tensors and then combines the results from these heads after computing attention.
 
-Let's take a look at the MultiHeadAttention class before we discuss it further:
+Let's take a look at the `MultiHeadAttention` class before we discuss it further:
 
-#### Listing 3.5 An efficient multi-head attention class
-
-```
+```python
+# Listing 3.5 An efficient multi-head attention class
 class MultiHeadAttention(nn.Module):
-   def __init__(self, d_in, d_out,
-               context_length, dropout, num_heads, qkv_bias=False):
-       super().__init__()
-       assert d_out % num_heads == 0, "d_out must be divisible by num_heads"
-       self.d_out = d_out
-       self.num_heads = num_heads
-       self.head_dim = d_out // num_heads #A
-       self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
-       self.W_key = nn.Linear(d_in, d_out, bias=qkv_bias)
-       self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
-       self.out_proj = nn.Linear(d_out, d_out) #B
-       self.dropout = nn.Dropout(dropout)
-       self.register_buffer(
-          'mask',
-           torch.triu(torch.ones(context_length, context_length), diagonal=1)
-       )
-   def forward(self, x):
-       b, num_tokens, d_in = x.shape
-       keys = self.W_key(x) #C
-       queries = self.W_query(x) #C
-       values = self.W_value(x) #C
-       keys = keys.view(b, num_tokens, self.num_heads, self.head_dim) #D
-       values = values.view(b, num_tokens, self.num_heads, self.head_dim) #D
-       queries = queries.view(b, num_tokens, self.num_heads, self.head_dim)#D
-```
+    def __init__(self, d_in, d_out,
+                 context_length, dropout, num_heads, qkv_bias=False):
+        super().__init__()
+        assert d_out % num_heads == 0, "d_out must be divisible by num_heads"
+        self.d_out = d_out
+        self.num_heads = num_heads
+        self.head_dim = d_out // num_heads                        #A
+        self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_key = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.out_proj = nn.Linear(d_out, d_out)                   #B
+        self.dropout = nn.Dropout(dropout)
+        self.register_buffer(
+            'mask',
+             torch.triu(torch.ones(context_length, context_length), diagonal=1)
+        )
 
-```
-keys = keys.transpose(1, 2) #E
-queries = queries.transpose(1, 2) #E
-values = values.transpose(1, 2) #E
-attn_scores = queries @ keys.transpose(2, 3) #F
-mask_bool = self.mask.bool()[:num_tokens, :num_tokens] #G
-attn_scores.masked_fill_(mask_bool, -torch.inf) #H
-attn_weights = torch.softmax(
-   attn_scores / keys.shape[-1]**0.5, dim=-1)
-attn_weights = self.dropout(attn_weights)
-context_vec = (attn_weights @ values).transpose(1, 2) #I
-                                               #J
-context_vec = context_vec.contiguous().view(b, num_tokens, self.d_out)
-context_vec = self.out_proj(context_vec) #K
-return context_vec
-```
+    def forward(self, x):
+        b, num_tokens, d_in = x.shape
+        keys = self.W_key(x)                                      #C
+        queries = self.W_query(x)                                 #C
+        values = self.W_value(x)                                  #C
+
+        keys = keys.view(b, num_tokens, self.num_heads, self.head_dim)       #D
+        values = values.view(b, num_tokens, self.num_heads, self.head_dim)   #D
+        queries = queries.view(b, num_tokens, self.num_heads, self.head_dim) #D
+
+        keys = keys.transpose(1, 2)                               #E
+        queries = queries.transpose(1, 2)                         #E
+        values = values.transpose(1, 2)                           #E
+
+        attn_scores = queries @ keys.transpose(2, 3)              #F
+        mask_bool = self.mask.bool()[:num_tokens, :num_tokens]    #G
+
+        attn_scores.masked_fill_(mask_bool, -torch.inf)           #H
+
+        attn_weights = torch.softmax(
+            attn_scores / keys.shape[-1]**0.5, dim=-1)
+        attn_weights = self.dropout(attn_weights)
+
+        context_vec = (attn_weights @ values).transpose(1, 2)     #I
+
+        context_vec = context_vec.contiguous().view(b, num_tokens, self.d_out)  #J
+        context_vec = self.out_proj(context_vec)                  #K
+        return context_vec
+
 #A Reduce the projection dim to match desired output dim
-
 #B Use a Linear layer to combine head outputs
-
 #C Tensor shape: (b, num_tokens, d_out)
-
-#D We implicitly split the matrix by adding a `num_heads` dimension. Then we unroll last dim: (b,
-
-num_tokens, d_out) -> (b, num_tokens, num_heads, head_dim)
+#D We implicitly split the matrix by adding a `num_heads` dimension. Then we unroll last dim: (b,num_tokens, d_out) -> (b, num_tokens, num_heads, head_dim)
 
 #E Transpose from shape (b, num_tokens, num_heads, head_dim) to (b, num_heads, num_tokens, head_dim)
 
-- #F Compute dot product for each head
-- #G Mask truncated to the number of tokens
-
+#F Compute dot product for each head
+#G Mask truncated to the number of tokens
 #H Use the mask to fill attention scores
-
 #I Tensor shape: (b, num_tokens, n_heads, head_dim)
-
-```
 #J Combine heads, where self.d_out = self.num_heads * self.head_dim
-```
 #K Add an optional linear projection
+```
+Even though the reshaping (`.view`) and transposing (`.transpose`) of tensors inside the `MultiHeadAttention` class looks very complicated, mathematically, the `MultiHeadAttention` class implements the same concept as the `MultiHeadAttentionWrapper` earlier.
 
-Even though the reshaping (.view) and transposing (.transpose) of tensors inside the MultiHeadAttention class looks very complicated, mathematically, the MultiHeadAttention class implements the same concept as the MultiHeadAttentionWrapper earlier.
-
-On a big-picture level, in the previous MultiHeadAttentionWrapper, we stacked multiple single-head attention layers that we combined into a multi-head attention layer. The MultiHeadAttention class takes an integrated approach. It starts with a multi-head layer and then internally splits this layer into individual attention heads, as illustrated in Figure 3.26.
+On a big-picture level, in the previous `MultiHeadAttentionWrapper`, we stacked multiple single-head attention layers that we combined into a multi-head attention layer. The `MultiHeadAttention` class takes an integrated approach. It starts with a multi-head layer and then internally splits this layer into individual attention heads, as illustrated in Figure 3.26.
 
 ![](_page_107_Figure_0.jpeg)
 
 ![](_page_107_Figure_3.jpeg)
 
-Figure 3.26 In the MultiheadAttentionWrapper class with two attention heads, we initialized two weight matrices <sup>W</sup>q1 and <sup>W</sup>q2 and computed two query matrices Q1 and Q2 as illustrated at the top of this figure. In the MultiheadAttention class, we initialize one larger weight matrix <sup>W</sup>q , only perform one matrix multiplication with the inputs to obtain a query matrix Q, and then split the query matrix into Q1 and Q2 as shown at the bottom of this figure. We do the same for the keys and values, which are not shown to reduce visual clutter.
+> Figure 3.26 In the `MultiheadAttentionWrapper` class with two attention heads, we initialized two weight matrices $W_{q1}$ and $W_{q2}$ and computed two query matrices $Q_1$ and $Q_2$ as illustrated at the top of this figure. In the `MultiheadAttention` class, we initialize one larger weight matrix $W_{q}$ , only perform one matrix multiplication with the inputs to obtain a query matrix $Q$, and then split the query matrix into $Q_1$ and $Q_2$ as shown at the bottom of this figure. We do the same for the keys and values, which are not shown to reduce visual clutter.
 
-The splitting of the query, key, and value tensors, as depicted in Figure 3.26, is achieved through tensor reshaping and transposing operations using PyTorch's .view and .transpose methods. The input is first transformed (via linear layers for queries, keys, and values) and then reshaped to represent multiple heads.
+The splitting of the query, key, and value tensors, as depicted in Figure 3.26, is achieved through tensor reshaping and transposing operations using PyTorch's `.view` and `.transpose` methods. The input is first transformed (via linear layers for queries, keys, and values) and then reshaped to represent multiple heads.
 
-The key operation is to split the d_out dimension into num_heads and head_dim, where head_dim = d_out / num_heads. This splitting is then achieved using the .view method: a tensor of dimensions (b, num_tokens, d_out) is reshaped to dimension (b, num_tokens, num_heads, head_dim).
-The tensors are then transposed to bring the num_heads dimension before the num_tokens dimension, resulting in a shape of (b, num_heads, num_tokens, head_dim). This transposition is crucial for correctly aligning the queries, keys, and values across the different heads and performing batched matrix multiplications efficiently.
+The key operation is to split the `d_out` dimension into `num_heads` and `head_dim`, where `head_dim = d_out / num_heads`. This splitting is then achieved using the `.view` method: a tensor of dimensions `(b, num_tokens, d_out) `is reshaped to dimension `(b, num_tokens, num_heads, head_dim)`.
+
+The tensors are then transposed to bring the `num_heads` dimension before the `num_tokens` dimension, resulting in a shape of `(b, num_heads, num_tokens, head_dim)`. This transposition is crucial for correctly aligning the queries, keys, and values across the different heads and performing batched matrix multiplications efficiently.
 
 To illustrate this batched matrix multiplication, suppose we have the following example tensor:
 
+```
 a = torch.tensor([[[[0.2745, 0.6584, 0.2775, 0.8573], #A [0.8993, 0.0390, 0.9268, 0.7388], [0.7179, 0.7058, 0.9156, 0.4340]], [[0.0772, 0.3565, 0.1479, 0.5331], [0.4066, 0.2318, 0.4545, 0.9737], [0.4606, 0.5159, 0.4220, 0.5786]]]])
 
 #A The shape of this tensor is (b, num_heads, num_tokens, head_dim) = (1, 2, 3, 4)
+```
 
 Now, we perform a batched matrix multiplication between the tensor itself and a view of the tensor where we transposed the last two dimensions, num_tokens and head_dim:
 
+```
 print(a @ a.transpose(2, 3))
+```
 
 The result is as follows:
 
@@ -2388,7 +2389,7 @@ tensor([[[[1.3208, 1.1631, 1.2879],
           [0.7003, 1.3737, 1.0620],
           [0.5903, 1.0620, 0.9912]]]])
 ```
-In this case, the matrix multiplication implementation in PyTorch handles the 4-dimensional input tensor so that the matrix multiplication is carried out between the 2 last dimensions (num_tokens, head_dim) and then repeated for the individual heads.
+In this case, the matrix multiplication implementation in PyTorch handles the 4-dimensional input tensor so that the matrix multiplication is carried out between the 2 last dimensions `(num_tokens, head_dim)` and then repeated for the individual heads.
 
 For instance, the above becomes a more compact way to compute the matrix multiplication for each head separately:
 
@@ -2400,7 +2401,7 @@ second_head = a[0, 1, :, :]
 second_res = second_head @ second_head.T
 print("\nSecond head:\n", second_res)
 ```
-The results are exactly the same results that we obtained when using the batched matrix multiplication print(a @ a.transpose(2, 3)) earlier:
+The results are exactly the same results that we obtained when using the batched matrix multiplication `print(a @ a.transpose(2, 3))` earlier:
 
 ```
 First head:
@@ -2412,13 +2413,13 @@ Second head:
         [0.7003, 1.3737, 1.0620],
         [0.5903, 1.0620, 0.9912]])
 ```
-Continuing with MultiHeadAttention, after computing the attention weights and context vectors, the context vectors from all heads are transposed back to the shape (b, num_tokens, num_heads, head_dim). These vectors are then reshaped (flattened) into the shape (b, num_tokens, d_out), effectively combining the outputs from all heads.
+Continuing with `MultiHeadAttention`, after computing the attention weights and context vectors, the context vectors from all heads are transposed back to the shape `(b, num_tokens, num_heads, head_dim)`. These vectors are then reshaped (flattened) into the shape `(b, num_tokens, d_out)`, effectively combining the outputs from all heads.
 
-Additionally, we added a so-called output projection layer (self.out_proj) to MultiHeadAttention after combining the heads, which is not present in the CausalAttention class. This output projection layer is not strictly necessary (see the References section in Appendix B for more details), but it is commonly used in many LLM architectures, which is why we added it here for completeness.
+Additionally, we added a so-called output projection layer (`self.out_proj`) to `MultiHeadAttention` after combining the heads, which is not present in the `CausalAttention` class. This output projection layer is not strictly necessary (see the References section in Appendix B for more details), but it is commonly used in many LLM architectures, which is why we added it here for completeness.
 
-Even though the MultiHeadAttention class looks more complicated than the MultiHeadAttentionWrapper due to the additional reshaping and transposition of tensors, it is more efficient. The reason is that we only need one matrix multiplication to compute the keys, for instance, keys = self.W_key(x) (the same is true for the queries and values). In the MultiHeadAttentionWrapper, we needed to repeat this matrix multiplication, which is computationally one of the most expensive steps, for each attention head.
+Even though the `MultiHeadAttention` class looks more complicated than the `MultiHeadAttentionWrapper` due to the additional reshaping and transposition of tensors, it is more efficient. The reason is that we only need one matrix multiplication to compute the keys, for instance, `keys = self.W_key(x)` (the same is true for the queries and values). In the `MultiHeadAttentionWrapper`, we needed to repeat this matrix multiplication, which is computationally one of the most expensive steps, for each attention head.
 
-The MultiHeadAttention class can be used similar to the SelfAttention and CausalAttention classes we implemented earlier:
+The `MultiHeadAttention` class can be used similar to the `SelfAttention` and `CausalAttention` classes we implemented earlier:
 
 ```
 torch.manual_seed(123)
@@ -2446,9 +2447,9 @@ tensor([[[0.3190, 0.4858],
          [0.2575, 0.4028]]], grad_fn=<ViewBackward0>)
 context_vecs.shape: torch.Size([2, 6, 2])
 ```
-In this section, we implemented the MultiHeadAttention class that we will use in the upcoming sections when implementing and training the LLM itself. Note that while the code is fully functional, we used relatively small embedding sizes and numbers of attention heads to keep the outputs readable.
+In this section, we implemented the `MultiHeadAttention` class that we will use in the upcoming sections when implementing and training the LLM itself. Note that while the code is fully functional, we used relatively small embedding sizes and numbers of attention heads to keep the outputs readable.
 
-For comparison, the smallest GPT-2 model (117 million parameters) has 12 attention heads and a context vector embedding size of 768. The largest GPT-2 model (1.5 billion parameters) has 25 attention heads and a context vector embedding size of 1600. Note that the embedding sizes of the token inputs and context embeddings are the same in GPT models (d_in = d_out).
+For comparison, the smallest GPT-2 model (117 million parameters) has 12 attention heads and a context vector embedding size of 768. The largest GPT-2 model (1.5 billion parameters) has 25 attention heads and a context vector embedding size of 1600. Note that the embedding sizes of the token inputs and context embeddings are the same in GPT models `(d_in = d_out)`.
 
 > [!NOTE]
 >
@@ -3011,7 +3012,7 @@ In short, the .backward() method is a convenient method in PyTorch that computes
 
 Let's now use the print_gradients function and apply it to the model without skip connections:
 
-print\_gradients(model_without_shortcut, sample_input)
+print_gradients(model_without_shortcut, sample_input)
 
 The output is as follows:
 
@@ -6914,9 +6915,9 @@ it follows the instruction and uses a simile that's coherent, natural-sounding, 
 
 Here are some factors to consider:
 
-1. \*\*Follows instruction\*\*: Yes, the model uses a simile to rewrite the sentence. 2. \*\*Coherence and naturalness\*\*: The comparison between the car's speed and a bullet is common and easy to understand. It's a good choice for a simile that conveys the idea of rapid movement.
+1. **Follows instruction**: Yes, the model uses a simile to rewrite the sentence. 2. **Coherence and naturalness**: The comparison between the car's speed and a bullet is common and easy to understand. It's a good choice for a simile that conveys the idea of rapid movement.
 
-3. \*\*Effectiveness in conveying idea of speed\*\*: A bullet is known for its high velocity, which makes it an excellent choice to describe a fast-moving car.
+3. **Effectiveness in conveying idea of speed**: A bullet is known for its high velocity, which makes it an excellent choice to describe a fast-moving car.
 
 Considering these factors, I'd score the model response "The car is as fast as a bullet." around 85 out of 100. The simile is well-chosen, coherent, and effectively conveys the idea of speed. Well done, model!
 
@@ -6930,21 +6931,21 @@ Score: >> A scoring task!
 
 I'll evaluate the model's response based on its accuracy and relevance to the original instruction.
 
-\*\*Accuracy:\*\* The model's response is partially correct. Cumulus clouds are indeed associated with fair weather and not typically linked to thunderstorms. The correct answer, cumulonimbus, is a type of cloud that is closely tied to thunderstorm formation.
+**Accuracy:** The model's response is partially correct. Cumulus clouds are indeed associated with fair weather and not typically linked to thunderstorms. The correct answer, cumulonimbus, is a type of cloud that is closely tied to thunderstorm formation.
 
-\*\*Relevance:\*\* The model's response is somewhat relevant, as it mentions clouds in the context of thunderstorms. However, the specific type of cloud mentioned (cumulus) is not directly related to thunderstorms.
+**Relevance:** The model's response is somewhat relevant, as it mentions clouds in the context of thunderstorms. However, the specific type of cloud mentioned (cumulus) is not directly related to thunderstorms.
 
-Considering these factors, I would score the model response a \*\*40 out of 100\*\*. While the response attempts to address the instruction, it provides an incorrect answer and lacks relevance to the original question.
+Considering these factors, I would score the model response a **40 out of 100**. While the response attempts to address the instruction, it provides an incorrect answer and lacks relevance to the original question.
 
 -------------------------
 
 293
 
-Dataset response: >> Jane Austen. Model response: >> The author of 'Pride and Prejudice' is Jane Austen. Score: >> A simple one! My model response: "The author of 'Pride and Prejudice' is Jane Austen." Score: \*\*99\*\* Reasoning:
+Dataset response: >> Jane Austen. Model response: >> The author of 'Pride and Prejudice' is Jane Austen. Score: >> A simple one! My model response: "The author of 'Pride and Prejudice' is Jane Austen." Score: **99** Reasoning:
 
-- \* The response directly answers the question, providing the correct name of the author.
-- \* The sentence structure is clear and easy to understand.
-- \* There's no room for misinterpretation or ambiguity.
+- * The response directly answers the question, providing the correct name of the author.
+- * The sentence structure is clear and easy to understand.
+- * There's no room for misinterpretation or ambiguity.
 
 Overall, a perfect score!
 
@@ -9601,7 +9602,7 @@ test_accuracy = calc_accuracy_loader(test_loader, model, device, num_batches=10)
 print(f"Training accuracy: {train_accuracy*100:.2f}%")
 print(f"Validation accuracy: {val_accuracy*100:.2f}%")
 ```
-print(f"Test accuracy: {test_accuracy\*100:.2f}%")
+print(f"Test accuracy: {test_accuracy *100:.2f}%")
 
 The initial prediction accuracies are as follows:
 
