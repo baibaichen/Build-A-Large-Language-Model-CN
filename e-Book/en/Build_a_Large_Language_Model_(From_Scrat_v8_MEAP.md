@@ -1783,6 +1783,10 @@ So far, we only computed a single context vector, $z^{(2)}$. In the next section
 > The "value" in this context is similar to the value in a key-value pair in a database. It represents the actual content or representation of the input items. Once the model determines which keys (and thus which parts of the input) are most relevant to the query (the current focus item), it retrieves the corresponding values.
 >
 
+$$
+\text{Attention}(Q, K, V) = \mathrm{Softmax}\left( \frac{QK^{\top}}{\sqrt{d_{k}}} \right)V
+$$
+
 #### 3.4.2 Implementing a compact self-attention Python class
 
 In the previous sections, we have gone through a lot of steps to compute the self-attention outputs. This was mainly done for illustration purposes so we could go through one step at a time. In practice, with the LLM implementation in the next chapter in mind, it is helpful to organize this code into a Python class as follows:
