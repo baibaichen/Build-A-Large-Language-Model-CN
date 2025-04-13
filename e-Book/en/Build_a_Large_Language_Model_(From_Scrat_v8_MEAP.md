@@ -2671,7 +2671,7 @@ Now that we have taken a top-down look at the GPT architecture and its in- and o
 
 ## 4.2 Normalizing activations with layer normalization
 
-Training deep neural networks with many layers can sometimes prove challenging due to issues like vanishing or exploding gradients. These issues lead to unstable training dynamics and make it difficult for the network to effectively adjust its weights, which means the learning process struggles to find a set of parameters (weights) for the neural network that minimizes the loss function. In other words, the network has difficulty learning the underlying patterns in the data to a degree that would allow it to make accurate predictions or decisions. (If you are new to neural network training and the concepts of gradients, a brief introduction to these concepts can be found in [Section A.4, Automatic Differentiation Made Easy]() in **Appendix A: Introduction to PyTorch**. However, a deep mathematical understanding of gradients is not required to follow the contents of this book.)
+Training deep neural networks with many layers can sometimes prove challenging due to issues like vanishing or exploding gradients. These issues lead to unstable training dynamics and make it difficult for the network to effectively adjust its weights, which means the learning process struggles to find a set of parameters (weights) for the neural network that minimizes the loss function. In other words, the network has difficulty learning the underlying patterns in the data to a degree that would allow it to make accurate predictions or decisions. (If you are new to neural network training and the concepts of gradients, a brief introduction to these concepts can be found in [Section A.4, Automatic Differentiation Made Easy](# A.4 Automatic differentiation made easy) in **Appendix A: Introduction to PyTorch**. However, a deep mathematical understanding of gradients is not required to follow the contents of this book.)
 
 In this section, we will implement **layer normalization** to improve the stability and efficiency of neural network training.
 
@@ -7414,7 +7414,7 @@ In the previous section, we introduced the concept of computation graphs. If we 
 
 ![](_page_318_Figure_0.jpeg)
 
-Figure A.8 The most common way of computing the loss gradients in a computation graph involves applying the chain rule from right to left, which is also called reverse-model automatic differentiation or backpropagation. It means we start from the output layer (or the loss itself) and work backward through the network to the input layer. This is done to compute the gradient of the loss with respect to each parameter (weights and biases) in the network, which informs how we update these parameters during training.
+> Figure A.8 The most common way of computing the loss gradients in a computation graph involves applying the chain rule from right to left, which is also called reverse-model automatic differentiation or backpropagation. It means we start from the output layer (or the loss itself) and work backward through the network to the input layer. This is done to compute the gradient of the loss with respect to each parameter (weights and biases) in the network, which informs how we update these parameters during training.
 
 #### PARTIAL DERIVATIVES AND GRADIENTS
 
