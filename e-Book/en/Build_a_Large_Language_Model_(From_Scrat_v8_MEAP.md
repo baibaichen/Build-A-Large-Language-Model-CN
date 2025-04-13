@@ -1069,7 +1069,7 @@ print(embedding_layer(torch.tensor([3])))
 
 The returned embedding vector is as follows:
 
-```
+```python
 tensor([[-0.4015, 0.9666, -1.1481]], grad_fn=<EmbeddingBackward0>)
 ```
 
@@ -1089,7 +1089,7 @@ print(embedding_layer(input_ids))
 
 The print output reveals that this results in a 4x3 matrix:
 
-```
+```python
 tensor([[ 1.2753, -0.2010, -0.1606],
 				[-0.4015, 0.9666, -1.1481],
 				[-2.8400, -0.7849, -1.4096],
@@ -2675,28 +2675,28 @@ Training deep neural networks with many layers can sometimes prove challenging d
 
 In this section, we will implement **layer normalization** to improve the stability and efficiency of neural network training.
 
-The main idea behind layer normalization is to adjust the activations (outputs) of a neural network layer to have a mean of 0 and a variance of 1, also known as **unit variance**. This adjustment speeds up the convergence to effective weights and ensures consistent, reliable training. As we have seen in the previous section, based on the DummyLayerNorm placeholder, in GPT-2 and modern transformer architectures, layer normalization is typically applied before and after the multi-head attention module and before the final output layer.
+The main idea behind layer normalization is to adjust the activations (outputs) of a neural network layer to have a mean of 0 and a variance of 1, also known as **unit variance**. This adjustment speeds up the convergence to effective weights and ensures consistent, reliable training. As we have seen in the previous section, based on the `DummyLayerNorm` placeholder, in GPT-2 and modern transformer architectures, layer normalization is typically applied before and after the multi-head attention module and before the final output layer.
 
 Before we implement layer normalization in code, Figure 4.5 provides a visual overview of how layer normalization functions.
 
 ![](_page_122_Figure_0.jpeg)
 
-Figure 4.5 An illustration of layer normalization where the 5 layer outputs, also called activations, are normalized such that they have a zero mean and variance of 1.
+> Figure 4.5 An illustration of layer normalization where the 5 layer outputs, also called activations, are normalized such that they have a zero mean and variance of 1.
 
 We can recreate the example shown in Figure 4.5 via the following code, where we implement a neural network layer with 5 inputs and 6 outputs that we apply to two input examples:
 
-```
+```python
 torch.manual_seed(123)
 batch_example = torch.randn(2, 5) #A
 layer = nn.Sequential(nn.Linear(5, 6), nn.ReLU())
 out = layer(batch_example)
 print(out)
-```
-#A create 2 training examples with 5 dimensions (features) each
 
+#A create 2 training examples with 5 dimensions (features) each
+```
 This prints the following tensor, where the first row lists the layer outputs for the first input and the second row lists the layer outputs for the second row:
 
-```
+```python
 tensor([[0.2260, 0.3470, 0.0000, 0.2216, 0.0000, 0.0000],
         [0.2133, 0.2394, 0.0000, 0.5198, 0.3297, 0.0000]],
        grad_fn=<ReluBackward0>)
@@ -2708,7 +2708,7 @@ The neural network layer we have coded consists of a Linear layer followed by a 
 
 Before we apply layer normalization to these outputs, let's examine the mean and variance:
 
-```
+```python
 mean = out.mean(dim=-1, keepdim=True)
 var = out.var(dim=-1, keepdim=True)
 print("Mean:\n", mean)
@@ -2716,7 +2716,7 @@ print("Variance:\n", var)
 ```
 The output is as follows:
 
-```
+```python
 Mean:
   tensor([[0.1324],
           [0.2170]], grad_fn=<MeanBackward1>)
@@ -2726,21 +2726,19 @@ Variance:
 ```
 The first row in the mean tensor above contains the mean value for the first input row, and the second output row contains the mean for the second input row.
 
-Using keepdim=True in operations like mean or variance calculation ensures that the output tensor retains the same number of dimensions as the input tensor, even though the operation reduces the tensor along the dimension specified via dim. For instance, without keepdim=True, the returned mean tensor would be a 2-dimensional vector [0.1324, 0.2170] instead of a 2×1-dimensional matrix [[0.1324], [0.2170]].
+Using `keepdim=True` in operations like mean or variance calculation ensures that the output tensor retains the same number of dimensions as the input tensor, even though the operation reduces the tensor along the dimension specified via `dim`. For instance, without `keepdim=True`, the returned mean tensor would be a 2-dimensional vector `[0.1324, 0.2170]` instead of a `2×1`-dimensional matrix `[[0.1324], [0.2170]]`.
 
 The dim parameter specifies the dimension along which the calculation of the statistic (here, mean or variance) should be performed in a tensor, as shown in Figure 4.6.
 
-![](_page_124_Figure_0.jpeg)
-
 ![](_page_124_Figure_3.jpeg)
 
-Figure 4.6 An illustration of the dim parameter when calculating the mean of a tensor. For instance, if we have a 2D tensor (matrix) with dimensions [rows, columns], using dim=0 will perform the operation across rows (vertically, as shown at the bottom), resulting in an output that aggregates the data for each column. Using dim=1 or dim=-1 will perform the operation across columns (horizontally, as shown at the top), resulting in an output aggregating the data for each row.
+> Figure 4.6 An illustration of the dim parameter when calculating the mean of a tensor. For instance, if we have a 2D tensor (matrix) with dimensions [rows, columns], using dim=0 will perform the operation across rows (vertically, as shown at the bottom), resulting in an output that aggregates the data for each column. Using dim=1 or dim=-1 will perform the operation across columns (horizontally, as shown at the top), resulting in an output aggregating the data for each row.
 
 As Figure 4.6 explains, for a 2D tensor (like amatrix), using dim=-1 for operations such as mean or variance calculation is the same as using dim=1. This is because -1 refers to the tensor's last dimension, which corresponds to the columns in a 2D tensor. Later, when adding layer normalization to the GPT model, which produces 3D tensors with shape [batch_size, num_tokens, embedding_size], we can still use dim=-1 for normalization across the last dimension, avoiding a change from dim=1 to dim=2.
 
 Next, let us apply layer normalization to the layer outputs we obtained earlier. The operation consists of subtracting the mean and dividing by the square root of the variance (also known as standard deviation):
 
-```
+```python
 out_norm = (out - mean) / torch.sqrt(var)
 mean = out_norm.mean(dim=-1, keepdim=True)
 var = out_norm.var(dim=-1, keepdim=True)
@@ -2751,7 +2749,7 @@ print("Variance:\n", var)
 
 As we can see based on the results, the normalized layer outputs, which now also contain negative values, have zero mean and a variance of 1:
 
-```
+```python
 Normalized layer outputs:
  tensor([[ 0.6159, 1.4126, -0.8719, 0.5872, -0.8719, -0.8719],
         [-0.0189, 0.1121, -1.0876, 1.5173, 0.5647, -1.0876]],
@@ -2763,11 +2761,11 @@ Variance:
  tensor([[1.],
         [1.]], grad_fn=<VarBackward0>)
 ```
-Note that the value 2.9802e-08 in the output tensor is the scientific notation for 2.9802 × 10-8, which is 0.0000000298 in decimal form. This value is very close to 0, but it is not exactly 0 due to small numerical errors that can accumulate because of the finite precision with which computers represent numbers.
+Note that the value `2.9802e-08` in the output tensor is the scientific notation for `2.9802 × 10-8`, which is `0.0000000298` in decimal form. This value is very close to 0, but it is not exactly 0 due to small numerical errors that can accumulate because of the finite precision with which computers represent numbers.
 
-To improve readability, we can also turn off the scientific notation when printing tensor values by setting sci_mode to False:
+To improve readability, we can also turn off the scientific notation when printing tensor values by setting `sci_mode` to False:
 
-```
+```python
 torch.set_printoptions(sci_mode=False)
 print("Mean:\n", mean)
 print("Variance:\n", var)
@@ -2780,9 +2778,8 @@ Variance:
 ```
 So far, in this section, we have coded and applied layer normalization in a step-by-step process. Let's now encapsulate this process in a PyTorch module that we can use in the GPT model later:
 
-#### Listing 4.2 A layer normalization class
-
 ```python
+# Listing 4.2 A layer normalization class
 class LayerNorm(nn.Module):
     def __init__(self, emb_dim):
         super().__init__()
@@ -2797,15 +2794,16 @@ class LayerNorm(nn.Module):
 ```
 This specific implementation of layer Normalization operates on the last dimension of the input tensor x, which represents the embedding dimension (emb_dim). The variable eps is a small constant (epsilon) added to the variance to prevent division by zero during normalization. The scale and shift are two trainable parameters (of the same dimension as the input) that the LLM automatically adjusts during training if it is determined that doing so would improve the model's performance on its training task. This allows the model to learn appropriate scaling and shifting that best suit the data it is processing.
 
-#### BIASED VARIANCE
+> [!NOTE]
+>
+> **BIASED VARIANCE**
+>
+> In our variance calculation method, we have opted for an implementation detail by setting unbiased=False. For those curious about what this means, in the variance calculation, we divide by the number of inputs *n* in the variance formula. This approach does not apply Bessel's correction, which typically uses *n-1* instead of *n* in the denominator to adjust for bias in sample variance estimation. This decision results in a so-called biased estimate of the variance. For large-scale language models (LLMs), where the embedding dimension *n* is significantly large, the difference between using *n* and *n-1* is practically negligible. We chose this approach to ensure compatibility with the GPT-2 model's normalization layers and because it reflects TensorFlow's default behavior, which was used to implement the original GPT-2 model. Using a similar setting ensures our method is compatible with the pretrained weights we will load in chapter 6.
+>
 
-In our variance calculation method, we have opted for an implementation detail by setting unbiased=False. For those curious about what this means, in the variance calculation, we divide by the number of inputs *n* in the variance formula. This approach does not apply Bessel's correction, which typically uses *n-1* instead of *n* in the denominator to adjust for bias in sample variance estimation. This decision results in a so-called biased estimate of the variance. For large-scale language models (LLMs), where the embedding dimension *n* is significantly large, the difference between using *n* and *n-1* is practically negligible. We chose this approach to ensure compatibility with the GPT-2 model's normalization layers and because it reflects TensorFlow's default behavior, which was used to implement the original GPT-2 model. Using a similar setting ensures our method is compatible with the pretrained weights we will load in chapter 6.
+Let's now try the LayerNorm module in practice and apply it to the batch input: 
 
-Let's now try the LayerNorm module in practice and apply it to the batch input:
-
- 
-
-```
+```python
 ln = LayerNorm(emb_dim=5)
 out_ln = ln(batch_example)
 mean = out_ln.mean(dim=-1, keepdim=True)
@@ -2815,19 +2813,24 @@ print("Variance:\n", var)
 ```
 As we can see based on the results, the layer normalization code works as expected and normalizes the values of each of the two inputs such that they have a mean of 0 and a variance of 1:
 
+```python
 Mean: tensor([[ -0.0000], [ 0.0000]], grad_fn=<MeanBackward1>) Variance: tensor([[1.0000], [1.0000]], grad_fn=<VarBackward0>)
+```
 
 In this section, we covered one of the building blocks we will need to implement the GPT architecture, as shown in the mental model in Figure 4.7.
 
 ![](_page_127_Figure_4.jpeg)
 
-Figure 4.7 A mental model listing the different building blocks we implement in this chapter to assemble the GPT architecture.
+> Figure 4.7 A mental model listing the different building blocks we implement in this chapter to assemble the GPT architecture.
 
 In the next section, we will look at the GELU activation function, which is one of the activation functions used in LLMs, instead of the traditional ReLU function we used in this section.
 
-#### LAYER NORMALIZATION VERSUS BATCH NORMALIZATION
-
-If you are familiar with batch normalization, a common and traditional normalization method for neural networks, you may wonder how it compares to layer normalization. Unlike batch normalization, which normalizes across the batch dimension, layer normalization normalizes across the feature dimension. LLMs often require significant computational resources, and the available hardware or the specific use case can dictate the batch size during training or inference. Since layer normalization normalizes each input independently of the batch size, it offers more flexibility and stability in these scenarios. This is particularly beneficial for distributed training or when deploying models in environments where resources are constrained.
+> [!NOTE]
+>
+> **LAYER NORMALIZATION VERSUS BATCH NORMALIZATION**
+>
+> If you are familiar with batch normalization, a common and traditional normalization method for neural networks, you may wonder how it compares to layer normalization. Unlike batch normalization, which normalizes across the batch dimension, layer normalization normalizes across the feature dimension. LLMs often require significant computational resources, and the available hardware or the specific use case can dictate the batch size during training or inference. Since layer normalization normalizes each input independently of the batch size, it offers more flexibility and stability in these scenarios. This is particularly beneficial for distributed training or when deploying models in environments where resources are constrained.
+>
 
 ## 4.3 Implementing a feed forward network with GELU activations
 
@@ -7476,19 +7479,19 @@ In the previous sections, we covered PyTorch's tensor and autograd components. T
 
 To provide a concrete example, we focus on a multilayer perceptron, which is a fully connected neural network, as illustrated in figure A.9.
 
-- [ ] figure A.9
+![](A9.jpg)
 
 > Figure A.9 An illustration of a multilayer perceptron with 2 hidden layers. Each node represents a unit in the respective layer. Each layer has only a very small number of nodes for illustration purposes.
 
-When implementing a neural network in PyTorch, we typically subclass the torch.nn.Module class to define our own custom network architecture. This Module base class provides a lot of functionality, making it easier to build and train models. For instance, it allows us to encapsulate layers and operations and keep track of the model's parameters.
+When implementing a neural network in PyTorch, we typically subclass the `torch.nn.Module` class to define our own custom network architecture. This `Module` base class provides a lot of functionality, making it easier to build and train models. For instance, it allows us to encapsulate layers and operations and keep track of the model's parameters.
 
-Within this subclass, we define the network layers in the __init__ constructor and specify how they interact in the forward method. The forward method describes how the input data passes through the network and comes together as a computation graph.
+Within this subclass, we define the network layers in the `__init__` constructor and specify how they interact in the `forward` method. The `forward` method describes how the input data passes through the network and comes together as a **computation graph**.
 
-In contrast, the backward method, which we typically do not need to implement ourselves, is used during training to compute gradients of the loss function with respect to the model parameters, as we will see in section 2.7, *A typical training loop*.
+In contrast, the `backward` method, which we typically do not need to implement ourselves, is used during training to compute gradients of the loss function with respect to the model parameters, as we will see in section [2.7, A typical training loop]().
 
 The following code implements a classic multilayer perceptron with two hidden layers to illustrate a typical usage of the Module class:
 ```python
-Listing A.4 A multilayer perceptron with two hidden layers
+# Listing A.4 A multilayer perceptron with two hidden layers
 class NeuralNetwork(torch.nn.Module):
    def __init__(self, num_inputs, num_outputs): #A
       super().__init__()
@@ -7505,14 +7508,12 @@ class NeuralNetwork(torch.nn.Module):
    def forward(self, x):
       logits = self.layers(x)
       return logits #E
+- **#A** It's useful to code the number of inputs and outputs as variables to reuse the same code for datasets with different numbers of features and classes.
+- **#B** The Linear layer takes the number of input and output nodes as arguments.
+- **#C** Nonlinear activation functions are placed between the hidden layers.
+- **#D** The number of output nodes of one hidden layer has to match the number of inputs of the next layer. 
+- **#E** The outputs of the last layer are called logits.
 ```
-> [!IMPORTANT]
->
-> - **#A** It's useful to code the number of inputs and outputs as variables to reuse the same code for datasets with different numbers of features and classes.
-> - **#B** The Linear layer takes the number of input and output nodes as arguments.
-> - **#C** Nonlinear activation functions are placed between the hidden layers.
-> - **#D** The number of output nodes of one hidden layer has to match the number of inputs of the next layer. 
-> - **#E** The outputs of the last layer are called logits.
 
 We can then instantiate a new neural network object as follows:
 
