@@ -2877,7 +2877,7 @@ plt.show()
 ```
 > [!IMPORTANT]
 >
-> - **#A** Create 100 sample data points in the range -3 to 3
+> #A Create 100 sample data points in the range -3 to 3
 
 As we can see in the resulting plot in Figure 4.8, ReLU is a piecewise linear function that outputs the input directly if it is positive; otherwise, it outputs zero. GELU is a smooth, nonlinear function that approximates ReLU but with a non-zero gradient for negative values.
 
@@ -7493,26 +7493,29 @@ The following code implements a classic multilayer perceptron with two hidden la
 ```python
 # Listing A.4 A multilayer perceptron with two hidden layers
 class NeuralNetwork(torch.nn.Module):
-   def __init__(self, num_inputs, num_outputs): #A
-      super().__init__()
-      self.layers = torch.nn.Sequential(
-         # 1st hidden layer
-         torch.nn.Linear(num_inputs, 30), #B
-         torch.nn.ReLU(), #C
-         # 2nd hidden layer
-         torch.nn.Linear(30, 20), #D
-         torch.nn.ReLU(),
-         # output layer
-         torch.nn.Linear(20, num_outputs),
-      )
-   def forward(self, x):
-      logits = self.layers(x)
-      return logits #E
-- **#A** It's useful to code the number of inputs and outputs as variables to reuse the same code for datasets with different numbers of features and classes.
-- **#B** The Linear layer takes the number of input and output nodes as arguments.
-- **#C** Nonlinear activation functions are placed between the hidden layers.
-- **#D** The number of output nodes of one hidden layer has to match the number of inputs of the next layer. 
-- **#E** The outputs of the last layer are called logits.
+    def __init__(self, num_inputs, num_outputs):          #A
+        super().__init__()
+        self.layers = torch.nn.Sequential(
+            # 1st hidden layer
+            torch.nn.Linear(num_inputs, 30),              #B
+            torch.nn.ReLU(),                              #C
+
+            # 2nd hidden layer
+            torch.nn.Linear(30, 20),                      #D
+            torch.nn.ReLU(),
+
+            # output layer
+            torch.nn.Linear(20, num_outputs),
+        )
+    
+    def forward(self, x):
+        logits = self.layers(x)
+        return logits                                     #E
+#A It's useful to code the number of inputs and outputs as variables to reuse the same code for datasets with different numbers of features and classes.
+#B The Linear layer takes the number of input and output nodes as arguments.
+#C Nonlinear activation functions are placed between the hidden layers.
+#D The number of output nodes of one hidden layer has to match the number of inputs of the next layer. 
+#E The outputs of the last layer are called logits.
 ```
 
 We can then instantiate a new neural network object as follows:
@@ -7522,7 +7525,9 @@ model = NeuralNetwork(50, 3)
 ```
 But before using this new model object, it is often useful to call print on the model to see a summary of its structure:
 
+```python
 print(model)
+```
 
 This prints:
 
@@ -7539,21 +7544,25 @@ NeuralNetwork(
   )
 )
 ```
-Note that we used the Sequential class when we implemented the NeuralNetwork class. Using Sequential is not required, but it can make our life easier if we have a series of layers that we want to execute in a specific order, as is the case here. This way, after instantiating self.layers = Sequential(...) in the __init__ constructor, we just have to call the self.layers instead of calling each layer individually in the NeuralNetwork's forward method.
+Note that we used the `Sequential` class when we implemented the `NeuralNetwork` class. Using `Sequential` is not required, but it can make our life easier if we have a series of layers that we want to execute in a specific order, as is the case here. This way, after instantiating `self.layers = Sequential(...)` in the `__init__` constructor, we just have to call the `self.layers` instead of calling each layer individually in the `NeuralNetwork`'s `forward` method.
 
 Next, let's check the total number of trainable parameters of this model:
 
-num\_params = sum(p.numel() for p in model.parameters() if p.requires_grad) print("Total number of trainable model parameters:", num_params)
+```python
+num_params = sum(p.numel() for p in model.parameters() if p.requires_grad) print("Total number of trainable model parameters:", num_params)
+```
 
 This prints:
 
+```python
 Total number of trainable model parameters: 2213
+```
 
-Note that each parameter for which requires_grad=True counts as a trainable parameter and will be updated during training (more on that later in section 2.7, *A typical training loop*).
+Note that each parameter for which `requires_grad=True` counts as a trainable parameter and will be updated during training (more on that later in section 2.7, **A typical training loop**).
 
-In the case of our neural network model with the two hidden layers above, these trainable parameters are contained in the torch.nn.Linear layers. A *linear* layer multiplies the inputs with a weight matrix and adds a bias vector. This is sometimes also referred to as a *feedforward* or *fully connected* layer.
+In the case of our neural network model with the two hidden layers above, these trainable parameters are contained in the `torch.nn.Linear` layers. A **linear** layer multiplies the inputs with a weight matrix and adds a bias vector. This is sometimes also referred to as a **feedforward** or **fully connected** layer.
 
-Based on the print(model) call we executed above, we can see that the first Linear layer is at index position 0 in the layers attribute. We can access the corresponding weight parameter matrix as follows:
+Based on the `print(model)` call we executed above, we can see that the first `Linear` layer is at index position 0 in the `layers` attribute. We can access the corresponding weight parameter matrix as follows:
 
 ```python
 print(model.layers[0].weight)
@@ -7571,18 +7580,20 @@ tensor([[ 0.1174, -0.1350, -0.1227, ..., 0.0275, -0.0520, -0.0192],
        [-0.1019, 0.1345, -0.0176, ..., 0.0114, -0.0559, -0.0088]],
       requires_grad=True)
 ```
-Since this is a large matrix that is not shown in its entirety, let's use the .shape attribute to show its dimensions:
+Since this is a large matrix that is not shown in its entirety, let's use the `.shape` attribute to show its dimensions:
 
+```python
 print(model.layers[0].weight.shape)
+```
 
 The result is:
 
 ```python
 torch.Size([30, 50])
 ```
-(Similarly, you could access the bias vector via model.layers[0].bias.)
+(Similarly, you could access the bias vector via `model.layers[0].bias`.)
 
-The weight matrix above is a 30x50 matrix, and we can see that the requires_grad is set to True, which means its entries are trainable -- this is the default setting for weights and biases in torch.nn.Linear.
+The weight matrix above is a 30x50 matrix, and we can see that the `requires_grad` is set to `True`, which means its entries are trainable -- this is the default setting for weights and biases in `torch.nn.Linear`.
 
 Note that if you execute the code above on your computer, the numbers in the weight matrix will likely differ from those shown above. This is because the model weights are initialized with small random numbers, which are different each time we instantiate the network. In deep learning, initializing model weights with small random numbers is desired to break symmetry during training -- otherwise, the nodes would be just performing the same operations and updates during backpropagation, which would not allow the network to learn complex mappings from inputs to outputs.
 
@@ -7608,7 +7619,7 @@ tensor([[-0.0577, 0.0047, -0.0702, ..., 0.0222, 0.1260, 0.0865],
        [ 0.0790, 0.1343, -0.0293, ..., 0.0344, -0.0971, -0.0509]],
       requires_grad=True)
 ```
-Now, after we spent some time inspecting the NeuraNetwork instance, let's briefly see how it's used via the forward pass:
+Now, after we spent some time inspecting the `NeuraNetwork` instance, let's briefly see how it's used via the forward pass:
 
 ```python
 torch.manual_seed(123)
@@ -7616,39 +7627,47 @@ X = torch.rand((1, 50))
 out = model(X)
 print(out)
 ```
-The result is:tensor([[-0.1262, 0.1080, -0.1792]], grad_fn=<AddmmBackward0>)
+The result is:
+
+```python
+tensor([[-0.1262, 0.1080, -0.1792]], grad_fn=<AddmmBackward0>)
+```
 
 In the code above, we generated a single random training example X as a toy input (note that our network expects 50-dimensional feature vectors) and fed it to the model, returning three scores. When we call model(x), it will automatically execute the forward pass of the model.
 
 The forward pass refers to calculating output tensors from input tensors. This involves passing the input data through all the neural network layers, starting from the input layer, through hidden layers, and finally to the output layer.
 
-These three numbers returned above correspond to a score assigned to each of the three output nodes. Notice that the output tensor also includes a grad_fn value.
+These three numbers returned above correspond to a score assigned to each of the three output nodes. Notice that the output tensor also includes a `grad_fn` value.
 
-Here, grad_fn=<AddmmBackward0> represents the last-used function to compute a variable in the computational graph. In particular, grad_fn=<AddmmBackward0> means that the tensor we are inspecting was created via a matrix multiplication and addition operation. PyTorch will use this information when it computes gradients during backpropagation. The <AddmmBackward0> part of grad_fn=<AddmmBackward0> specifies the operation that was performed. In this case, it is an Addmm operation. Addmm stands for matrix multiplication (mm) followed by an addition (Add).
+Here, `grad_fn=<AddmmBackward0>` represents the last-used function to compute a variable in the computational graph. In particular, `grad_fn=<AddmmBackward0>` means that the tensor we are inspecting was created via a matrix multiplication and addition operation. PyTorch will use this information when it computes gradients during backpropagation. The `<AddmmBackward0>` part of `grad_fn=<AddmmBackward0>` specifies the operation that was performed. In this case, it is an `Addmm` operation. `Addmm` stands for matrix multiplication (mm) followed by an addition (Add).
 
 322
 
 If we just want to use a network without training or backpropagation, for example, if we use it for prediction after training, constructing this computational graph for backpropagation can be wasteful as it performs unnecessary computations and consumes additional memory. So, when we use a model for inference (for instance, making predictions) rather than training, it is a best practice to use the torch.no_grad() context manager, as shown below. This tells PyTorch that it doesn't need to keep track of the gradients, which can result in significant savings in memory and computation.
 
-```
+```python
 with torch.no_grad():
     out = model(X)
 print(out)
 ```
 The result is:
 
+```python
 tensor([[-0.1262, 0.1080, -0.1792]])
+```
 
 In PyTorch, it's common practice to code models such that they return the outputs of the last layer (logits) without passing them to a nonlinear activation function. That's because PyTorch's commonly used loss functions combine the softmax (or sigmoid for binary classification) operation with the negative log-likelihood loss in a single class. The reason for this is numerical efficiency and stability. So, if we want to compute class-membership probabilities for our predictions, we have to call the softmax function explicitly:
 
-```
+```python
 with torch.no_grad():
     out = torch.softmax(model(X), dim=1)
 print(out)
 ```
 This prints:
 
+```python
 tensor([[0.3113, 0.3934, 0.2952]]))
+```
 
 The values can now be interpreted as class-membership probabilities that sum up to 1. The values are roughly equal for this random input, which is expected for a randomly initialized model without training.
 
