@@ -1840,9 +1840,9 @@ As a quick check, notice how the second row (`[0.3061, 0.8210]`) matches the con
 
 Figure 3.18 summarizes the self-attention mechanism we just implemented.
 
-> - [ ] 图 3.18
+![](3.18.jpg)
 
-> Figure 3.18 In self-attention, we transform the input vectors in the input matrix X with the three weight matrices, Wq, Wk, and Wv. Then, we compute the attention weight matrix based on the resulting queries (Q) and keys (K). Using the attention weights and values (V), we then compute the context vectors (Z). (For visual clarity, we focus on a single input text with n tokens in this figure, not a batch of multiple inputs. Consequently, the 3D input tensor is simplified to a 2D matrix in this context. This approach allows for a more straightforward visualization and understanding of the processes involved. Also, for consistency with later figures, the values in the attention matrix do not depict the real attention weights.)
+> Figure 3.18 In self-attention, we transform the input vectors in the input matrix X with the three weight matrices, $W_q$, $W_k$, and $W_v$. Then, we compute the attention weight matrix based on the resulting queries (Q) and keys (K). Using the attention weights and values (V), we then compute the context vectors (Z). (For visual clarity, we focus on a single input text with n tokens in this figure, not a batch of multiple inputs. Consequently, the 3D input tensor is simplified to a 2D matrix in this context. This approach allows for a more straightforward visualization and understanding of the processes involved. Also, for consistency with later figures, the values in the attention matrix do not depict the real attention weights.)
 
 As shown in Figure 3.18, self-attention involves the trainable weight matrices $W_q$, $W_k$, and $W_v$. These matrices transform input data into queries, keys, and values, which are crucial components of the attention mechanism. As the model is exposed to more data during training, it adjusts these trainable weights, as we will see in upcoming chapters.
 
@@ -1902,7 +1902,7 @@ The multi-head component involves splitting the attention mechanism into multipl
 
 ## 3.5 Hiding future words with causal attention
 
-In this section, we modify the standard self-attention mechanism to create a *causal attention* mechanism, which is essential for developing an LLM in the subsequent chapters.
+In this section, we modify the standard self-attention mechanism to create a **causal attention** mechanism, which is essential for developing an LLM in the subsequent chapters.
 
 87
 
