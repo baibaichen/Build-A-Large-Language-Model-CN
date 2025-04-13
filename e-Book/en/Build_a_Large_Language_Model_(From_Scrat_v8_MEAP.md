@@ -2359,8 +2359,6 @@ Even though the reshaping (`.view`) and transposing (`.transpose`) of tensors in
 
 On a big-picture level, in the previous `MultiHeadAttentionWrapper`, we stacked multiple single-head attention layers that we combined into a multi-head attention layer. The `MultiHeadAttention` class takes an integrated approach. It starts with a multi-head layer and then internally splits this layer into individual attention heads, as illustrated in Figure 3.26.
 
-![](_page_107_Figure_0.jpeg)
-
 ![](_page_107_Figure_3.jpeg)
 
 > Figure 3.26 In the `MultiheadAttentionWrapper` class with two attention heads, we initialized two weight matrices $W_{q1}$ and $W_{q2}$ and computed two query matrices $Q_1$ and $Q_2$ as illustrated at the top of this figure. In the `MultiheadAttention` class, we initialize one larger weight matrix $W_{q}$ , only perform one matrix multiplication with the inputs to obtain a query matrix $Q$, and then split the query matrix into $Q_1$ and $Q_2$ as shown at the bottom of this figure. We do the same for the keys and values, which are not shown to reduce visual clutter.
