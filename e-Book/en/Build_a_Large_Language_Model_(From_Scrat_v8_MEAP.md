@@ -2836,7 +2836,7 @@ In the next section, we will look at the GELU activation function, which is one 
 
 In this section, we implement a small neural network submodule that is used as part of the transformer block in LLMs. We begin with implementing the **GELU** activation function, which plays a crucial role in this neural network submodule. (For additional information on implementing neural networks in PyTorch, please see [section A.5 Implementing multilayer neural networks](# A.5 Implementing multilayer neural networks) in Appendix A.)
 
-Historically, the ReLU activation function has been commonly used in deep learning due to its simplicity and effectiveness across various neural network architectures. However, in LLMs, several other activation functions are employed beyond the traditional ReLU. Two notable examples are GELU (*Gaussian Error Linear Unit*) and SwiGLU (*Swish-Gated Linear Unit*).
+Historically, the ReLU activation function has been commonly used in deep learning due to its simplicity and effectiveness across various neural network architectures. However, in LLMs, several other activation functions are employed beyond the traditional ReLU. Two notable examples are GELU (**Gaussian Error Linear Unit**) and SwiGLU (**Swish-Gated Linear Unit**).
 
 GELU and SwiGLU are more complex and smooth activation functions incorporating Gaussian and sigmoid-gated linear units, respectively. They offer improved performance for deep learning models, unlike the simpler ReLU.
 
@@ -2874,24 +2874,21 @@ for i, (y, label) in enumerate(zip([y_gelu, y_relu], ["GELU", "ReLU"]), 1):
    plt.grid(True)
 plt.tight_layout()
 plt.show()
-```
-> [!IMPORTANT]
->
-> #A Create 100 sample data points in the range -3 to 3
 
+#A Create 100 sample data points in the range -3 to 3
+```
 As we can see in the resulting plot in Figure 4.8, ReLU is a piecewise linear function that outputs the input directly if it is positive; otherwise, it outputs zero. GELU is a smooth, nonlinear function that approximates ReLU but with a non-zero gradient for negative values.
 
 ![](_page_130_Figure_0.jpeg)
 
-Figure 4.8 The output of the GELU and ReLU plots using matplotlib. The x-axis shows the function inputs and the y-axis shows the function outputs.
+> Figure 4.8 The output of the GELU and ReLU plots using matplotlib. The x-axis shows the function inputs and the y-axis shows the function outputs.
 
 The smoothness of GELU, as shown in Figure 4.8, can lead to better optimization properties during training, as it allows for more nuanced adjustments to the model's parameters. In contrast, ReLU has a sharp corner at zero, which can sometimes make optimization harder, especially in networks that are very deep or have complex architectures. Moreover, unlike RELU, which outputs zero for any negative input, GELU allows for a small, non-zero output for negative values. This characteristic means that during the training process, neurons that receive negative input can still contribute to the learning process, albeit to a lesser extent than positive inputs.
 
 Next, let's use the GELU function to implement the small neural network module, FeedForward, that we will be using in the LLM's transformer block later:
 
-#### Listing 4.4 A feed forward neural network module
-
 ```python
+# Listing 4.4 A feed forward neural network module
 class FeedForward(nn.Module):
     def __init__(self, cfg):
         super().__init__()
@@ -2903,13 +2900,13 @@ class FeedForward(nn.Module):
     def forward(self, x):
         return self.layers(x)
 ```
-As we can see in the preceding code, the FeedForward module is a small neural network consisting of two Linear layers and a GELU activation function. In the 124 million parameter GPT model, it receives the input batches with tokens that have an embedding size of 768 each via the GPT_CONFIG_124M dictionary where GPT_CONFIG_124M["emb_dim"] = 768.
+As we can see in the preceding code, the `FeedForward` module is a small neural network consisting of two Linear layers and a GELU activation function. In the 124 million parameter GPT model, it receives the input batches with tokens that have an embedding size of 768 each via the `GPT_CONFIG_124M` dictionary where `GPT_CONFIG_124M["emb_dim"] = 768`.
 
 Figure 4.9 shows how the embedding size is manipulated inside this small feed forward neural network when we pass it some inputs.
 
 ![](_page_131_Figure_1.jpeg)
 
-Figure 4.9 provides a visual overview of the connections between the layers of the feed forward neural network. It is important to note that this neural network can accommodate variable batch sizes and numbers of tokens in the input. However, the embedding size for each token is determined and fixed when initializing the weights.
+> Figure 4.9 provides a visual overview of the connections between the layers of the feed forward neural network. It is important to note that this neural network can accommodate variable batch sizes and numbers of tokens in the input. However, the embedding size for each token is determined and fixed when initializing the weights.
 
 Following the example in Figure 4.9, let's initialize a new FeedForward module with a token embedding size of 768 and feed it a batch input with 2 samples and 3 tokens each:
 
@@ -2918,20 +2915,19 @@ ffn = FeedForward(GPT_CONFIG_124M)
 x = torch.rand(2, 3, 768) #A 
 out = ffn(x)
 print(out.shape)
+#A create sample input with batch dimension 2
 ```
-> #A create sample input with batch dimension 2
-
 As we can see, the shape of the output tensor is the same as that of the input tensor:
 
 ```python
 torch.Size([2, 3, 768])
 ```
 
-The FeedForward module we implemented in this section plays a crucial role in enhancing the model's ability to learn from and generalize the data. Although the input and output dimensions of this module are the same, it internally expands the embedding dimension into a higher-dimensional space through the first linear layer as illustrated in Figure 4.10. This expansion is followed by a non-linear GELU activation, and then a contraction back to the original dimension with the second linear transformation. Such a design allows for the exploration of a richer representation space.
+The `FeedForward` module we implemented in this section plays a crucial role in enhancing the model's ability to learn from and generalize the data. Although the input and output dimensions of this module are the same, it internally expands the embedding dimension into a higher-dimensional space through the first linear layer as illustrated in Figure 4.10. This expansion is followed by a non-linear GELU activation, and then a contraction back to the original dimension with the second linear transformation. Such a design allows for the exploration of a richer representation space.
 
 ![](_page_132_Figure_1.jpeg)
 
-Figure 4.10 An illustration of the expansion and contraction of the layer outputs in the feed forward neural network. First, the inputs expand by a factor of 4 from 768 to 3072 values. Then, the second layer compresses the 3072 values back into a 768-dimensional representation.
+> Figure 4.10 An illustration of the expansion and contraction of the layer outputs in the feed forward neural network. First, the inputs expand by a factor of 4 from 768 to 3072 values. Then, the second layer compresses the 3072 values back into a 768-dimensional representation.
 
 Moreover, the uniformity in input and output dimensions simplifies the architecture by enabling the stacking of multiple layers, as we will do later, without the need to adjust dimensions between them, thus making the model more scalable.
 
@@ -2939,7 +2935,7 @@ As illustrated in Figure 4.11, we have now implemented most of the LLM's buildin
 
 ![](_page_133_Figure_0.jpeg)
 
-Figure 4.11 A mental model showing the topics we cover in this chapter, with the black checkmarks indicating those that we have already covered.
+> Figure 4.11 A mental model showing the topics we cover in this chapter, with the black checkmarks indicating those that we have already covered.
 
 In the next section, we will go over the concept of shortcut connections that we insert between different layers of a neural network, which are important for improving the training performance in deep neural network architectures.
 
