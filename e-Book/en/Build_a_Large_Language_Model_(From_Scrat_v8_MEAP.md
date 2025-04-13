@@ -2496,7 +2496,7 @@ In the previous chapter, you learned and coded the *multi-head attention* mechan
 
 ![](_page_113_Figure_0.jpeg)
 
-Figure 4.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it on a labeled dataset. This chapter focuses on implementing the LLM architecture, which we will train in the next chapter.
+> Figure 4.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it on a labeled dataset. This chapter focuses on implementing the LLM architecture, which we will train in the next chapter.
 
 The LLM architecture, referenced in Figure 4.1, consists of several building blocks that we will implement throughout this chapter. We will begin with a top-down view of the model architecture in the next section before covering the individual components in more detail.
 
@@ -2516,9 +2516,12 @@ Chapter 6 will focus on loading pretrained weights into our implementation and a
 
 For example, in a neural network layer that is represented by a 2,048x2,048 dimensional matrix (or tensor) of weights, each element of this matrix is a parameter. Since there are 2,048 rows and 2,048 columns, the total number of parameters in this layer is 2,048 multiplied by 2,048, which equals 4,194,304 parameters.
 
-#### GPT-2 VERSUS GPT-3
-
-Note that we are focusing on GPT-2 because OpenAI has made the weights of the pretrained model publicly available, which we will load into our implementation in chapter 6. GPT-3 is fundamentally the same in terms of model architecture, except that it is scaled up from 1.5 billion parameters in GPT-2 to 175 billion parameters in GPT-3, and it is trained on more data. As of this writing, the weights for GPT-3 are not publicly available. GPT-2 is also a better choice for learning how to implement LLMs, as it can be run on a single laptop computer, whereas GPT-3 requires a GPU cluster for training and inference. According to Lambda Labs, it would take 355 years to train GPT-3 on a single V100 datacenter GPU, and 665 years on a consumer RTX 8000 GPU.
+> [!NOTE]
+>
+> **GPT-2 VERSUS GPT-3**
+>
+> Note that we are focusing on GPT-2 because OpenAI has made the weights of the pretrained model publicly available, which we will load into our implementation in chapter 6. GPT-3 is fundamentally the same in terms of model architecture, except that it is scaled up from 1.5 billion parameters in GPT-2 to 175 billion parameters in GPT-3, and it is trained on more data. As of this writing, the weights for GPT-3 are not publicly available. GPT-2 is also a better choice for learning how to implement LLMs, as it can be run on a single laptop computer, whereas GPT-3 requires a GPU cluster for training and inference. According to Lambda Labs, it would take 355 years to train GPT-3 on a single V100 datacenter GPU, and 665 years on a consumer RTX 8000 GPU.
+>
 
 We specify the configuration of the small GPT-2 model via the following Python dictionary, which we will use in the code examples later:
 
@@ -2534,7 +2537,7 @@ GPT_CONFIG_124M = {
 ```
 }
 
-In the GPT_CONFIG_124M dictionary, we use concise variable names for clarity and to prevent long lines of code:
+In the `GPT_CONFIG_124M` dictionary, we use concise variable names for clarity and to prevent long lines of code:
 
 "vocab_size" refers to a vocabulary of 50,257 words, as used by the BPE tokenizer from chapter 2.
 
@@ -2545,90 +2548,85 @@ In the GPT_CONFIG_124M dictionary, we use concise variable names for clarity and
 - "drop_rate" indicates the intensity of the dropout mechanism (0.1 implies a 10% drop of hidden units) to prevent overfitting, as covered in chapter 3.
 - "qkv_bias" determines whether to include a bias vector in the Linear layers of the multi-head attention for query, key, and value computations. We will initially disable this, following the norms of modern LLMs, but will revisit it in chapter 6 when we load pretrained GPT-2 weights from OpenAI into our model.
 
-Using the configuration above, we will start this chapter by implementing a GPT placeholder architecture (DummyGPTModel) in this section, as shown in Figure 4.3. This will provide us with a big-picture view of how everything fits together and what other components we need to code in the upcoming sections to assemble the full GPT model architecture.
+Using the configuration above, we will start this chapter by implementing a GPT placeholder architecture (`DummyGPTModel`) in this section, as shown in Figure 4.3. This will provide us with a big-picture view of how everything fits together and what other components we need to code in the upcoming sections to assemble the full GPT model architecture.
 
 ![](_page_116_Figure_7.jpeg)
 
-Figure 4.3 A mental model outlining the order in which we code the GPT architecture. In this chapter, we will start with the GPT backbone, a placeholder architecture, before we get to the individual core pieces and eventually assemble them in a transformer block for the final GPT architecture.
+> Figure 4.3 A mental model outlining the order in which we code the GPT architecture. In this chapter, we will start with the GPT backbone, a placeholder architecture, before we get to the individual core pieces and eventually assemble them in a transformer block for the final GPT architecture.
 
-The numbered boxes shown in Figure 4.3 illustrate the order in which we tackle the individual concepts required to code the final GPT architecture. We will start with step 1, a placeholder GPT backbone we call DummyGPTModel:
+The numbered boxes shown in Figure 4.3 illustrate the order in which we tackle the individual concepts required to code the final GPT architecture. We will start with step 1, a placeholder GPT backbone we call `DummyGPTModel`:
 
-#### Listing 4.1 A placeholder GPT model architecture class
-
-```
+```python
+# Listing 4.1 A placeholder GPT model architecture class
 import torch
 import torch.nn as nn
+
 class DummyGPTModel(nn.Module):
-   def __init__(self, cfg):
-       super().__init__()
-       self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
-       self.pos_emb = nn.Embedding(cfg["context_length"], cfg["emb_dim"])
-       self.drop_emb = nn.Dropout(cfg["drop_rate"])
-       self.trf_blocks = nn.Sequential(
-          *[DummyTransformerBlock(cfg) for _ in range(cfg["n_layers"])]) #A
-       self.final_norm = DummyLayerNorm(cfg["emb_dim"]) #B
-       self.out_head = nn.Linear(
-          cfg["emb_dim"], cfg["vocab_size"], bias=False
-       )
-   def forward(self, in_idx):
-       batch_size, seq_len = in_idx.shape
-       tok_embeds = self.tok_emb(in_idx)
-       pos_embeds = self.pos_emb(torch.arange(seq_len, device=in_idx.device))
-       x = tok_embeds + pos_embeds
-       x = self.drop_emb(x)
-       x = self.trf_blocks(x)
-       x = self.final_norm(x)
-       logits = self.out_head(x)
-       return logits
-class DummyTransformerBlock(nn.Module): #C
-   def __init__(self, cfg):
-       super().__init__()
-   def forward(self, x): #D
-       return x
-class DummyLayerNorm(nn.Module): #E
-   def __init__(self, normalized_shape, eps=1e-5): #F
-       super().__init__()
-   def forward(self, x):
-       return x
-```
+    def __init__(self, cfg):
+        super().__init__()
+        self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
+        self.pos_emb = nn.Embedding(cfg["context_length"], cfg["emb_dim"])
+        self.drop_emb = nn.Dropout(cfg["drop_rate"])
+        self.trf_blocks = nn.Sequential(
+            *[DummyTransformerBlock(cfg) for _ in range(cfg["n_layers"])])      #A
+        self.final_norm = DummyLayerNorm(cfg["emb_dim"])                       #B
+        self.out_head = nn.Linear(
+            cfg["emb_dim"], cfg["vocab_size"], bias=False
+        )
+
+    def forward(self, in_idx):
+        batch_size, seq_len = in_idx.shape
+        tok_embeds = self.tok_emb(in_idx)
+        pos_embeds = self.pos_emb(torch.arange(seq_len, device=in_idx.device))
+        x = tok_embeds + pos_embeds
+        x = self.drop_emb(x)
+        x = self.trf_blocks(x)
+        x = self.final_norm(x)
+        logits = self.out_head(x)
+        return logits
+
+class DummyTransformerBlock(nn.Module):                                       #C
+    def __init__(self, cfg):
+        super().__init__()
+
+    def forward(self, x):                                                     #D
+        return x
+
+class DummyLayerNorm(nn.Module):                                              #E
+    def __init__(self, normalized_shape, eps=1e-5):                           #F
+        super().__init__()
+
+    def forward(self, x):
+        return x
+
 #A Use a placeholder for TransformerBlock
-
 #B Use a placeholder for LayerNorm
-
 #C A simple placeholder class that will be replaced by a real TransformerBlock later
-
- 
-
 #D This block does nothing and just returns its input.
-
 #E A simple placeholder class that will be replaced by a real TransformerBlock later
-
 #F The parameters here are just to mimic the LayerNorm interface.
+```
+The `DummyGPTModel` class in this code defines a simplified version of a GPT-like model using PyTorch's neural network module (nn.Module). The model architecture in the DummyGPTModel class consists of token and positional embeddings, dropout, a series of transformer blocks (`DummyTransformerBlock`), a final layer normalization (`DummyLayerNorm`), and a linear output layer (`out_head`). The configuration is passed in via a Python dictionary, for instance, the `GPT_CONFIG_124M` dictionary we created earlier.
 
-The DummyGPTModel class in this code defines a simplified version of a GPT-like model using PyTorch's neural network module (nn.Module). The model architecture in the DummyGPTModel class consists of token and positional embeddings, dropout, a series of transformer blocks (DummyTransformerBlock), a final layer normalization (DummyLayerNorm), and a linear output layer (out_head). The configuration is passed in via a Python dictionary, for instance, the GPT_CONFIG_124M dictionary we created earlier.
+The `forward` method describes the data flow through the model: it computes token and positional embeddings for the input indices, applies dropout, processes the data through the transformer blocks, applies normalization, and finally produces logits with the linear output layer.
 
-The forward method describes the data flow through the model: it computes token and positional embeddings for the input indices, applies dropout, processes the data through the transformer blocks, applies normalization, and finally produces logits with the linear output layer.
-
-The code above is already functional, as we will see later in this section after we prepare the input data. However, for now, note in the code above that we have used placeholders (DummyLayerNorm and DummyTransformerBlock) for the transformer block and layer normalization, which we will develop in later sections.
+The code above is already functional, as we will see later in this section after we prepare the input data. However, for now, note in the code above that we have used placeholders (`DummyLayerNorm` and `DummyTransformerBlock`) for the transformer block and layer normalization, which we will develop in later sections.
 
 Next, we will prepare the input data and initialize a new GPT model to illustrate its usage. Building on the figures we have seen in chapter 2, where we coded the tokenizer, Figure 4.4 provides a high-level overview of how data flows in and out of a GPT model.
 
 ![](_page_119_Figure_0.jpeg)
 
-Figure 4.4 A big-picture overview showing how the input data is tokenized, embedded, and fed to the GPT model. Note that in our DummyGPTClass coded earlier, the token embedding is handled inside the GPT model. In LLMs, the embedded input token dimension typically matches the output dimension. The output embeddings here represent the context vectors we discussed in chapter 3.
+> Figure 4.4 A big-picture overview showing how the input data is tokenized, embedded, and fed to the GPT model. Note that in our `DummyGPTClass` coded earlier, the token embedding is handled inside the GPT model. In LLMs, the embedded input token dimension typically matches the output dimension. The output embeddings here represent the context vectors we discussed in chapter 3.
 
 To implement the steps shown in Figure 4.4, we tokenize a batch consisting of two text inputs for the GPT model using the tiktoken tokenizer introduced in chapter 2:
 
+```python
 import tiktoken
-
-```
 tokenizer = tiktoken.get_encoding("gpt2")
 batch = []
 txt1 = "Every effort moves you"
 txt2 = "Every day holds a"
-```
 
-```
 batch.append(torch.tensor(tokenizer.encode(txt1)))
 batch.append(torch.tensor(tokenizer.encode(txt2)))
 batch = torch.stack(batch, dim=0)
@@ -2636,13 +2634,15 @@ print(batch)
 ```
 The resulting token IDs for the two texts are as follows:
 
+```python
 tensor([[ 6109, 3626, 6100, 345], #A [ 6109, 1110, 6622, 257]])
 
 #A The first row corresponds to the first text, and the second row corresponds to the second text
-
-Next, we initialize a new 124 million parameter DummyGPTModel instance and feed it the tokenized batch:
-
 ```
+
+Next, we initialize a new 124 million parameter `DummyGPTModel` instance and feed it the tokenized batch:
+
+```python
 torch.manual_seed(123)
 model = DummyGPTModel(GPT_CONFIG_124M)
 logits = model(batch)
@@ -2651,7 +2651,7 @@ print(logits)
 ```
 The model outputs, which are commonly referred to as logits, are as follows:
 
-```
+```python
 Output shape: torch.Size([2, 4, 50257])
 tensor([[[-1.2034, 0.3201, -0.7130, ..., -1.5548, -0.2390, -0.4667],
         [-0.1192, 0.4539, -0.4432, ..., 0.2392, 1.3469, 1.2430],
@@ -2667,15 +2667,15 @@ The output tensor has two rows corresponding to the two text samples. Each text 
 
 The embedding has 50,257 dimensions because each of these dimensions refers to a unique token in the vocabulary. At the end of this chapter, when we implement the postprocessing code, we will convert these 50,257-dimensional vectors back into token IDs, which we can then decode into words.
 
-Now that we have taken a top-down look at the GPT architecture and its in- and outputs, we will code the individual placeholders in the upcoming sections, starting with the real layer normalization class that will replace the DummyLayerNorm in the previous code.
+Now that we have taken a top-down look at the GPT architecture and its in- and outputs, we will code the individual placeholders in the upcoming sections, starting with the real layer normalization class that will replace the `DummyLayerNorm` in the previous code.
 
 ## 4.2 Normalizing activations with layer normalization
 
-Training deep neural networks with many layers can sometimes prove challenging due to issues like vanishing or exploding gradients. These issues lead to unstable training dynamics and make it difficult for the network to effectively adjust its weights, which means the learning process struggles to find a set of parameters (weights) for the neural network that minimizes the loss function. In other words, the network has difficulty learning the underlying patterns in the data to a degree that would allow it to make accurate predictions or decisions. (If you are new to neural network training and the concepts of gradients, a brief introduction to these concepts can be found in *Section A.4, Automatic Differentiation Made Easy* in *Appendix A: Introduction to PyTorch*. However, a deep mathematical understanding of gradients is not required to follow the contents of this book.)
+Training deep neural networks with many layers can sometimes prove challenging due to issues like vanishing or exploding gradients. These issues lead to unstable training dynamics and make it difficult for the network to effectively adjust its weights, which means the learning process struggles to find a set of parameters (weights) for the neural network that minimizes the loss function. In other words, the network has difficulty learning the underlying patterns in the data to a degree that would allow it to make accurate predictions or decisions. (If you are new to neural network training and the concepts of gradients, a brief introduction to these concepts can be found in [Section A.4, Automatic Differentiation Made Easy]() in **Appendix A: Introduction to PyTorch**. However, a deep mathematical understanding of gradients is not required to follow the contents of this book.)
 
-In this section, we will implement *layer normalization* to improve the stability and efficiency of neural network training.
+In this section, we will implement **layer normalization** to improve the stability and efficiency of neural network training.
 
-The main idea behind layer normalization is to adjust the activations (outputs) of a neural network layer to have a mean of 0 and a variance of 1, also known as unit variance. This adjustment speeds up the convergence to effective weights and ensures consistent, reliable training. As we have seen in the previous section, based on the DummyLayerNorm placeholder, in GPT-2 and modern transformer architectures, layer normalization is typically applied before and after the multi-head attention module and before the final output layer.
+The main idea behind layer normalization is to adjust the activations (outputs) of a neural network layer to have a mean of 0 and a variance of 1, also known as **unit variance**. This adjustment speeds up the convergence to effective weights and ensures consistent, reliable training. As we have seen in the previous section, based on the DummyLayerNorm placeholder, in GPT-2 and modern transformer architectures, layer normalization is typically applied before and after the multi-head attention module and before the final output layer.
 
 Before we implement layer normalization in code, Figure 4.5 provides a visual overview of how layer normalization functions.
 
@@ -7065,29 +7065,29 @@ Thank you for joining me on this learning journey, and I wish you all the best i
 
 # <span id="page-302-0"></span>Appendix A.Introduction to PyTorch
 
-#### This chapter covers
+**This chapter covers**
 
 - An overview of the PyTorch deep learning library
-- Setting up an environment and workspace for deep learnin[g](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=3---book-markup-container)
+- Setting up an environment and workspace for deep learning
 - Tensors as a fundamental data structure for deep learning
-- The mechanics of training deep neural network[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=5---book-markup-container)
+- The mechanics of training deep neural networks
 - Training models on GPUs
 
 This chapter is designed to equip you with the necessary skills and knowledge to put deep learning into practice and implement large language models (LLMs) from scratch.
 
 We will introduce PyTorch, a popular Python-based deep learning library, which will be our primary tool for the remainder of this book. This chapter will also guide you through setting up a deep learning workspace armed with PyTorch and GPU support.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=8---book-markup-container)n, you'll learn about the essential concept of tensors and their usage in PyTorch. We will also delve into PyTorch's automatic differentiation engine, a feature that enables us to conveniently and efficiently use backpropagation, which is a crucial aspect of neural network training.
+Then, you'll learn about the essential concept of tensors and their usage in PyTorch. We will also delve into PyTorch's automatic differentiation engine, a feature that enables us to conveniently and efficiently use backpropagation, which is a crucial aspect of neural network training.
 
-[No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=9---book-markup-container)te that this chapter is meant as a primer for those who are new to deep learning in PyTorch. While this chapter explains PyTorch from the ground up, it's not meant to be an exhaustive coverage of the PyTorch library. Instead, this chapter focuses on the PyTorch fundamentals that we will use to implement LLMs throughout this book. If you are already familiar with deep learning, you may skip this appendix and directly move on to chapter 2, working with text data.
+Note that this chapter is meant as a primer for those who are new to deep learning in PyTorch. While this chapter explains PyTorch from the ground up, it's not meant to be an exhaustive coverage of the PyTorch library. Instead, this chapter focuses on the PyTorch fundamentals that we will use to implement LLMs throughout this book. If you are already familiar with deep learning, you may skip this appendix and directly move on to chapter 2, working with text data.
 
 ## A.1 What is PyTorch
 
-*PyTorch* [\(https://pytorch.org/](https://pytorch.org/)) is an open-source Python-based deep learning library. According to *Papers With Code* (<https://paperswithcode.com/trends>), a platform that tracks and analyzes research papers, PyTorch has been the most widely used deep learning library for research since 2019 by a wide margin. And according to the *Kaggle Data Science and Machine Learning Survey 2022* [\(https://www.kaggle.com/c/kaggle-survey-2022](https://www.kaggle.com/c/kaggle-survey-2022)), the number of respondents using PyTorch is approximately 40% and constantly grows every year.
+[**PyTorch**](https://pytorch.org/) is an open-source Python-based deep learning library. According to **Papers With Code** (<https://paperswithcode.com/trends>), a platform that tracks and analyzes research papers, PyTorch has been the most widely used deep learning library for research since 2019 by a wide margin. And according to the  [**Kaggle Data Science and Machine Learning Survey 2022**](https://www.kaggle.com/c/kaggle-survey-2022), the number of respondents using PyTorch is approximately 40% and constantly grows every year.
 
 One of the reasons why PyTorch is so popular is its user-friendly interface and efficiency. However, despite its accessibility, it doesn't compromise on flexibility, providing advanced users the ability to tweak lower-level aspects of their models for customization and optimization. In short, for many practitioners and researchers, PyTorch offers just the right balance between usability and features.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=13---book-markup-container) the following subsections, we will define the main features PyTorch has to offer.
+In the following subsections, we will define the main features PyTorch has to offer.
 
 ### A.1.1 The three core components of PyTorch
 
@@ -7101,9 +7101,9 @@ Firstly, PyTorch is a *tensor library* that extends the concept of array-oriente
 
 Secondly, PyTorch is an *automatic differentiation engine*, also known as autograd, which enables the automatic computation of gradients for tensor operations, simplifying backpropagation and model optimization.
 
-[Fin](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=19---book-markup-container)ally, PyTorch is a *deep learning library*, meaning that it offers modular, flexible, and efficient building blocks (including pre-trained models, loss functions, and optimizers) for designing and training a wide range of deep learning models, catering to both researchers and developers.
+Finally, PyTorch is a *deep learning library*, meaning that it offers modular, flexible, and efficient building blocks (including pre-trained models, loss functions, and optimizers) for designing and training a wide range of deep learning models, catering to both researchers and developers.
 
-[Aft](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=20---book-markup-container)er defining the term deep learning and installing PyTorch in the two following subsections, the remainder of this chapter will go over these three core components of PyTorch in more detail, along with hands-on code examples.
+After defining the term deep learning and installing PyTorch in the two following subsections, the remainder of this chapter will go over these three core components of PyTorch in more detail, along with hands-on code examples.
 
 ### A.1.2 Defining deep learning
 
@@ -7111,29 +7111,29 @@ LLMs are often referred to as *AI* models in the news. However, as illustrated i
 
 AI is fundamentally about creating computer systems capable of performing tasks that usually require human intelligence. These tasks include understanding natural language, recognizing patterns, and making decisions. (Despite significant progress, AI is still far from achieving this level of general intelligence.)
 
-*[Ma](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=24---book-markup-container)chine learnin*g represents a subfield of AI (as illustrated in figure A.2) that focuses on developing and improving learning algorithms. The key idea behind machine learning is to enable computers to learn from data and make predictions or decisions without being explicitly programmed to perform the task. This involves developing algorithms that can identify patterns and learn from historical data and improve their performance over time with more data and feedback.
+**Machine learning** represents a subfield of AI (as illustrated in figure A.2) that focuses on developing and improving learning algorithms. The key idea behind machine learning is to enable computers to learn from data and make predictions or decisions without being explicitly programmed to perform the task. This involves developing algorithms that can identify patterns and learn from historical data and improve their performance over time with more data and feedback.
 
 ![](_page_305_Figure_0.jpeg)
 
 Figure A.2 Deep learning is a subcategory of machine learning that is focused on the implementation of deep neural networks. In turn, machine learning is a subcategory of AI that is concerned with algorithms that learn from data. AI is the broader concept of machines being able to perform tasks that typically require human intelligence.
 
-Machine learning has been integral in th[e](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=26---book-markup-container) evolution of AI, powering many of the advancements we see today, including LLMs. Machine learning is also behind technologies like recommendation systems used by online retailers and streaming services, email spam filtering, voice recognition in virtual assistants, and even self-driving cars. The introduction and advancement of machine learning have significantly enhanced AI's capabilities, enabling it to move beyond strict rule-based systems and adapt to new inputs or changing environments.
+Machine learning has been integral in the evolution of AI, powering many of the advancements we see today, including LLMs. Machine learning is also behind technologies like recommendation systems used by online retailers and streaming services, email spam filtering, voice recognition in virtual assistants, and even self-driving cars. The introduction and advancement of machine learning have significantly enhanced AI's capabilities, enabling it to move beyond strict rule-based systems and adapt to new inputs or changing environments.
 
 *Deep learning* is a subcategory of machine learning that focuses on the training and application of deep neural networks. These deep neural networks were originally inspired by how the human brain works, particularly the interconnection between many neurons. The "deep" in deep learning refers to the multiple hidden layers of artificial neurons or nodes that allow them to model complex, nonlinear relationships in the data.
 
-[Un](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=28---book-markup-container)like traditional machine learning techniques that excel at simple pattern recognition, deep learning is particularly good at handling unstructured data like images, audio, or text, so deep learning is particularly well suited for LLMs.
+Unlike traditional machine learning techniques that excel at simple pattern recognition, deep learning is particularly good at handling unstructured data like images, audio, or text, so deep learning is particularly well suited for LLMs.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=29---book-markup-container) typical predictive modeling workflow (also referred to as *supervised learning*) in machine learning and deep learning is summarized in figure A.3.
+The typical predictive modeling workflow (also referred to as *supervised learning*) in machine learning and deep learning is summarized in figure A.3.
 
 ![](_page_306_Figure_0.jpeg)
 
 Figure A.3 The supervised learning workflow for predictive modeling consists of a training stage where a model is trained on labeled examples in a training dataset. The trained model can then be used to predict the labels of new observations.
 
-Using a learning algorithm, a model is traine[d](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=31---book-markup-container) on a training dataset consisting of examples and corresponding labels. In the case of an email spam classifier, for example, the training dataset consists of emails and their *spam* and *not-spam* labels that a human identified. Then, the trained model can be used on new observations (new emails) to predict their unknown label (*spam* or *not spam*).
+Using a learning algorithm, a model is trained on a training dataset consisting of examples and corresponding labels. In the case of an email spam classifier, for example, the training dataset consists of emails and their *spam* and *not-spam* labels that a human identified. Then, the trained model can be used on new observations (new emails) to predict their unknown label (*spam* or *not spam*).
 
 Of course, we also want to add a model evaluation between the training and inference stages to ensure that the model satisfies our performance criteria before using it in a realworld application.
 
-[No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=33---book-markup-container)te that the workflow for training and using LLMs, as we will see later in this book, is similar to the workflow depicted in figure A.3 if we train them to classify texts. And if we are interested in training LLMs for generating texts, which is the main focus of this book, figure A.3 still applies. In this case, the labels during pretraining can be derived from the text itself (the next-word prediction task introduced in chapter 1). And the LLM will generate entirely new text (instead of predicting labels) given an input prompt during inference.
+Note that the workflow for training and using LLMs, as we will see later in this book, is similar to the workflow depicted in figure A.3 if we train them to classify texts. And if we are interested in training LLMs for generating texts, which is the main focus of this book, figure A.3 still applies. In this case, the labels during pretraining can be derived from the text itself (the next-word prediction task introduced in chapter 1). And the LLM will generate entirely new text (instead of predicting labels) given an input prompt during inference.
 
 ### A.1.3 Installing PyTorch
 
@@ -7159,17 +7159,17 @@ However, to explicitly install the CUDA-compatible version of PyTorch, it's ofte
 
 Figure A.4 Access the PyTorch installation recommendation on [https://pytorch.org](https://pytorch.org/) to customize and select the installation command for your system.
 
-(Note that the command shown in figure [A](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=45---book-markup-container).4 will also install the torchvision and torchaudio libraries, which are optional for this book.)
+(Note that the command shown in figure A.4 will also install the torchvision and torchaudio libraries, which are optional for this book.)
 
 As of this writing, this book is based on PyTorch 2.0.1, so it's recommended to use the following installation command to install the exact version to guarantee compatibility with this book:
 
-pip [in](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=47---book-markup-container)stall torch==2.0.1
+pip install torch==2.0.1
 
 However, as mentioned earlier, given your operating system, the installation command might slightly differ from the one shown above. Thus, I recommend visiting the [https://pytorch.org](https://pytorch.org/) website and using the installation menu (see figure A4) to select the installation command for your operating system and replace torch with torch==2.0.1 in this command.
 
 To check the version of PyTorch, you can execute the following code in PyTorch:
 
-i[mport](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=50---book-markup-container) torch torch.__version__
+import torch torch.__version__
 
 This prints:
 
@@ -7185,7 +7185,7 @@ If you are looking for additional recommendations and instructions for setting u
 
 After installing PyTorch, you can check whether your installation recognizes your built-in NVIDIA GPU by running the following code in Python:
 
-i[mport](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=57---book-markup-container) torch torch.cuda.is_available()
+import torch torch.cuda.is_available()
 
 This returns:
 
@@ -7382,7 +7382,7 @@ In the previous section, we covered one of the major three components of PyTorch
 
 A computational graph (or computation graph in short) is a directed graph that allows us to express and visualize mathematical expressions. In the context of deep learning, a computation graph lays out the sequence of calculations needed to compute the output of a neural network -- we will need this later to compute the required gradients for backpropagation, which is the main training algorithm for neural networks.
 
-[Let](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=134---book-markup-container)'s look at a concrete example to illustrate the concept of a computation graph. The following code implements the forward pass (prediction step) of a simple logistic regression classifier, which can be seen as a single-layer neural network, returning a score between 0 and 1 that is compared to the true class label (0 or 1) when computing the loss:
+Let's look at a concrete example to illustrate the concept of a computation graph. The following code implements the forward pass (prediction step) of a simple logistic regression classifier, which can be seen as a single-layer neural network, returning a score between 0 and 1 that is compared to the true class label (0 or 1) when computing the loss:
 
 | Listing A.2 A logistic regression forward pass |    |
 |------------------------------------------------|----|
@@ -7406,7 +7406,7 @@ If not all components in the code above make sense to you, don't worry. The poin
 
 Figure A.7 A logistic regression forward pass as a computation graph. The input feature x1 is multiplied by a model weight w<sup>1</sup> and passed through an activation function σ after adding the bias. The loss is computed by comparing the model output a with a given label y.
 
-In fact, PyTorch builds such a computation gr[ap](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=138---book-markup-container)h in the background, and we can use this to calculate gradients of a loss function with respect to the model parameters (here w1 and b) to train the model, which is the topic of the upcoming sections.
+In fact, PyTorch builds such a computation graph in the background, and we can use this to calculate gradients of a loss function with respect to the model parameters (here w1 and b) to train the model, which is the topic of the upcoming sections.
 
 ## A.4 Automatic differentiation made easy
 
@@ -7663,7 +7663,7 @@ In the previous section, we defined a custom neural network model. Before we can
 
 Figure A.10 PyTorch implements a Dataset and a DataLoader class. The Dataset class is used to instantiate objects that define how each data record is loaded. The DataLoader handles how the data is shuffled and assembled into batches.
 
-Following the illustration in figure A.10, in thi[s](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=213---book-markup-container) section, we will implement a custom Dataset class that we will use to create a training and a test dataset that we'll then use to create the data loaders.
+Following the illustration in figure A.10, in this section, we will implement a custom Dataset class that we will use to create a training and a test dataset that we'll then use to create the data loaders.
 
 Let's start by creating a simple toy dataset of five training examples with two features each. Accompanying the training examples, we also create a tensor containing the corresponding class labels: three examples below to class 0, and two examples belong to class 1. In addition, we also make a test set consisting of two entries. The code to create this dataset is shown below.
 
@@ -7710,13 +7710,13 @@ This custom ToyDataset class's purpose is to use it to instantiate a PyTorch Dat
 
 In PyTorch, the three main components of a custom Dataset class are the __init__ constructor, the __getitem__ method, and the __len__ method, as shown in code listing A.6 above.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=222---book-markup-container) the __init__ method, we set up attributes that we can access later in the __getitem__ and __len__ methods. This could be file paths, file objects, database connectors, and so on. Since we created a tensor dataset that sits in memory, we are simply assigning X and y to these attributes, which are placeholders for our tensor objects.
+In the __init__ method, we set up attributes that we can access later in the __getitem__ and __len__ methods. This could be file paths, file objects, database connectors, and so on. Since we created a tensor dataset that sits in memory, we are simply assigning X and y to these attributes, which are placeholders for our tensor objects.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=223---book-markup-container) the __getitem__ method, we define instructions for returning exactly one item from the dataset via an index. This means the features and the class label corresponding to a single training example or test instance. (The data loader will provide this index, which we will cover shortly.)
+In the __getitem__ method, we define instructions for returning exactly one item from the dataset via an index. This means the features and the class label corresponding to a single training example or test instance. (The data loader will provide this index, which we will cover shortly.)
 
-[Fin](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=224---book-markup-container)ally, the __len__ method constrains instructions for retrieving the length of the dataset. Here, we use the .shape attribute of a tensor to return the number of rows in the feature array. In the case of the training dataset, we have five rows, which we can doublecheck as follows:
+Finally, the __len__ method constrains instructions for retrieving the length of the dataset. Here, we use the .shape attribute of a tensor to return the number of rows in the feature array. In the case of the training dataset, we have five rows, which we can doublecheck as follows:
 
-p[rint\(](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=225---book-markup-container)len(train_ds))
+print\(len(train_ds))
 
  
 
@@ -7803,11 +7803,11 @@ Lastly, let's discuss the setting num_workers=0 in the DataLoader. This paramete
 
 Figure A.11 Loading data without multiple workers (setting num_workers=0) will create a data loading bottleneck where the model sits idle until the next batch is loaded as illustrated in the left subpanel. If multiple workers are enabled, the data loader can already queue up the next batch in the background as shown in the right subpanel.
 
-However, if we are working with very small [d](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=243---book-markup-container)atasets, setting num_workers to 1 or larger may not be necessary since the total training time takes only fractions of a second anyway. On the contrary, if you are working with tiny datasets or interactive environments such as Jupyter notebooks, increasing num_workers may not provide any noticeable speedup. They might, in fact, lead to some issues. One potential issue is the overhead of spinning up multiple worker processes, which could take longer than the actual data loading when your dataset is small.
+However, if we are working with very small datasets, setting num_workers to 1 or larger may not be necessary since the total training time takes only fractions of a second anyway. On the contrary, if you are working with tiny datasets or interactive environments such as Jupyter notebooks, increasing num_workers may not provide any noticeable speedup. They might, in fact, lead to some issues. One potential issue is the overhead of spinning up multiple worker processes, which could take longer than the actual data loading when your dataset is small.
 
 Furthermore, for Jupyter notebooks, setting num_workers to greater than 0 can sometimes lead to issues related to the sharing of resources between different processes, resulting in errors or notebook crashes. Therefore, it's essential to understand the trade-off and make a calculated decision on setting the num_workers parameter. When used correctly, it can be a beneficial tool but should be adapted to your specific dataset size and computational environment for optimal results.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=245---book-markup-container) my experience, setting num_workers=4 usually leads to optimal performance on many real-world datasets, but optimal settings depend on your hardware and the code used for loading a training example defined in the Dataset class.
+In my experience, setting num_workers=4 usually leads to optimal performance on many real-world datasets, but optimal settings depend on your hardware and the code used for loading a training example defined in the Dataset class.
 
 ## A.7 A typical training loop
 
@@ -7968,7 +7968,7 @@ Note that the following code listing iterates over a data loader to compute the 
 
 Notice that the internals of the compute_accuracy function are similar to what we used before when we converted the logits to the class labels.
 
-[We](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=290---book-markup-container) can then apply the function to the training as follows:
+We can then apply the function to the training as follows:
 
 ```
 print(compute_accuracy(model, train_loader))
@@ -8009,7 +8009,7 @@ The torch.load("model.pth") function reads the file "model.pth" and reconstructs
 
 Note that the line model = NeuralNetwork(2, 2) above is not strictly necessary if you execute this code in the same session where you saved a model. However, I included it here to illustrate that we need an instance of the model in memory to apply the saved parameters. Here, the NeuralNetwork(2, 2) architecture needs to match the original saved model exactly.
 
-[No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=308---book-markup-container)w, we are well equipped to use PyTorch to implement large language models in the upcoming chapters. However, before we jump to the next chapter, the last section will show you how to train PyTorch models faster using one or more GPUs (if available).
+Now, we are well equipped to use PyTorch to implement large language models in the upcoming chapters. However, before we jump to the next chapter, the last section will show you how to train PyTorch models faster using one or more GPUs (if available).
 
 ## A.9 Optimizing training performance with GPUs
 
@@ -8021,7 +8021,7 @@ As you will see, modifying the training loop from section 2.7 to optionally run 
 
 Before we make the modifications, it's crucial to understand the main concept behind GPU computations within PyTorch. First, we need to introduce the notion of devices. In PyTorch, a device is where computations occur, and data resides. The CPU and the GPU are examples of devices. A PyTorch tensor resides in a device, and its operations are executed on the same device.
 
-[Let](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=314---book-markup-container)'s see how this works in action. Assuming that you installed a GPU-compatible version of PyTorch as explained in section 2.1.3, Installing PyTorch, we can double-check that our runtime indeed supports GPU computing via the following code:
+Let's see how this works in action. Assuming that you installed a GPU-compatible version of PyTorch as explained in section 2.1.3, Installing PyTorch, we can double-check that our runtime indeed supports GPU computing via the following code:
 
 ```
 print(torch.cuda.is_available())
@@ -8057,7 +8057,7 @@ Notice that the resulting tensor now includes the device information, device='cu
 
 However, it is important to note that all tensors must be on the same device. Otherwise, the computation will fail, as shown below, where one tensor resides on the CPU and the other on the GPU:
 
-t[ensor](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=328---book-markup-container)_1 = tensor_1.to("cpu") print(tensor_1 + tensor_2)
+tensor_1 = tensor_1.to("cpu") print(tensor_1 + tensor_2)
 
 This results in the following:
 
@@ -8158,7 +8158,7 @@ How does this work? PyTorch launches a separate process on each GPU, and each pr
 
 Figure A.12 The model and data transfer in DDP involves two key steps. First, we create a copy of the model on each of the GPUs. Then we divide the input data into unique minibatches that we pass on to each model copy.
 
-Each of the two GPUs will receive a copy of [t](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=357---book-markup-container)he model. Then, in every training iteration, each model will receive a minibatch (or just batch) from the data loader. We can use a DistributedSampler to ensure that each GPU will receive a different, non-overlapping batch when using DDP.
+Each of the two GPUs will receive a copy of the model. Then, in every training iteration, each model will receive a minibatch (or just batch) from the data loader. We can use a DistributedSampler to ensure that each GPU will receive a different, non-overlapping batch when using DDP.
 
 Since each model copy will see a different sample of the training data, the model copies will return different logits as outputs and compute different gradients during the backward pass. These gradients are then averaged and synchronized during training to update the models. This way, we ensure that the models don't diverge, as illustrated in figure A.13.
 
@@ -8176,7 +8176,7 @@ Let's now see how this works in practice. For brevity, we will only focus on the
 
 First, we will import a few additional submodules, classes, and functions for distributed training PyTorch as shown in code listing A.13 below.
 
-#### Li[sting](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=365---book-markup-container) A.12 PyTorch utilities for distributed training
+Listing A.12 PyTorch utilities for distributed training
 
 import torch.multiprocessing as mp from torch.utils.data.distributed import DistributedSampler from torch.nn.parallel import DistributedDataParallel as DDP from torch.distributed import init_process_group, destroy_process_group
 
@@ -8184,9 +8184,9 @@ Before we dive deeper into the changes to make the training compatible with DDP,
 
 PyTorch's multiprocessing submodule contains functions such as multiprocessing.spawn, which we will use to spawn multiple processes and apply a function to multiple inputs in parallel. We will use it to spawn one training process per GPU.
 
-[If](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=368---book-markup-container) we spawn multiple processes for training, we will need a way to divide the dataset among these different processes. For this, we will use the DistributedSampler.
+If we spawn multiple processes for training, we will need a way to divide the dataset among these different processes. For this, we will use the DistributedSampler.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=369---book-markup-container) init_process_group and destroy_process_group are used to initialize and quit the distributed training mods. The init_process_group function should be called at the beginning of the training script to initialize a process group for each process in the distributed setup, and destroy_process_group should be called at the end of the training script to destroy a given process group and release its resources.
+The init_process_group and destroy_process_group are used to initialize and quit the distributed training mods. The init_process_group function should be called at the beginning of the training script to initialize a process group for each process in the distributed setup, and destroy_process_group should be called at the end of the training script to destroy a given process group and release its resources.
 
 The following code in listing A.13 below illustrates how these new components are used to implement DDP training for the NeuralNetwork model we implemented earlier.
 
@@ -8264,11 +8264,11 @@ Before we run the code from listing A.13, here is a summary of how it works, in 
 
 The main function sets up the distributed environment via ddp_setup -- another function we defined, loads the training and test sets, sets up the model, and carries out the training. Compared to the single-GPU training in section 2.12, we now transfer the model and data to the target device via .to(rank), which we use to refer to the GPU device ID. Also, we wrap the model via DDP, which enables the synchronization of the gradients between the different GPUs during training. After the training finishes and we evaluate the models, we use destroy_process_group() to cleanly exit the distributed training and free up the allocated resources.
 
-Earlier, we mentioned that each GPU will receive a different subsample of the training d[ata.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=374---book-markup-container) To ensure this, we set sampler=DistributedSampler(train_ds) in the training loader.
+Earlier, we mentioned that each GPU will receive a different subsample of the training data. To ensure this, we set sampler=DistributedSampler(train_ds) in the training loader.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=375---book-markup-container) last function to discuss is ddp_setup. It sets the main node's address and port to allow for communication between the different processes, initializes the process group with the NCCL backend (designed for GPU-to-GPU communication), and sets the rank (process identifier) and world size (total number of processes). Finally, it specifies the GPU device corresponding to the current model training process rank.
+The last function to discuss is ddp_setup. It sets the main node's address and port to allow for communication between the different processes, initializes the process group with the NCCL backend (designed for GPU-to-GPU communication), and sets the rank (process identifier) and world size (total number of processes). Finally, it specifies the GPU device corresponding to the current model training process rank.
 
-#### S[ELE](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=376---book-markup-container)CTING AVAILABLE GPUS ON A MULTI-GPU MACHINE
+#### SELECTING AVAILABLE GPUS ON A MULTI-GPU MACHINE
 
 If you wish to restrict the number of GPUs used for training on a multi-GPU machine, the simplest way is to use the CUDA_VISIBLE_DEVICES environment variable. To illustrate this, suppose your machine has multiple GPUs, and you only want to use one GPU, for example, the GPU with index 0. Instead of python some_script.py, you can run the code from the terminal as follows:
 
@@ -8282,7 +8282,7 @@ Setting CUDA_VISIBLE_DEVICES in this way is a simple and effective way to manage
 
 Let's now run this code and see how it works in practice by launching the code as a script from the terminal:
 
-p[ython](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=383---book-markup-container) ch02-DDP-script.py
+python ch02-DDP-script.py
 
 Note that it should work on both single- and multi-GPU machines. If we run this code on a single GPU, we should see the following output:
 
@@ -8340,8 +8340,8 @@ If you prefer more straightforward ways to use multiple GPUs in PyTorch, you can
 - In the context of PyTorch, tensors are array-like data structures to represent scalars, vectors, matrices, and higher-dimensional arrays.
 - PyTorch tensors can be executed on the CPU, but one major advantage of PyTorch's tensor format is its GPU support to accelerate computations.
 - The automatic differentiation (autograd) capabilities in PyTorch allow us to conveniently train neural networks using backpropagation without manually deriving gradients.
-- The deep learning utilities in PyTorch provide building blocks for creating custom deep neural networks[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=403---book-markup-container)
-- PyTorch includes Dataset and DataLoader classes to set up efficient data loading pipelines[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=404---book-markup-container)
+- The deep learning utilities in PyTorch provide building blocks for creating custom deep neural networks.
+- PyTorch includes Dataset and DataLoader classes to set up efficient data loading pipelines.
 - It's easiest to train models on a CPU or single GPU.
 - Using DistributedDataParallel is the simplest way in PyTorch to accelerate the training if multiple GPUs are available.
 
@@ -8390,7 +8390,7 @@ This returns:
 We can also calculate this manually as follows:
 
 - first hidden layer: 2 inputs times 30 hidden units plus 30 bias units.
-- second hidden layer: 30 incoming units times 20 nodes plus 20 bias units[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-a?potentialInternalRefId=429---book-markup-container)
+- second hidden layer: 30 incoming units times 20 nodes plus 20 bias units.
 - output layer: 20 incoming nodes times 2 output nodes plus 2 bias units.
 
 Then, adding all the parameters in each layer results in 2×30+30 + 30×20+20 + 20×2+2 = 752.
