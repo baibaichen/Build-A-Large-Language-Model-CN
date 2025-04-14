@@ -5401,13 +5401,13 @@ print("Inputs dimensions:", inputs.shape) # shape: (batch_size, num_tokens)
 ```
 As the print output shows, the preceding code encodes the inputs into a tensor consisting of 4 input tokens:
 
-```
+```python
 Inputs: tensor([[5211, 345, 423, 640]])
 Inputs dimensions: torch.Size([1, 4])
 ```
 Then, we can pass the encoded token IDs to the model as usual:
 
-```
+```python
 with torch.no_grad():
     outputs = model(inputs)
 print("Outputs:\n", outputs)
@@ -5416,7 +5416,7 @@ num_classes)
 ```
 The output tensor looks like as follows:
 
-```
+```python
 Outputs:
  tensor([[[-1.5854, 0.9904],
           [-3.7235, 7.4548],
@@ -5431,13 +5431,18 @@ Remember that we are interested in finetuning this model so that it returns a cl
 
 ![](_page_227_Figure_2.jpeg)
 
-Figure 6.11 An illustration of the GPT model with a 4-token example input and output. The output tensor consists of 2 columns due to the modified output layer. We are only focusing on the last row corresponding to the last token when finetuning the model for spam classification.
+> Figure 6.11 An illustration of the GPT model with a 4-token example input and output. The output tensor consists of 2 columns due to the modified output layer. We are only focusing on the last row corresponding to the last token when finetuning the model for spam classification.
 
-To extract the last output token, illustrated in figure 6.11, from the output tensor, we use the following code: print("Last output token:", outputs[:, -1, :])
+```python
+# To extract the last output token, illustrated in figure 6.11, from the output tensor, we use the following code: 
+print("Last output token:", outputs[:, -1, :])
+```
 
 This prints the following:
 
-Last output token: tensor([[-3.5983, 3.9902]])
+```python
+[Last output token: tensor([[-3.5983, 3.9902]])]()
+```
 
 Before we proceed to the next section, let's recap our discussion. We will focus on converting the values into a class-label prediction. But first, let's understand why we are particularly interested in the last output token, and not the 1st, 2nd, or 3rd output token.
 
@@ -5445,15 +5450,18 @@ In chapter 3, we explored the attention mechanism, which establishes a relations
 
 ![](_page_229_Figure_1.jpeg)
 
-Figure 6.12 Illustration of the causal attention mechanism as discussed in chapter 3, where the attention scores between input tokens are displayed in a matrix format. The empty cells indicate masked positions due to the causal attention mask, preventing tokens from attending to future tokens. The values in the cells represent attention scores, with the last token, "time," being the only one that computes attention scores for all preceding tokens.
+> Figure 6.12 Illustration of the causal attention mechanism as discussed in chapter 3, where the attention scores between input tokens are displayed in a matrix format. The empty cells indicate masked positions due to the causal attention mask, preventing tokens from attending to future tokens. The values in the cells represent attention scores, with the last token, "time," being the only one that computes attention scores for all preceding tokens.
 
 Given the causal attention mask setup shown in figure 6.12, the last token in a sequence accumulates the most information since it is the only token with access to data from all the previous tokens. Therefore, in our spam classification task, we focus on this last token during the finetuning process.
 
 Having modified the model, the next section will detail the process of transforming the last token into class label predictions and calculate the model's initial prediction accuracy. Following this, we will finetune the model for the spam classification task in the subsequent section.
 
-#### EXERCISE 6.3 FINETUNING THE FIRST VERSUS LAST TOKEN
-
-Rather than finetuning the last output token, try finetuning the first output token and observe the changes in predictive performance when finetuning the model in later sections.
+> [!NOTE]
+>
+> **EXERCISE 6.3 FINETUNING THE FIRST VERSUS LAST TOKEN**
+>
+> Rather than finetuning the last output token, try finetuning the first output token and observe the changes in predictive performance when finetuning the model in later sections.
+>
 
 ## 6.6 Calculating the classification loss and accuracy
 
@@ -5461,17 +5469,17 @@ So far in this chapter, we have prepared the dataset, loaded a pretrained model,
 
 ![](_page_231_Figure_0.jpeg)
 
-Figure 6.13 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. This section implements the last step of stage 2, implementing the functions to evaluate the model's performance to classify spam messages before, during, and after the finetuning.
+> Figure 6.13 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. This section implements the last step of stage 2, implementing the functions to evaluate the model's performance to classify spam messages before, during, and after the finetuning.
 
 Before implementing the evaluation utilities, let's briefly discuss how we convert the model outputs into class label predictions.
 
-In the previous chapter, we computed the token ID of the next token generated by the LLM by converting the 50,257 outputs into probabilities via the *softmax* function and then returning the position of the highest probability via the *argmax* function. In this chapter, we take the same approach to calculate whether the model outputs a "spam" or "not spam" prediction for a given input, as shown in figure 6.14, with the only difference being that we work with 2-dimensional instead of 50,257-dimensional outputs.
+In the previous chapter, we computed the token ID of the next token generated by the LLM by converting the 50,257 outputs into probabilities via the **softmax** function and then returning the position of the highest probability via the *argmax* function. In this chapter, we take the same approach to calculate whether the model outputs a "spam" or "not spam" prediction for a given input, as shown in figure 6.14, with the only difference being that we work with 2-dimensional instead of 50,257-dimensional outputs.
 
 228
 
 ![](_page_232_Figure_0.jpeg)
 
-Figure 6.14. The model outputs corresponding to the last token are converted into probability scores for each input text. Then, the class labels are obtained by looking up the index position of the highest probability score. Note that the model predicts the spam labels incorrectly because it has not yet been trained.
+> Figure 6.14. The model outputs corresponding to the last token are converted into probability scores for each input text. Then, the class labels are obtained by looking up the index position of the highest probability score. Note that the model predicts the spam labels incorrectly because it has not yet been trained.
 
 To illustrate figure 6.14 with a concrete example, let's consider the last token output from the previous section:
 
