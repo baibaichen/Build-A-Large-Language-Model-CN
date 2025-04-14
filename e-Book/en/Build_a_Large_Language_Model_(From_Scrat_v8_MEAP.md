@@ -46,9 +46,11 @@ Appendix B. [References](#page-355-0) and Further Reading
 
 Appendix E. [Parameter-efficient](#page-388-0) Finetuning with LoRA
 
-# <span id="page-4-0"></span>1 Understanding Large Language Models
+# 1 Understanding Large Language Models
 
-#### This chapter covers
+<span id="page-4-0"></span>
+
+This chapter covers
 
 - High-level explanations of the fundamental concepts behind large language models (LLMs)
 - Insights into the transformer architecture from which LLMs, such as the ones used on the ChatGPT platform, are derived
@@ -3524,7 +3526,7 @@ Using the `GPTmodel` instance, we adopt the `generate_text_simple` function intr
 
 ![](_page_157_Figure_3.jpeg)
 
-Figure 5.3 Generating text involves encoding text into token IDs that the LLM processes into logit vectors. The logit vectors are then converted back into token IDs, detokenized into a text representation.
+> Figure 5.3 Generating text involves encoding text into token IDs that the LLM processes into logit vectors. The logit vectors are then converted back into token IDs, detokenized into a text representation.
 
 Figure 5.3 illustrates a three-step text generation process using a GPT model. First, the tokenizer converts input text into a series of token IDs, as discussed in chapter 2. Second, the model receives these token IDs and generates corresponding logits, which are vectors representing the probability distribution for each token in the vocabulary, as discussed in chapter 4. Third, these logits are converted back into token IDs, which the tokenizer decodes into human-readable text, completing the cycle from textual input to textual output.
 
@@ -3860,7 +3862,7 @@ For visualization purposes, Figure 5.9 uses a `max_length=6` due to spatial cons
 > We are training the model with training data presented in similarly-sized chunks for simplicity and efficiency. However, in practice, it can also be beneficial to train an LLM with variable-length inputs to help the LLM to better generalize across different types of inputs when it is being used.
 >
 
-To implement the data splitting and loading visualized in Figure 5.9, we first define a train_ratio to use 90% of the data for training and the remaining 10% as validation data for model evaluation during training:
+To implement the data splitting and loading visualized in Figure 5.9, we first define a `train_ratio` to use 90% of the data for training and the remaining 10% as validation data for model evaluation during training:
 
 ```python
 train_ratio = 0.90
@@ -4087,9 +4089,9 @@ While the `evaluate_model` function gives us a numeric estimate of the model's t
 >
 > **ADAMW**
 >
-> *Adam* optimizers are a popular choice for training deep neural networks. However, in our training loop, we opt for the *AdamW* optimizer. AdamW is a variant of Adam that improves the weight decay approach, which aims to minimize model complexity and prevent overfitting by penalizing larger weights. This adjustment allows AdamW to achieve more effective regularization and better generalization and is thus frequently used in the training of LLMs.
+> **Adam** optimizers are a popular choice for training deep neural networks. However, in our training loop, we opt for the **AdamW** optimizer. AdamW is a variant of Adam that improves the weight decay approach, which aims to minimize model complexity and prevent overfitting by penalizing larger weights. This adjustment allows AdamW to achieve more effective regularization and better generalization and is thus frequently used in the training of LLMs.
 
-Let's see this all in action by training a GPTModel instance for 10 epochs using an AdamW optimizer and the train_model_simple function we defined earlier.
+Let's see this all in action by training a GPTModel instance for 10 epochs using an AdamW optimizer and the ` ` function we defined earlier.
 
 ```python
 torch.manual_seed(123)
@@ -4166,7 +4168,7 @@ As Figure 5.12 shows, both the training and validation losses start to improve f
 
 This memorization is expected since we are working with a very, very small training dataset and training the model for multiple epochs. Usually, it's common to train a model on a much, much larger dataset for only one epoch.
 
-As mentioned earlier, interested readers can try to train the model on 60,000 public domain books from Project Gutenberg, where this overfitting does not occur; see appendix B for details.
+As mentioned earlier, interested readers can try to train the model on 60,000 public domain books from [Project Gutenberg](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg), where this overfitting does not occur; see appendix B for details.
 
 In the upcoming section, as shown in Figure 5.13, we explore sampling methods employed by LLMs to mitigate memorization effects, resulting in more novel generated text.
 
@@ -4786,9 +4788,11 @@ In the following chapters, we will work further with this pretrained model and f
 - The training loop for LLMs itself is a standard procedure in deep learning, using a conventional cross entropy loss and AdamW optimizer.
 - Pretraining an LLM on a large text corpus is time- and resource-intensive so we can load openly available weights from OpenAI as an alternative to pretraining the model on a large dataset ourselves.
 
-# <span id="page-203-0"></span>[6](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-6/v-8/section-6?refid=1) Finetuning for Classification
+# 6 Finetuning for Classification
 
-#### This chapter covers
+<span id="page-203-0"></span>
+
+This chapter covers
 
 - Introducing different LLM finetuning approaches
 - Preparing a dataset for text classification
@@ -8636,7 +8640,7 @@ The following two papers detail the dataset, hyperparameter, and architecture de
 
 The following supplementary code available for this book contains instructions for preparing 60,000 public domain books from Project Gutenberg for LLM training:
 
-Pretraining GPT on the Project Gutenberg Dataset, [https://github.](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg) [com/rasbt/LLMs-from-scratch/tree/main/ch05/03\_bonus\_pretraining\_](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg) [on\_gutenberg](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg)
+Pretraining GPT on the Project Gutenberg Dataset, [https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg)
 
 Chapter 5 discusses the pretraining of LLMs, and Appendix D covers more advanced training functions, such as linear warmup and cosine annealing. The following paper finds that similar techniques can be successfully applied to continue pretraining already pretrained LLMs, along with additional tips and insights:
 
@@ -9122,7 +9126,9 @@ total_params = sum(p.numel() for p in model.parameters() if p.requires_grad) pri
 
 Note that on an Nvidia L4 GPU, the finetuning with LoRA, takes 1.30 min to run on an L4. On the same GPU, the original code takes 1.80 minutes to run. So, LoRA is approximately 28% faster in this case. The score, evaluated with the Ollama Llama 3 method from chapter 7, is around 50, which is in the same ballpark as the original model.
 
-# <span id="page-376-0"></span>Appendix D. Adding Bells and Whistles to the Training Loop
+# Appendix D. Adding Bells and Whistles to the Training Loop
+
+<span id="page-376-0"></span>
 
 In the appendix, we enhance the training function for the pretraining and finetuning processes covered in chapters 5-7. This appendix, in particular, covers *learning rate warmup*, *cosine decay*, and *gradient clipping* in the first three sections.
 
