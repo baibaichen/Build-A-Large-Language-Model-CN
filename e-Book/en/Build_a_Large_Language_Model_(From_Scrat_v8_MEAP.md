@@ -4805,7 +4805,7 @@ In previous chapters, we coded the LLM architecture, pretrained it, and learned 
 
 ![](_page_204_Figure_0.jpeg)
 
-Figure 6.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset and finetuning it. This chapter focuses on finetuning a pretrained LLM as a classifier.
+> Figure 6.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset and finetuning it. This chapter focuses on finetuning a pretrained LLM as a classifier.
 
 Figure 6.1 shows two main ways of finetuning an LLM: finetuning for classification (step 8) and finetuning an LLM to follow instructions (step 9). In the next section, we will discuss these two ways of finetuning in more detail.
 
@@ -4815,7 +4815,7 @@ The most common ways to finetune language models are *instruction-finetuning* an
 
 ![](_page_204_Figure_5.jpeg)
 
-Figure 6.2 Illustration of two different instruction-finetuning scenarios. At the top, the model is tasked with determining whether a given text is spam. At the bottom, the model is given an instruction on how to translate an English sentence into German.
+> Figure 6.2 Illustration of two different instruction-finetuning scenarios. At the top, the model is tasked with determining whether a given text is spam. At the bottom, the model is given an instruction on how to translate an English sentence into German.
 
 The next chapter will discuss instruction-finetuning, as illustrated in figure 6.2. Meanwhile, this chapter is centered on classification-finetuning, a concept you might already be acquainted with if you have a background in machine learning.
 
@@ -4827,15 +4827,18 @@ The key point is that a classification-finetuned model is restricted to predicti
 
 ![](_page_205_Figure_2.jpeg)
 
-Figure 6.3 Illustration of a text classification scenario using an LLM. A model finetuned for spam classification does not require further instruction alongside the input. In contrast to an instruction-finetuned model, it can only respond with "spam" and "not spam."
+> Figure 6.3 Illustration of a text classification scenario using an LLM. A model finetuned for spam classification does not require further instruction alongside the input. In contrast to an instruction-finetuned model, it can only respond with "spam" and "not spam."
 
 In contrast to the classification-finetuned model depicted in figure 6.3, an instructionfinetuned model typically has the capability to undertake a broader range of tasks. We can view a classification-finetuned model as highly specialized, and generally, it is easier to develop a specialized model than a generalist model that works well across various tasks.
 
-#### CHOOSING THE RIGHT APPROACH
-
-Instruction-finetuning improves a model's ability to understand and generate responses based on specific user instructions. Instruction-finetuning is best suited for models that need to handle a variety of tasks based on complex user instructions, improving flexibility and interaction quality. Classification-finetuning, on the other hand, is ideal for projects requiring precise categorization of data into predefined classes, such as sentiment analysis or spam detection.
-
-While instruction-finetuning is more versatile, it demands larger datasets and greater computational resources to develop models proficient in various tasks. In contrast, classification-finetuning requires less data and compute power, but its use is confined to the specific classes on which the model has been trained.
+> [!NOTE]
+>
+> **CHOOSING THE RIGHT APPROACH**
+>
+> Instruction-finetuning improves a model's ability to understand and generate responses based on specific user instructions. Instruction-finetuning is best suited for models that need to handle a variety of tasks based on complex user instructions, improving flexibility and interaction quality. Classification-finetuning, on the other hand, is ideal for projects requiring precise categorization of data into predefined classes, such as sentiment analysis or spam detection.
+>
+> While instruction-finetuning is more versatile, it demands larger datasets and greater computational resources to develop models proficient in various tasks. In contrast, classification-finetuning requires less data and compute power, but its use is confined to the specific classes on which the model has been trained.
+>
 
 ## 6.2 Preparing the dataset
 
@@ -4843,7 +4846,7 @@ In the remainder of this chapter, we will modify and classification-finetune the
 
 ![](_page_206_Figure_5.jpeg)
 
-Figure 6.4 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. Stage 1 involves dataset preparation. Stage 2 focuses on model setup. Stage 3 covers the finetuning and evaluation of the model.
+> Figure 6.4 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. Stage 1 involves dataset preparation. Stage 2 focuses on model setup. Stage 3 covers the finetuning and evaluation of the model.
 
 To provide an intuitive and useful example of classification-finetuning, we will work with a text message dataset that consists of spam and non-spam messages.
 
@@ -4851,117 +4854,132 @@ Note that these are text messages typically sent via phone, not email. However, 
 
 The first step is to download the dataset via the following code:
 
-#### Listing 6.1 Downloading and unzipping the dataset
-
-```
+```python
+# Listing 6.1 Downloading and unzipping the dataset
 import urllib.request
 import zipfile
 import os
 from pathlib import Path
+
 url = "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip"
 zip_path = "sms_spam_collection.zip"
 extracted_path = "sms_spam_collection"
 data_file_path = Path(extracted_path) / "SMSSpamCollection.tsv"
-def download_and_unzip_spam_data(url, zip_path, extracted_path, data_file_path):
-   if data_file_path.exists():
-       print(f"{data_file_path} already exists. Skipping download and extraction.")
-       return
-   with urllib.request.urlopen(url) as response: #A
-       with open(zip_path, "wb") as out_file:
-           out_file.write(response.read())
-   with zipfile.ZipFile(zip_path, "r") as zip_ref: #B
-       zip_ref.extractall(extracted_path)
-   original_file_path = Path(extracted_path) / "SMSSpamCollection"
-   os.rename(original_file_path, data_file_path) #C
-   print(f"File downloaded and saved as {data_file_path}")
-download_and_unzip_spam_data(url, zip_path, extracted_path, data_file_path)
-```
-#A Downloading the file #B Unzipping the file #C Adding a .tsv file extension
 
+def download_and_unzip_spam_data(url, zip_path, extracted_path, data_file_path):
+    if data_file_path.exists():
+        print(f"{data_file_path} already exists. Skipping download and extraction.")
+        return
+    with urllib.request.urlopen(url) as response:          #A
+        with open(zip_path, "wb") as out_file:
+            out_file.write(response.read())
+
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:        #B
+        zip_ref.extractall(extracted_path)
+
+    original_file_path = Path(extracted_path) / "SMSSpamCollection"
+    os.rename(original_file_path, data_file_path)          #C
+    print(f"File downloaded and saved as {data_file_path}")
+
+download_and_unzip_spam_data(url, zip_path, extracted_path, data_file_path)
+
+#A Downloading the file
+#B Unzipping the file
+#C Adding a .tsv file extension
+```
 After executing the preceding code, the dataset is saved as a tab-separated text file, SMSSpamCollection.tsv, in the sms_spam_collection folder. We can load it into a pandas DataFrame as follows:
 
-```
+```python
 import pandas as pd
 df = pd.read_csv(data_file_path, sep="\t", header=None, names=["Label", "Text"])
 df #A
-```
+
 #A Renders the data frame in a Jupyter notebook. Alternatively, use print(df).
+```
+
 
 The resulting data frame of the spam dataset is shown in figure 6.5.
 
-| Text                                                | Label |      |
-|-----------------------------------------------------|-------|------|
-| Go until jurong point, crazy Available only         | ham   | O    |
-| Ok lar Joking wif u oni                             | ham   | 1    |
-| spam Free entry in 2 a wkly comp to win FA Cup fina |       | ম    |
-| U dun say so early hor  U c already then say        | ham   | 3    |
-| Nah I don't think he goes to usf, he lives aro      | ham   | T    |
-|                                                     |       |      |
-| Rofl. Its true to its name                          | ham   | 5571 |
+![](6.5.jpg)
 
-Figure 6.5 Preview of the SMSSpamCollection dataset in a pandas DataFrame, showing class labels ("ham" or "spam") and corresponding text messages. The dataset consists of 5,572 rows (text messages and labels).
+> Figure 6.5 Preview of the SMSSpamCollection dataset in a pandas DataFrame, showing class labels ("ham" or "spam") and corresponding text messages. The dataset consists of 5,572 rows (text messages and labels).
 
-Let's examine the *class label distribution*:
+Let's examine the **class label distribution**:
 
 ```
 print(df["Label"].value_counts())
 ```
 Executing the previous code, we find that the data contains "ham" (i.e., not spam) far more frequently than "spam":
 
-Label ham 4825 spam 747 Name: count, dtype: int64
+```python
+Label 
+ham 4825 
+spam 747 
+Name: count, dtype: int64
+```
+
 For simplicity, and because we prefer a small dataset for educational purposes (which will facilitate faster fine-tuning of the large language model), we choose to undersample the dataset to include 747 instances from each class. While there are several other methods to handle class imbalances, these are beyond the scope of a book on large language models. Readers interested in exploring methods for dealing with imbalanced data can find additional information in the References section in appendix B.
 
 We use the following code to undersample the dataset and create a balanced dataset:
 
-#### Listing 6.2 Creating a balanced dataset
-
-```
-#A Count the instances of "spam"
+```python
+# Listing 6.2 Creating a balanced dataset
 def create_balanced_dataset(df):
-   num_spam = df[df["Label"] == "spam"].shape[0] #A
-   ham_subset = df[df["Label"] == "ham"].sample(num_spam, random_state=123) #B
-   balanced_df = pd.concat([ham_subset, df[df["Label"] == "spam"]]) #C
-   return balanced_df
+    num_spam = df[df["Label"] == "spam"].shape[0]                                 #A
+    ham_subset = df[df["Label"] == "ham"].sample(num_spam, random_state=123)      #B
+    balanced_df = pd.concat([ham_subset, df[df["Label"] == "spam"]])              #C
+    return balanced_df
+
 balanced_df = create_balanced_dataset(df)
 print(balanced_df["Label"].value_counts())
-```
-#B Randomly sample "ham" instances to match the number of "spam" instances #C Combine ham "subset" with "spam"
 
+#A Count the instances of "spam"
+#B Randomly sample "ham" instances to match the number of "spam" instances
+#C Combine ham "subset" with "spam"
+```
 After executing the previous code to balance the dataset, we can see that we now have equal amounts of spam and non-spam messages:
 
-Label ham 747 spam 747 Name: count, dtype: int64
+```python
+Label
+ham 747
+spam 747
+Name: count, dtype: int64
+```
 
 Next, we convert the "string" class labels "ham" and "spam" into integer class labels 0 and 1, respectively:
 
+```python
 balanced_df["Label"] = balanced_df["Label"].map({"ham": 0, "spam": 1})
+```
 
 This process is similar to converting text into token IDs. However, instead of using the GPT vocabulary, which consists of more than 50,000 words, we are dealing with just two token IDs: 0 and 1.
 
-We create a random_split function to split the dataset into three parts: 70% for training, 10% for validation, and 20% for testing. (These ratios are common in machine learning to train, adjust, and evaluate models.)
+We create a `random_split` function to split the dataset into three parts: 70% for training, 10% for validation, and 20% for testing. (These ratios are common in machine learning to train, adjust, and evaluate models.)
 
-```
-Listing 6.3 Splitting the dataset
-```
+```python
+# Listing 6.3 Splitting the dataset
+def random_split(df, train_frac, validation_frac):
+    df = df.sample(frac=1, random_state=123).reset_index(drop=True)     #A
 
-```
+    train_end = int(len(df) * train_frac)                               #B
+    validation_end = train_end + int(len(df) * validation_frac)
+
+    train_df = df[:train_end]                                           #C
+    validation_df = df[train_end:validation_end]
+    test_df = df[validation_end:]
+
+    return train_df, validation_df, test_df
+
+train_df, validation_df, test_df = random_split(balanced_df, 0.7, 0.1)  #D
+
 #A Shuffle the entire DataFrame
 #B Calculate split indices
 #C Split the DataFrame
 #D Test size is implied to be 0.2 as the remainder
-def random_split(df, train_frac, validation_frac):
-    df = df.sample(frac=1, random_state=123).reset_index(drop=True) #A
-    train_end = int(len(df) * train_frac) #B
-    validation_end = train_end + int(len(df) * validation_frac)
-                                                                   #C
-    train_df = df[:train_end]
-    validation_df = df[train_end:validation_end]
-    test_df = df[validation_end:]
-    return train_df, validation_df, test_df
-train_df, validation_df, test_df = random_split(balanced_df, 0.7, 0.1) #D
 ```
 Additionally, we save the dataset as CSV (comma-separated value) files, which we can reuse later:
 
-```
+```python
 train_df.to_csv("train.csv", index=None)
 validation_df.to_csv("validation.csv", index=None)
 test_df.to_csv("test.csv", index=None)
@@ -4989,51 +5007,49 @@ However, instead of appending the string "<|endoftext|>" to each of the text mes
 
 ![](_page_211_Figure_5.jpeg)
 
-Figure 6.6 An illustration of the input text preparation process. First, each input text message is converted into a sequence of token IDs. Then, to ensure uniform sequence lengths, shorter sequences are padded with a padding token (in this case, token ID 50256) to match the length of the longest sequence.
+> Figure 6.6 An illustration of the input text preparation process. First, each input text message is converted into a sequence of token IDs. Then, to ensure uniform sequence lengths, shorter sequences are padded with a padding token (in this case, token ID 50256) to match the length of the longest sequence.
 
 Figure 6.6 presumes that 50,256 is the token ID of the padding token "<|endoftext|>". We can double-check that this is indeed the correct token ID by encoding the " <|endoftext|>" using the *GPT-2 tokenizer* from the tiktoken package that we used in previous chapters:
 
-```
+```python
 import tiktoken
 tokenizer = tiktoken.get_encoding("gpt2")
 print(tokenizer.encode("<|endoftext|>", allowed_special={"<|endoftext|>"}))
 ```
 Executing the preceding code indeed returns [50256].
 
- 
+ As we have seen in chapter 2, we first need to implement a PyTorch Dataset, which specifies how the data is loaded and processed, before we can instantiate the data loaders.
 
-As we have seen in chapter 2, we first need to implement a PyTorch Dataset, which specifies how the data is loaded and processed, before we can instantiate the data loaders.
+For this purpose, we define the `SpamDataset` class, which implements the concepts illustrated in figure 6.6. This SpamDataset class handles several key tasks: it identifies the longest sequence in the training dataset, encodes the text messages, and ensures that all other sequences are padded with a *padding token* to match the length of the longest sequence.
 
-For this purpose, we define the SpamDataset class, which implements the concepts illustrated in figure 6.6. This SpamDataset class handles several key tasks: it identifies the longest sequence in the training dataset, encodes the text messages, and ensures that all other sequences are padded with a *padding token* to match the length of the longest sequence.
-
-```
-Listing 6.4 Setting up a Pytorch Dataset class
-```
-
-```
+```python
+# Listing 6.4 Setting up a Pytorch Dataset class
 import torch
 from torch.utils.data import Dataset
+
 class SpamDataset(Dataset):
     def __init__(self, csv_file, tokenizer, max_length=None, pad_token_id=50256):
         self.data = pd.read_csv(csv_file)
-                                                                   #A
-        self.encoded_texts = [
+
+        self.encoded_texts = [                                      #A
             tokenizer.encode(text) for text in self.data["Text"]
         ]
+
         if max_length is None:
             self.max_length = self._longest_encoded_length()
         else:
             self.max_length = max_length
-                                                                   #B
-            self.encoded_texts = [
+
+            self.encoded_texts = [                                  #B
                 encoded_text[:self.max_length]
                 for encoded_text in self.encoded_texts
             ]
-                                                                   #C
-        self.encoded_texts = [
+
+        self.encoded_texts = [                                      #C
             encoded_text + [pad_token_id] * (self.max_length - len(encoded_text))
             for encoded_text in self.encoded_texts
         ]
+
     def __getitem__(self, index):
         encoded = self.encoded_texts[index]
         label = self.data.iloc[index]["Label"]
@@ -5041,26 +5057,26 @@ class SpamDataset(Dataset):
             torch.tensor(encoded, dtype=torch.long),
             torch.tensor(label, dtype=torch.long)
         )
+
+    def __len__(self):
+        return len(self.data)
+
+    def _longest_encoded_length(self):
+        max_length = 0
+        for encoded_text in self.encoded_texts:
+            encoded_length = len(encoded_text)
+            if encoded_length > max_length:
+                max_length = encoded_length
+        return max_length
+
+#A Pre-tokenize texts
+#B Truncate sequences if they are longer than max_length
+#C Pad sequences to the longest sequence
 ```
 
-```
-def __len__(self):
-    return len(self.data)
-def _longest_encoded_length(self):
-    max_length = 0
-    for encoded_text in self.encoded_texts:
-        encoded_length = len(encoded_text)
-        if encoded_length > max_length:
-            max_length = encoded_length
-    return max_length
-```
-#### #A Pre-tokenize texts
+The `SpamDataset` class loads data from the CSV files we created earlier, tokenizes the text using the GPT-2 tokenizer from tiktoken and allows us to *pad* or *truncate* the sequences to a uniform length determined by either the longest sequence or a predefined maximum length. This ensures each input tensor is of the same size, which is necessary to create the batches in the training data loader we implement next:
 
-#B Truncate sequences if they are longer than max_length #C Pad sequences to the longest sequence
-
-The SpamDataset class loads data from the CSV files we created earlier, tokenizes the text using the GPT-2 tokenizer from tiktoken and allows us to *pad* or *truncate* the sequences to a uniform length determined by either the longest sequence or a predefined maximum length. This ensures each input tensor is of the same size, which is necessary to create the batches in the training data loader we implement next:
-
-```
+```python
 train_dataset = SpamDataset(
     csv_file="train.csv",
     max_length=None,
@@ -5069,13 +5085,15 @@ train_dataset = SpamDataset(
 ```
 Note that the longest sequence length is stored in the dataset's max_length attribute. If you are curious to see the number of tokens in the longest sequence, you can use the following code:
 
+```python
 print(train_dataset.max_length)
-
-The code outputs 120, showing that the longest sequence contains no more than 120 tokens, a common length for text messages. It's worth noting that the model can handle sequences of up to 1,024 tokens, given its context length limit. If your dataset includes longer texts, you can pass max_length=1024 when creating the training dataset in the preceding code to ensure that the data does not exceed the model's supported input (context) length.
-
-Next, we pad the validation and test sets to match the length of the longest training sequence. It's important to note that any validation and test set samples exceeding the length of the longest training example are truncated using encoded_text[:self.max_length] in the SpamDataset code we defined earlier. This truncation is optional; you could also set max_length=None for both validation and test sets, provided there are no sequences exceeding 1,024 tokens in these sets.
-
 ```
+
+The code outputs 120, showing that the longest sequence contains no more than 120 tokens, a common length for text messages. It's worth noting that the model can handle sequences of up to 1,024 tokens, given its context length limit. If your dataset includes longer texts, you can pass `max_length=1024` when creating the training dataset in the preceding code to ensure that the data does not exceed the model's supported input (context) length.
+
+Next, we pad the validation and test sets to match the length of the longest training sequence. It's important to note that any validation and test set samples exceeding the length of the longest training example are truncated using `encoded_text[:self.max_length]` in the `SpamDataset` code we defined earlier. This truncation is optional; you could also set max_length=None for both validation and test sets, provided there are no sequences exceeding 1,024 tokens in these sets.
+
+```python
 val_dataset = SpamDataset(
     csv_file="validation.csv",
     max_length=train_dataset.max_length,
@@ -5087,52 +5105,56 @@ test_dataset = SpamDataset(
     tokenizer=tokenizer
 )
 ```
-#### EXERCISE 6.1 INCREASING THE CONTEXT LENGTH
-
-Pad the inputs to the maximum number of tokens the model supports and observe how it impacts the predictive performance.
+> [!NOTE]
+>
+> **EXERCISE 6.1 INCREASING THE CONTEXT LENGTH**
+>
+> Pad the inputs to the maximum number of tokens the model supports and observe how it impacts the predictive performance.
+>
 
 Using the datasets as inputs, we can instantiate the data loaders similarly to what we did in chapter 2. However, in this case, the targets represent class labels rather than the next tokens in the text. For instance, choosing a batch size of 8, each batch will consist of 8 training examples of length 120 and the corresponding class label of each example, as illustrated in figure 6.7.
 
 ![](_page_215_Figure_0.jpeg)
 
-Figure 6.7 An illustration of a single training batch consisting of 8 text messages represented as token IDs. Each text message consists of 120 token IDs. In addition, a class label array stores the 8 class labels corresponding to the text messages, which can be either 0 (not spam) or 1 (spam).
+> Figure 6.7 An illustration of a single training batch consisting of 8 text messages represented as token IDs. Each text message consists of 120 token IDs. In addition, a class label array stores the 8 class labels corresponding to the text messages, which can be either 0 (not spam) or 1 (spam).
 
 The following code creates the training, validation, and test set data loaders that load the text messages and labels in batches of size 8, as illustrated in figure 6.7:
 
 212
 
-Listing 6.5 Creating PyTorch data loaders
-
-```
+```python
+# Listing 6.5 Creating PyTorch data loaders
 from torch.utils.data import DataLoader
-num_workers = 0 #A
+
+num_workers = 0                  #A
 batch_size = 8
 torch.manual_seed(123)
+
 train_loader = DataLoader(
-   dataset=train_dataset,
-   batch_size=batch_size,
-   shuffle=True,
-   num_workers=num_workers,
-   drop_last=True,
+    dataset=train_dataset,
+    batch_size=batch_size,
+    shuffle=True,
+    num_workers=num_workers,
+    drop_last=True,
 )
 val_loader = DataLoader(
-   dataset=val_dataset,
-   batch_size=batch_size,
-   num_workers=num_workers,
-   drop_last=False,
+    dataset=val_dataset,
+    batch_size=batch_size,
+    num_workers=num_workers,
+    drop_last=False,
 )
 test_loader = DataLoader(
-   dataset=test_dataset,
-   batch_size=batch_size,
-   num_workers=num_workers,
-   drop_last=False,
+    dataset=test_dataset,
+    batch_size=batch_size,
+    num_workers=num_workers,
+    drop_last=False,
 )
-```
-#### #A This setting ensures compatibility with most computers
 
+#A This setting ensures compatibility with most computers
+```
 To ensure that the data loaders are working and are indeed returning batches of the expected size, we iterate over the training loader and then print the tensor dimensions of the last batch:
 
-```
+```python
 for input_batch, target_batch in train_loader:
     pass
 print("Input batch dimensions:", input_batch.shape)
@@ -5140,7 +5162,7 @@ print("Label batch dimensions", target_batch.shape)
 ```
 The output is as follows:
 
-```
+```python
 Input batch dimensions: torch.Size([8, 120])
 Label batch dimensions torch.Size([8])
 ```
@@ -5149,14 +5171,18 @@ As we can see, the input batches consist of 8 training examples with 120 tokens 
 
 Lastly, to get an idea of the dataset size, let's print the total number of batches in each dataset:
 
-```
+```python
 print(f"{len(train_loader)} training batches")
 print(f"{len(val_loader)} validation batches")
 print(f"{len(test_loader)} test batches")
 ```
 The number of batches in each dataset are as follows:
 
-130 training batches 19 validation batches 38 test batches
+```python
+130 training batches
+19 validation batches
+38 test batches
+```
 
 This concludes the data preparation in this chapter. Next, we will prepare the model for finetuning.
 
@@ -5165,7 +5191,7 @@ This concludes the data preparation in this chapter. Next, we will prepare the m
 In this section, we prepare the model we will use for the classification-finetuning to identify spam messages. We start with initializing the pretrained model we worked with in the previous chapter, as illustrated in figure 6.8.
 ![](_page_218_Figure_1.jpeg)
 
-Figure 6.8 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. After completing stage 1, preparing the dataset, this section focuses on initializing the LLM we will finetune to classify spam messages.
+> Figure 6.8 Illustration of the three-stage process for classification-finetuning the LLM in this chapter. After completing stage 1, preparing the dataset, this section focuses on initializing the LLM we will finetune to classify spam messages.
 
 We start the model preparation process by reusing the configurations from chapter 5:
 
@@ -5850,9 +5876,11 @@ model.load_state_dict(model_state_dict)
 - Evaluating a classification model involves calculating the classification accuracy (the fraction or percentage of correct predictions).
 - Finetuning a classification model uses the same cross entropy loss function that is used for pretraining the LLM.
 
-# <span id="page-247-0"></span>[7](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/chapter-7/v-8/section-7?refid=1) Finetuning to Follow Instructions
+# 7 Finetuning to Follow Instructions
 
-#### This chapter covers
+<span id="page-247-0"></span>
+
+This chapter covers
 
 - Introduction to the instruction finetuning process of LLMs
 - Preparing a dataset for supervised instruction finetuning
