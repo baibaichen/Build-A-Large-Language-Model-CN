@@ -3153,25 +3153,23 @@ As illustrated in Figure 4.14, the transformer block combines layer normalizatio
 
 We started this chapter with a big-picture overview of a GPT architecture that we called `DummyGPTModel`. In this `DummyGPTModel` code implementation, we showed the input and outputs to the GPT model, but its building blocks remained a black box using a `DummyTransformerBlock` and `DummyLayerNorm` class as placeholders.
 
-In this section, we are now replacing the DummyTransformerBlock and DummyLayerNorm placeholders with the real TransformerBlock and LayerNorm classes we coded later in this chapter to assemble a fully working version of the original 124 million parameter version of GPT-2. In chapter 5, we will pretrain a GPT-2 model, and in chapter 6, we will load in the pretrained weights from OpenAI.
+In this section, we are now replacing the `DummyTransformerBlock` and `DummyLayerNorm` placeholders with the real `TransformerBlock` and `LayerNorm` classes we coded later in this chapter to assemble a fully working version of the original 124 million parameter version of GPT-2. In chapter 5, we will pretrain a GPT-2 model, and in chapter 6, we will load in the pretrained weights from OpenAI.
 
 Before we assemble the GPT-2 model in code, let's look at its overall structure in Figure 4.15, which combines all the concepts we covered so far in this chapter.
 
 ![](_page_142_Figure_1.jpeg)
 
-Figure 4.15 An overview of the GPT model architecture. This figure illustrates the flow of data through the GPT model. Starting from the bottom, tokenized text is first converted into token embeddings, which are then augmented with positional embeddings. This combined information forms a tensor that is passed through a series of transformer blocks shown in the center (each containing multi-head attention and feed forward neural network layers with dropout and layer normalization), which are stacked on top of each other and repeated 12 times.
+> Figure 4.15 An overview of the GPT model architecture. This figure illustrates the flow of data through the GPT model. Starting from the bottom, tokenized text is first converted into token embeddings, which are then augmented with positional embeddings. This combined information forms a tensor that is passed through a series of transformer blocks shown in the center (each containing multi-head attention and feed forward neural network layers with dropout and layer normalization), which are stacked on top of each other and repeated 12 times.
 
-As shown in Figure 4.15, the transformer block we coded in Section 4.5 is repeated many times throughout a GPT model architecture. In the case of the 124 million parameter GPT-2 model, it's repeated 12 times, which we specify via the "n_layers" entry in the GPT_CONFIG_124M dictionary. In the case of the largest GPT-2 model with 1,542 million parameters, this transformer block is repeated 36 times.
+As shown in Figure 4.15, the transformer block we coded in Section 4.5 is repeated many times throughout a GPT model architecture. In the case of the 124 million parameter GPT-2 model, it's repeated 12 times, which we specify via the `n_layers` entry in the `GPT_CONFIG_124M` dictionary. In the case of the largest GPT-2 model with 1,542 million parameters, this transformer block is repeated 36 times.
 
 As shown in Figure 4.15, the output from the final transformer block then goes through a final layer normalization step before reaching the linear output layer. This layer maps the transformer's output to a high-dimensional space (in this case, 50,257 dimensions, corresponding to the model's vocabulary size) to predict the next token in the sequence.
 
 Let's now implement the architecture we see in Figure 4.15 in code:
 
-```
-Listing 4.7 The GPT model architecture implementation
-```
+```python
+# Listing 4.7 The GPT model architecture implementation
 
-```
 class GPTModel(nn.Module):
     def __init__(self, cfg):
         super().__init__()
@@ -3195,20 +3193,19 @@ class GPTModel(nn.Module):
         x = self.final_norm(x)
         logits = self.out_head(x)
         return logits
+#A The device setting will allow us to train the model on a CPU or GPU, depending on which device the input data sits        
 ```
-#A The device setting will allow us to train the model on a CPU or GPU, depending on which device the input data sits
+Thanks to the `TransformerBlock` class we implemented in Section 4.5, the `GPTModel` class is relatively small and compact.
 
-Thanks to the TransformerBlock class we implemented in Section 4.5, the GPTModel class is relatively small and compact.
+The `__init__` constructor of this `GPTModel` class initializes the token and positional embedding layers using the configurations passed in via a Python dictionary, `cfg`. These embedding layers are responsible for converting input token indices into dense vectors and adding positional information, as discussed in chapter 2.
 
-The __init__ constructor of this GPTModel class initializes the token and positional embedding layers using the configurations passed in via a Python dictionary, cfg. These embedding layers are responsible for converting input token indices into dense vectors and adding positional information, as discussed in chapter 2.
+Next, the `__init__` method creates a sequential stack of `TransformerBlock` modules equal to the number of layers specified in cfg. Following the transformer blocks, a `LayerNorm` layer is applied, standardizing the outputs from the transformer blocks to stabilize the learning process. Finally, a linear output head without bias is defined, which projects the transformer's output into the vocabulary space of the tokenizer to generate logits for each token in the vocabulary.
 
-Next, the __init__ method creates a sequential stack of TransformerBlock modules equal to the number of layers specified in cfg. Following the transformer blocks, a LayerNorm layer is applied, standardizing the outputs from the transformer blocks to stabilize the learning process. Finally, a linear output head without bias is defined, which projects the transformer's output into the vocabulary space of the tokenizer to generate logits for each token in the vocabulary.
+The `forward` method takes a batch of input token indices, computes their embeddings, applies the positional embeddings, passes the sequence through the transformer blocks, normalizes the final output, and then computes the logits, representing the next token's unnormalized probabilities. We will convert these logits into tokens and text outputs in the next section.
 
-The forward method takes a batch of input token indices, computes their embeddings, applies the positional embeddings, passes the sequence through the transformer blocks, normalizes the final output, and then computes the logits, representing the next token's unnormalized probabilities. We will convert these logits into tokens and text outputs in the next section.
+Let's now initialize the 124 million parameter GPT model using the `GPT_CONFIG_124M` dictionary we pass into the cfg parameter and feed it with the batch text input we created at the beginning of this chapter:
 
-Let's now initialize the 124 million parameter GPT model using the GPT_CONFIG_124M dictionary we pass into the cfg parameter and feed it with the batch text input we created at the beginning of this chapter:
-
-```
+```python
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 out = model(batch)
@@ -3220,70 +3217,105 @@ The preceding code prints the contents of the input batch followed by the output
 
 141
 
-Input batch: tensor([[ 6109, 3626, 6100, 345], # token IDs of text 1 [ 6109, 1110, 6622, 257]]) # token IDs of text 2 Output shape: torch.Size([2, 4, 50257]) tensor([[[ 0.3613, 0.4222, -0.0711, ..., 0.3483, 0.4661, -0.2838], [-0.1792, -0.5660, -0.9485, ..., 0.0477, 0.5181, -0.3168], [ 0.7120, 0.0332, 0.1085, ..., 0.1018, -0.4327, -0.2553], [-1.0076, 0.3418, -0.1190, ..., 0.7195, 0.4023, 0.0532]], [[-0.2564, 0.0900, 0.0335, ..., 0.2659, 0.4454, -0.6806], [ 0.1230, 0.3653, -0.2074, ..., 0.7705, 0.2710, 0.2246], [ 1.0558, 1.0318, -0.2800, ..., 0.6936, 0.3205, -0.3178], [-0.1565, 0.3926, 0.3288, ..., 1.2630, -0.1858, 0.0388]]], grad_fn=<UnsafeViewBackward0>)
+```python
+Input batch:
+  tensor([[ 6109, 3626, 6100, 345], # token IDs of text 1
+          [ 6109, 1110, 6622, 257]]) # token IDs of text 2
+
+Output shape: torch.Size([2, 4, 50257])
+  tensor([[[ 0.3613, 0.4222, -0.0711, ..., 0.3483, 0.4661, -0.2838],
+           [-0.1792, -0.5660, -0.9485, ..., 0.0477, 0.5181, -0.3168],
+           [ 0.7120, 0.0332, 0.1085, ..., 0.1018, -0.4327, -0.2553],
+           [-1.0076, 0.3418, -0.1190, ..., 0.7195, 0.4023, 0.0532]],
+           [[-0.2564, 0.0900, 0.0335, ..., 0.2659, 0.4454, -0.6806],
+           [ 0.1230, 0.3653, -0.2074, ..., 0.7705, 0.2710, 0.2246],
+           [ 1.0558, 1.0318, -0.2800, ..., 0.6936, 0.3205, -0.3178],
+           [-0.1565, 0.3926, 0.3288, ..., 1.2630, -0.1858, 0.0388]]],
+           grad_fn=<UnsafeViewBackward0>)
+```
 
 As we can see, the output tensor has the shape [2, 4, 50257], since we passed in 2 input texts with 4 tokens each. The last dimension, 50,257, corresponds to the vocabulary size of the tokenizer. In the next section, we will see how to convert each of these 50,257 dimensional output vectors back into tokens.
 
 Before we move on to the next section and code the function that converts the model outputs into text, let's spend a bit more time with the model architecture itself and analyze its size.
 
-Using the numel() method, short for "number of elements," we can collect the total number of parameters in the model's parameter tensors:
+Using the `numel()` method, short for **number of elements**, we can collect the total number of parameters in the model's parameter tensors:
 
-```
+```python
 total_params = sum(p.numel() for p in model.parameters())
 print(f"Total number of parameters: {total_params:,}")
 ```
 The result is as follows:
 
+```python
 Total number of parameters: 163,009,536
+```
 
 Now, a curious reader might notice a discrepancy. Earlier, we spoke of initializing a 124 million parameter GPT model, so why is the actual number of parameters 163 million, as shown in the preceding code output?
 
-The reason is a concept called weight tying that is used in the original GPT-2 architecture, which means that the original GPT-2 architecture is reusing the weights from the token embedding layer in its output layer. To understand what this means, let's take a look at the shapes of the token embedding layer and linear output layer that we initialized on the model via the GPTModel earlier:
+The reason is a concept called **==weight tying==** that is used in the original GPT-2 architecture, which means that the original GPT-2 architecture is reusing the weights from the token embedding layer in its output layer. To understand what this means, let's take a look at the shapes of the token embedding layer and linear output layer that we initialized on the model via the GPTModel earlier:
 
-print\("Token embedding layer shape:", model.tok_emb.weight.shape) print("Output layer shape:", model.out_head.weight.shape)
+```python
+print\("Token embedding layer shape:", model.tok_emb.weight.shape) 
+print("Output layer shape:", model.out_head.weight.shape)
+```
 
 As we can see based on the print outputs, the weight tensors for both these layers have the same shape:
 
-Token embedding layer shape: torch.Size([50257, 768]) Output layer shape: torch.Size([50257, 768])
+```python
+Token embedding layer shape: torch.Size([50257, 768]) 
+Output layer shape: torch.Size([50257, 768])
+```
 
 The token embedding and output layers are very large due to the number of rows for the 50,257 in the tokenizer's vocabulary. Let's remove the output layer parameter count from the total GPT-2 model count according to the weight tying:
 
-total_params_gpt2 = total_params - sum(p.numel() for p in model.out_head.parameters()) print(f"Number of trainable parameters considering weight tying: {total_params_gpt2:,}")
+```python
+total_params_gpt2 = total_params - sum(p.numel() for p in model.out_head.parameters()) 
+print(f"Number of trainable parameters considering weight tying: {total_params_gpt2:,}")
+```
 
 The output is as follows:
 
+```python
 Number of trainable parameters considering weight tying: 124,412,160
+```
 
 As we can see, the model is now only 124 million parameters large, matching the original size of the GPT-2 model.
 
-Weight tying reduces the overall memory footprint and computational complexity of the model. However, in my experience, using separate token embedding and output layers results in better training and model performance; hence, we are using separate layers in our GPTModel implementation. The same is true for modern LLMs. However, we will revisit and implement the weight tying concept later in chapter 6 when we load the pretrained weights from OpenAI.
+Weight tying reduces the overall memory footprint and computational complexity of the model. However, in my experience, using separate token embedding and output layers results in better training and model performance; hence, we are using separate layers in our `GPTModel` implementation. The same is true for modern LLMs. However, we will revisit and implement the weight tying concept later in chapter 6 when we load the pretrained weights from OpenAI.
 
-#### EXERCISE 4.1 NUMBER OF PARAMETERS IN FEED FORWARD AND ATTENTION MODULES
+> [!NOTE]
+>
+> **EXERCISE 4.1 NUMBER OF PARAMETERS IN FEED FORWARD AND ATTENTION MODULES**
+>
+> Calculate and compare the number of parameters that are contained in the feed forward module and those that are contained in the multi-head attention module.
+>
 
-Calculate and compare the number of parameters that are contained in the feed forward module and those that are contained in the multi-head attention module.
-
-Lastly, let us compute the memory requirements of the 163 million parameters in our GPTModel object:
+Lastly, let us compute the memory requirements of the 163 million parameters in our `GPTModel` object:
 
 143
 
-```
+```python
 total_size_bytes = total_params * 4 #A
 total_size_mb = total_size_bytes / (1024 * 1024) #B
 print(f"Total size of the model: {total_size_mb:.2f} MB")
+#A Calculate the total size in bytes (assuming float32, 4 bytes per parameter) 
+#B Convert to megabytes
 ```
-#A Calculate the total size in bytes (assuming float32, 4 bytes per parameter) #B Convert to megabytes
-
 The result is as follows:
 
+```python
 Total size of the model: 621.83 MB
+```
 
 In conclusion, by calculating the memory requirements for the 163 million parameters in our GPTModel object and assuming each parameter is a 32-bit float taking up 4 bytes, we find that the total size of the model amounts to 621.83 MB, illustrating the relatively large storage capacity required to accommodate even relatively small LLMs.
 
-In this section, we implemented the GPTModel architecture and saw that it outputs numeric tensors of shape [batch_size, num_tokens, vocab_size]. In the next section, we will write the code to convert these output tensors into text.
+In this section, we implemented the `GPTModel` architecture and saw that it outputs numeric tensors of shape [batch_size, num_tokens, vocab_size]. In the next section, we will write the code to convert these output tensors into text.
 
-#### EXERCISE 4.2 INITIALIZING LARGER GPT MODELS
-
-In this chapter, we initialized a 124 million parameter GPT model, which is known as "GPT-2 small." Without making any code modifications besides updating the configuration file, use the GPTModel class to implement GPT-2 medium (using 1024 dimensional embeddings, 24 transformer blocks, 16 multi-head attention heads), GPT-2 large (1280-dimensional embeddings, 36 transformer blocks, 20 multi-head attention heads), and GPT-2 XL (1600-dimensional embeddings, 48 transformer blocks, 25 multi-head attention heads). As a bonus, calculate the total number of parameters in each GPT model.
+> [!NOTE]
+>
+> **EXERCISE 4.2 INITIALIZING LARGER GPT MODELS**
+>
+> In this chapter, we initialized a 124 million parameter GPT model, which is known as "GPT-2 small." Without making any code modifications besides updating the configuration file, use the GPTModel class to implement GPT-2 medium (using 1024 dimensional embeddings, 24 transformer blocks, 16 multi-head attention heads), GPT-2 large (1280-dimensional embeddings, 36 transformer blocks, 20 multi-head attention heads), and GPT-2 XL (1600-dimensional embeddings, 48 transformer blocks, 25 multi-head attention heads). As a bonus, calculate the total number of parameters in each GPT model.
 
 ## 4.7 Generating text
 
@@ -3291,7 +3323,7 @@ In this final section of this chapter, we will implement the code that converts 
 
 ![](_page_148_Figure_0.jpeg)
 
-Figure 4.16 This diagram illustrates the step-by-step process by which an LLM generates text, one token at a time. Starting with an initial input context ("Hello, I am"), the model predicts a subsequent token during each iteration, appending it to the input context for the next round of prediction. As shown, the first iteration adds "a", the second "model", and the third "ready", progressively building the sentence.
+> Figure 4.16 This diagram illustrates the step-by-step process by which an LLM generates text, one token at a time. Starting with an initial input context ("Hello, I am"), the model predicts a subsequent token during each iteration, appending it to the input context for the next round of prediction. As shown, the first iteration adds "a", the second "model", and the third "ready", progressively building the sentence.
 
 Figure 4.16 illustrates the step-by-step process by which a GPT model generates text given an input context, such as "Hello, I am," on a big-picture level. With each iteration, the input context grows, allowing the model to generate coherent and contextually appropriate text. By the 6th iteration, the model has constructed a complete sentence: "Hello, I am a model ready to help."
 
@@ -3303,7 +3335,7 @@ The process by which a GPT model goes from output tensors to generated text invo
 
 ![](_page_149_Figure_1.jpeg)
 
-Figure 4.17 details the mechanics of text generation in a GPT model by showing a single iteration in the token generation process. The process begins by encoding the input text into token IDs, which are then fed into the GPT model. The outputs of the model are then converted back into text and appended to the original input text.
+> Figure 4.17 details the mechanics of text generation in a GPT model by showing a single iteration in the token generation process. The process begins by encoding the input text into token IDs, which are then fed into the GPT model. The outputs of the model are then converted back into text and appended to the original input text.
 
 The next-token generation process detailed in Figure 4.17 illustrates a single step where the GPT model generates the next token given its input.
 
@@ -3313,31 +3345,38 @@ In practice, we repeat this process over many iterations, such as shown in Figur
 
 In code, we can implement the token-generation process as follows:
 
-Listing 4.8 A function for the GPT model to generate text def generate_text_simple(model, idx, max_new_tokens, context_size): #A for _ in range(max_new_tokens): idx_cond = idx[:, -context_size:] #B with torch.no_grad(): logits = model(idx_cond) logits = logits[:, -1, :] #C probas = torch.softmax(logits, dim=-1) #D idx_next = torch.argmax(probas, dim=-1, keepdim=True) #E idx = torch.cat((idx, idx_next), dim=1) #F
+```python
+# Listing 4.8 A function for the GPT model to generate text
+def generate_text_simple(model, idx, max_new_tokens, context_size): #A
+    for _ in range(max_new_tokens):
+        idx_cond = idx[:, -context_size:]                           #B
+        with torch.no_grad():
+           logits = model(idx_cond)
 
-#### return idx
+        logits = logits[:, -1, :]                                   #C
+        probas = torch.softmax(logits, dim=-1)                      #D
+        idx_next = torch.argmax(probas, dim=-1, keepdim=True)       #E
+        idx = torch.cat((idx, idx_next), dim=1)                     #F
+
+    return idx
 
 #A idx is a (batch, n_tokens) array of indices in the current context
-
 #B Crop current context if it exceeds the supported context size E.g., if LLM supports only 5 tokens, and the context size is 10 then only the last 5 tokens are used as context
-
 #C Focus only on the last time step, so that (batch, n_token, vocab_size) becomes (batch, vocab_size)
-
 #D probas has shape (batch, vocab_size)
-
 #E idx_next has shape (batch, 1)
-
 #F Append sampled index to the running sequence, where idx has shape (batch, n_tokens+1)
+```
 
-In the preceeding code, the generate_text_simple function, we use a softmax function to convert the logits into a probability distribution from which we identify the position with the highest value via torch.argmax. The softmax function is monotonic, meaning it preserves the order of its inputs when transformed into outputs. So, in practice, the softmax step is redundant since the position with the highest score in the softmax output tensor is the same position in the logit tensor. In other words, we could apply the torch.argmax function to the logits tensor directly and get identical results. However, we coded the conversion to illustrate the full process of transforming logits to probabilities, which can add additional intuition, such as that the model generates the most likely next token, which is known as *greedy decoding*.
+In the preceeding code, the `generate_text_simple` function, we use a softmax function to convert the logits into a probability distribution from which we identify the position with the highest value via `torch.argmax`. The softmax function is monotonic, meaning it preserves the order of its inputs when transformed into outputs. So, in practice, the softmax step is redundant since the position with the highest score in the softmax output tensor is the same position in the logit tensor. In other words, we could apply the `torch.argmax` function to the logits tensor directly and get identical results. However, we coded the conversion to illustrate the full process of transforming logits to probabilities, which can add additional intuition, such as that the model generates the most likely next token, which is known as **greedy decoding**.
 
 In the next chapter, when we will implement the GPT training code, we will also introduce additional sampling techniques where we modify the softmax outputs such that the model doesn't always select the most likely token, which introduces variability and creativity in the generated text.
 
-This process of generating one token ID at a time and appending it to the context using the generate_text_simple function is further illustrated in Figure 4.18. (The token ID generation process for each iteration is detailed in Figure 4.17.
+This process of generating one token ID at a time and appending it to the context using the `generate_text_simple` function is further illustrated in Figure 4.18. (The token ID generation process for each iteration is detailed in Figure 4.17.
 
 ![](_page_151_Figure_0.jpeg)
 
-Figure 4.18 An illustration showing six iterations of a token prediction cycle, where the model takes a sequence of initial token IDs as input, predicts the next token, and appends this token to the input sequence for the next iteration. (The token IDs are also translated into their corresponding text for better understanding.)
+> Figure 4.18 An illustration showing six iterations of a token prediction cycle, where the model takes a sequence of initial token IDs as input, predicts the next token, and appends this token to the input sequence for the next iteration. (The token IDs are also translated into their corresponding text for better understanding.)
 
 As shown in Figure 4.18, we generate the token IDs in an iterative fashion. For instance, in iteration 1, the model is provided with the tokens corresponding to "Hello , I am", predicts the next token (with ID 257, which is "a"), and appends it to the input. This process is repeated until the model produces the complete sentence "Hello, I am a model ready to help." after six iterations.
 
@@ -3345,26 +3384,28 @@ Let's now try out the generate_text_simple function with the "Hello, I am" conte
 
 First, we encode the input context into token IDs:
 
-```
+```python
 start_context = "Hello, I am"
 encoded = tokenizer.encode(start_context)
 print("encoded:", encoded)
 encoded_tensor = torch.tensor(encoded).unsqueeze(0) #A
 print("encoded_tensor.shape:", encoded_tensor.shape)
+
+#A add batch dimension
 ```
-#### #A add batch dimension
+
 
 The encoded IDs are as follows:
 
 148
 
-```
+```python
 encoded: [15496, 11, 314, 716]
 encoded_tensor.shape: torch.Size([1, 4])
 ```
-Next, we put the model into .eval() mode, which disables random components like dropout, which are only used during training, and use the generate_text_simple function on the encoded input tensor:
+Next, we put the model into `.eval()` mode, which disables random components like dropout, which are only used during training, and use the `generate_text_simple` function on the encoded input tensor:
 
-```
+```python
 model.eval() #A
 out = generate_text_simple(
    model=model,
@@ -3374,37 +3415,37 @@ out = generate_text_simple(
 )
 print("Output:", out)
 print("Output length:", len(out[0]))
-```
 
-```
 #A disable dropout since we are not training the model
 ```
 The resulting output token IDs are as follows:
 
-```
+```python
 Output: tensor([[15496, 11, 314, 716, 27018, 24086, 47843, 30961, 42348, 7267]])
 Output length: 10
 ```
-Using the .decode method of the tokenizer, we can convert the IDs back into text:
+Using the `.decode` method of the tokenizer, we can convert the IDs back into text:
 
-```
+```python
 decoded_text = tokenizer.decode(out.squeeze(0).tolist())
 print(decoded_text)
 ```
 The model output in text format is as follows:
 
+```python
 Hello, I am Featureiman Byeswickattribute argue
+```
 
 As we can see, based on the preceding output, the model generated gibberish, which is not at all like the coherent text shown in Figure 4.18. What happened? The reason why the model is unable to produce coherent text is that we haven't trained it yet. So far, we just implemented the GPT architecture and initialized a GPT model instance with initial random weights.
 
 Model training is a large topic in itself, and we will tackle it in the next chapter.
 
-```
-Licensed to   <149533107@qq.com>
-```
-#### EXERCISE 4.3 USING SEPARATE DROPOUT PARAMETERS
-
-At the beginning of this chapter, we defined a global "drop_rate" setting in the GPT_CONFIG_124M dictionary to set the dropout rate in various places throughout the GPTModel architecture. Change the code to specify a separate dropout value for the various dropout layers throughout the model architecture. (Hint: there are three distinct places where we used dropout layers: the embedding layer, shortcut layer, and multi-head attention module.)
+> [!NOTE]
+>
+> **EXERCISE 4.3 USING SEPARATE DROPOUT PARAMETERS**
+>
+> At the beginning of this chapter, we defined a global "drop_rate" setting in the GPT_CONFIG_124M dictionary to set the dropout rate in various places throughout the GPTModel architecture. Change the code to specify a separate dropout value for the various dropout layers throughout the model architecture. (Hint: there are three distinct places where we used dropout layers: the embedding layer, shortcut layer, and multi-head attention module.)
+>
 
 ## 4.8 Summary
 
@@ -3412,11 +3453,13 @@ At the beginning of this chapter, we defined a global "drop_rate" setting in the
 - Shortcut connections are connections that skip one or more layers by feeding the output of one layer directly to a deeper layer, which helps mitigate the vanishing gradient problem when training deep neural networks, such as LLMs.
 - Transformer blocks are a core structural component of GPT models, combining masked multi-head attention modules with fully connected feed-forward networks that use the GELU activation function.
 - GPT models are LLMs with many repeated transformer blocks that have millions to billions of parameters.
-- GPT models come in various sizes, for example, 124, 345, 762, and 1542 million parameters, which we can implement with the same GPTModel Python class.
+- GPT models come in various sizes, for example, 124, 345, 762, and 1542 million parameters, which we can implement with the same `GPTModel` Python class.
 - The text generation capability of a GPT-like LLM involves decoding output tensors into human-readable text by sequentially predicting one token at a time based on a given input context.
 - Without training, a GPT model generates incoherent text, which underscores the importance of model training for coherent text generation, which is the topic of subsequent chapters.
 
-# <span id="page-154-0"></span>5 Pretraining on Unlabeled Data
+# 5 Pretraining on Unlabeled Data
+
+<span id="page-154-0"></span>
 
 This chapter covers
 
