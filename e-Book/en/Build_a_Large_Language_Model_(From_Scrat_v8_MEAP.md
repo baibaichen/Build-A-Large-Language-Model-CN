@@ -5195,7 +5195,7 @@ In this section, we prepare the model we will use for the classification-finetun
 
 We start the model preparation process by reusing the configurations from chapter 5:
 
-```
+```python
 CHOOSE_MODEL = "gpt2-small (124M)"
 INPUT_PROMPT = "Every effort moves"
 BASE_CONFIG = {
@@ -5217,11 +5217,10 @@ assert train_dataset.max_length <= BASE_CONFIG["context_length"], (
    f"`max_length={BASE_CONFIG['context_length']}`"
 )
 ```
-Next, we import the download_and_load_gpt2 function from the gpt_download.py file we downloaded in chapter 5. Furthermore, we also reuse the GPTModel class and load_weights_into_gpt function from chapter 5 to load the downloaded weights into the GPT model:
+Next, we import the `download_and_load_gpt2` function from the `gpt_download.py` file we downloaded in chapter 5. Furthermore, we also reuse the `GPTModel` class and `load_weights_into_gpt` function from chapter 5 to load the downloaded weights into the GPT model:
 
-#### Listing 6.6 Loading a pretrained GPT model
-
-```
+```python
+# Listing 6.6 Loading a pretrained GPT model
 from gpt_download import download_and_load_gpt2
 from chapter05 import GPTModel, load_weights_into_gpt
 model_size = CHOOSE_MODEL.split(" ")[-1].lstrip("(").rstrip(")")
@@ -5232,7 +5231,7 @@ model.eval()
 ```
 After loading the model weights into the GPTModel, we use the text generation utility function from the previous chapters to ensure that the model generates coherent text:
 
-```
+```python
 from chapter04 import generate_text_simple
 from chapter05 import text_to_token_ids, token_ids_to_text
 text_1 = "Every effort moves you"
@@ -5246,11 +5245,14 @@ print(token_ids_to_text(token_ids, tokenizer))
 ```
 As we can see based on the following output, the model generates coherent text, which is an indicator that the model weights have been loaded correctly:
 
-Every effort moves you forward. The first step is to understand the importance of your work
+```python
+Every effort moves you forward. 
+The first step is to understand the importance of your work
+```
 
 Now, before we start finetuning the model as a spam classifier, let's see if the model can perhaps already classify spam messages by by prompting it with instructions:
 
-```
+```python
 text_2 = (
     "Is the following text 'spam'? Answer with 'yes' or 'no':"
     " 'You are a winner you have been specially"
@@ -5266,7 +5268,11 @@ print(token_ids_to_text(token_ids, tokenizer))
 ```
 The model output is as follows:
 
-Is the following text 'spam'? Answer with 'yes' or 'no': 'You are a winner you have been specially selected to receive \$1000 cash or a \$2000 award.' The following text 'spam'? Answer with 'yes' or 'no': 'You are a winner
+```python
+Is the following text 'spam'? Answer with 'yes' or 'no': 'You are a winner you have been
+specially selected to receive $1000 cash or a $2000 award.'
+The following text 'spam'? Answer with 'yes' or 'no': 'You are a winner
+```
 
 Based on the output, it's apparent that the model struggles with following instructions.
 
