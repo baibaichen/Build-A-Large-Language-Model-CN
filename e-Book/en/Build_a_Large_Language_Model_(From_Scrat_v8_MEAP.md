@@ -5288,17 +5288,20 @@ In this section, we modify the pretrained large language model to prepare it for
 
 ![](_page_221_Figure_4.jpeg)
 
-Figure 6.9 This figure illustrates adapting a GPT model for spam classification by altering its architecture. Initially, the model's linear output layer mapped 768 hidden units to a vocabulary of 50,257 tokens. For spam detection, this layer is replaced with a new output layer that maps the same 768 hidden units to just two classes, representing "spam" and "not spam."
+> Figure 6.9 This figure illustrates adapting a GPT model for spam classification by altering its architecture. Initially, the model's linear output layer mapped 768 hidden units to a vocabulary of 50,257 tokens. For spam detection, this layer is replaced with a new output layer that maps the same 768 hidden units to just two classes, representing "spam" and "not spam."
 
 As shown in figure 6.9, we use the same model as in previous chapters except for replacing the output layer.
 
-#### OUTPUT LAYER NODES
+> [!NOTE]
+>
+> **OUTPUT LAYER NODES**
+>
+> We could technically use a single output node since we are dealing with a binary classification task. However, this would require modifying the loss function, as discussed in an article in the Reference section in appendix B. Therefore, we choose a more general approach where the number of output nodes matches the number of classes. For example, for a 3-class problem, such as classifying news articles as "Technology", "Sports", or "Politics", we would use three output nodes, and so forth.
+>
 
-We could technically use a single output node since we are dealing with a binary classification task. However, this would require modifying the loss function, as discussed in an article in the Reference section in appendix B. Therefore, we choose a more general approach where the number of output nodes matches the number of classes. For example, for a 3-class problem, such as classifying news articles as "Technology", "Sports", or "Politics", we would use three output nodes, and so forth.
+Before we attempt the modification illustrated in figure 6.9, let's print the model architecture via `print(model)`, which prints the following:
 
-Before we attempt the modification illustrated in figure 6.9, let's print the model architecture via print(model), which prints the following:
-
-```
+```python
 GPTModel(
   (tok_emb): Embedding(50257, 768)
   (pos_emb): Embedding(1024, 768)
@@ -5330,27 +5333,28 @@ GPTModel(
 )
 ```
 
-Above, we can see the architecture we implemented in chapter 4 neatly laid out. As discussed in chapter 4, the GPTModel consists of embedding layers followed by 12 identical *transformer blocks* (only the last block is shown for brevity), followed by a final LayerNorm and the output layer, out_head.
+Above, we can see the architecture we implemented in chapter 4 neatly laid out. As discussed in chapter 4, the GPTModel consists of embedding layers followed by 12 identical *transformer blocks* (only the last block is shown for brevity), followed by a final `LayerNorm` and the output layer, out_head.
 
 Next, we replace the out_head with a new output layer, as illustrated in figure 6.9, that we will finetune.
 
-#### FINETUNING SELECTED LAYERS VERSUS ALL LAYERS
-
-Since we start with a pretrained model, it's not necessary to finetune all model layers. This is because, in neural network-based language models, the lower layers generally capture basic language structures and semantics that are applicable across a wide range of tasks and datasets. So, finetuning only the last layers (layers near the output), which are more specific to nuanced linguistic patterns and task-specific features, can often be sufficient to adapt the model to new tasks. A nice side effect is that it is computationally more efficient to finetune only a small number of layers. Interested readers can find more information, including experiments, on which layers to finetune in the References section for this chapter in appendix B.
+> [!NOTE]
+>
+> **FINETUNING SELECTED LAYERS VERSUS ALL LAYERS**
+>
+> Since we start with a pretrained model, it's not necessary to finetune all model layers. This is because, in neural network-based language models, the lower layers generally capture basic language structures and semantics that are applicable across a wide range of tasks and datasets. So, finetuning only the last layers (layers near the output), which are more specific to nuanced linguistic patterns and task-specific features, can often be sufficient to adapt the model to new tasks. A nice side effect is that it is computationally more efficient to finetune only a small number of layers. Interested readers can find more information, including experiments, on which layers to finetune in the References section for this chapter in appendix B.
+>
 
 To get the model ready for classification-finetuning, we first *freeze* the model, meaning that we make all layers non-trainable:
 
-```
+```python
 for param in model.parameters():
     param.requires_grad = False
 ```
 Then, as shown in figure 6.9, we replace the output layer (model.out_head), which originally maps the layer inputs to 50,257 dimensions (the size of the vocabulary):
 
-```
-Listing 6.7 Adding a classification layer
-```
+```python
+# Listing 6.7 Adding a classification layer
 
-```
 torch.manual_seed(123)
 num_classes = 2
 model.out_head
@@ -5360,34 +5364,36 @@ in_features=BASE_CONFIG["emb_dim"],
 )
 ```
 
-Note that in the preceding code, we use BASE_CONFIG["emb_dim"], which is equal to 768 in the "gpt2-small (124M)" model, to keep the code below more general. This means we can also use the same code to work with the larger GPT-2 model variants.
+Note that in the preceding code, we use `BASE_CONFIG["emb_dim"]`, which is equal to 768 in the "gpt2-small (124M)" model, to keep the code below more general. This means we can also use the same code to work with the larger GPT-2 model variants.
 
 This new model.out_head output layer has its requires_grad attribute set to True by default, which means that it's the only layer in the model that will be updated during training.
 
 Technically, training the output layer we just added is sufficient. However, as I found in experiments, finetuning additional layers can noticeably improve the predictive performance of the finetuned model. (For more details, refer to the References in appendix C.)
 
-Additionally, we configure the last transformer block and the final LayerNorm module, which connects this block to the output layer, to be trainable, as depicted in figure 6.10.
+Additionally, we configure the last transformer block and the final `LayerNorm` module, which connects this block to the output layer, to be trainable, as depicted in figure 6.10.
 
 ![](_page_225_Figure_0.jpeg)
 
-Figure 6.10 The GPT model we developed in earlier chapters, which we loaded previously, includes 12 repeated transformer blocks. Alongside the output layer, we set the final LayerNorm and the last transformer block as trainable, while the remaining 11 transformer blocks and the embedding layers are kept non-trainable.
+> Figure 6.10 The GPT model we developed in earlier chapters, which we loaded previously, includes 12 repeated transformer blocks. Alongside the output layer, we set the final LayerNorm and the last transformer block as trainable, while the remaining 11 transformer blocks and the embedding layers are kept non-trainable.
 
-To make the final LayerNorm and last transformer block trainable, as illustrated in figure 6.10, we set their respective requires_grad to True:
+To make the final `LayerNorm` and last transformer block trainable, as illustrated in figure 6.10, we set their respective requires_grad to True:
 
-```
+```python
 for param in model.trf_blocks[-1].parameters():
     param.requires_grad = True
 for param in model.final_norm.parameters():
     param.requires_grad = True
 ```
 
-#### EXERCISE 6.2 FINETUNING THE WHOLE MODEL
-
-Instead of finetuning just the final transformer block, finetune the entire model and assess the impact on predictive performance.
+> [!NOTE]
+>
+> **EXERCISE 6.2 FINETUNING THE WHOLE MODEL**
+>
+> Instead of finetuning just the final transformer block, finetune the entire model and assess the impact on predictive performance.
 
 Even though we added a new output layer and marked certain layers as trainable or nontrainable, we can still use this model in a similar way to previous chapters. For instance, we can feed it an example text identical to how we have done it in earlier chapters. For example, consider the following example text:
 
-```
+```python
 inputs = tokenizer.encode("Do you have time")
 inputs = torch.tensor(inputs).unsqueeze(0)
 print("Inputs:", inputs)
