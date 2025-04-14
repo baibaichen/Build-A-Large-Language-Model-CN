@@ -2908,7 +2908,7 @@ Figure 4.9 shows how the embedding size is manipulated inside this small feed fo
 
 > Figure 4.9 provides a visual overview of the connections between the layers of the feed forward neural network. It is important to note that this neural network can accommodate variable batch sizes and numbers of tokens in the input. However, the embedding size for each token is determined and fixed when initializing the weights.
 
-Following the example in Figure 4.9, let's initialize a new FeedForward module with a token embedding size of 768 and feed it a batch input with 2 samples and 3 tokens each:
+Following the example in Figure 4.9, let's initialize a new `FeedForward` module with a token embedding size of 768 and feed it a batch input with 2 samples and 3 tokens each:
 
 ```python
 ffn = FeedForward(GPT_CONFIG_124M) 
@@ -2947,7 +2947,7 @@ Next, let's discuss the concept behind *shortcut connections*, also known as ski
 
 ![](_page_134_Figure_0.jpeg)
 
-Figure 4.12 A comparison between a deep neural network consisting of 5 layers without (on the left) and with shortcut connections (on the right). Shortcut connections involve adding the inputs of a layer to its outputs, effectively creating an alternate path that bypasses certain layers. The gradient illustrated in Figure 1.1 denotes the mean absolute gradient at each layer, which we will compute in the code example that follows.
+> Figure 4.12 A comparison between a deep neural network consisting of 5 layers without (on the left) and with shortcut connections (on the right). Shortcut connections involve adding the inputs of a layer to its outputs, effectively creating an alternate path that bypasses certain layers. The gradient illustrated in Figure 1.1 denotes the mean absolute gradient at each layer, which we will compute in the code example that follows.
 
 As illustrated in Figure 4.12, a shortcut connection creates an alternative, shorter path for the gradient to flow through the network by skipping one or more layers, which is achieved by adding the output of one layer to the output of a later layer. This is why these connections are also known as skip connections. They play a crucial role in preserving the flow of gradients during the backward pass in training.
 
@@ -2955,7 +2955,7 @@ In the code example below, we implement the neural network shown in Figure 4.12 
 
 131
 
-```
+```python
 Listing 4.5 A neural network to illustrate shortcut connections
 class ExampleDeepNeuralNetwork(nn.Module):
     def __init__(self, layer_sizes, use_shortcut):
@@ -2980,11 +2980,11 @@ class ExampleDeepNeuralNetwork(nn.Module):
                 x = layer_output
         return x
 ```
-The code implements a deep neural network with 5 layers, each consisting of a Linear layer and a GELU activation function. In the forward pass, we iteratively pass the input through the layers and optionally add the shortcut connections depicted in Figure 4.12 if the self.use_shortcut attribute is set to True.
+The code implements a deep neural network with 5 layers, each consisting of a Linear layer and a GELU activation function. In the forward pass, we iteratively pass the input through the layers and optionally add the shortcut connections depicted in Figure 4.12 if the `self.use_shortcut` attribute is set to True.
 
 Let's use this code to first initialize a neural network without shortcut connections. Here, each layer will be initialized such that it accepts an example with 3 input values and returns 3 output values. The last layer returns a single output value:
 
-```
+```python
 layer_sizes = [3, 3, 3, 3, 3, 1]
 sample_input = torch.tensor([[1., 0., -1.]])
 torch.manual_seed(123) # specify random seed for the initial weights for reproducibility
@@ -2994,11 +2994,7 @@ model_without_shortcut = ExampleDeepNeuralNetwork(
 ```
 Next, we implement a function that computes the gradients in the the model's backward pass:
 
-```
-Licensed to   <149533107@qq.com>
-```
-
-```
+```python
 def print_gradients(model, x):
     # Forward pass
     output = model(x)
@@ -3014,30 +3010,32 @@ def print_gradients(model, x):
             # Print the mean absolute gradient of the weights
             print(f"{name} has gradient mean of {param.grad.abs().mean().item()}")
 ```
-In the preceding code, we specify a loss function that computes how close the model output and a user-specified target (here, for simplicity, the value 0) are. Then, when calling loss.backward(), PyTorch computes the loss gradient for each layer in the model. We can iterate through the weight parameters via model.named_parameters(). Suppose we have a 3×3 weight parameter matrix for a given layer. In that case, this layer will have 3×3 gradient values, and we print the mean absolute gradient of these 3×3 gradient values to obtain a single gradient value per layer to compare the gradients between layers more easily.
+In the preceding code, we specify a loss function that computes how close the model output and a user-specified target (here, for simplicity, the value 0) are. Then, when calling `loss.backward()`, PyTorch computes the loss gradient for each layer in the model. We can iterate through the weight parameters via `model.named_parameters()`. Suppose we have a 3×3 weight parameter matrix for a given layer. In that case, this layer will have 3×3 gradient values, and we print the mean absolute gradient of these 3×3 gradient values to obtain a single gradient value per layer to compare the gradients between layers more easily.
 
-In short, the .backward() method is a convenient method in PyTorch that computes loss gradients, which are required during model training, without implementing the math for the gradient calculation ourselves, thereby making working with deep neural networks much more accessible. If you are unfamiliar with the concept of gradients and neural network training, I recommend reading sections *A.4, Automatic differentiation made easy* and *A.7 A typical training loop* in *appendix A*.
+In short, the `.backward()` method is a convenient method in PyTorch that computes loss gradients, which are required during model training, without implementing the math for the gradient calculation ourselves, thereby making working with deep neural networks much more accessible. If you are unfamiliar with the concept of gradients and neural network training, I recommend reading sections [A.4, Automatic differentiation made easy](# A.4 Automatic differentiation made easy) and [A.7 A typical training loop](# A.7 A typical training loop) in **appendix A**.
 
-Let's now use the print_gradients function and apply it to the model without skip connections:
+Let's now use the `print_gradients` function and apply it to the model without skip connections:
 
+```python
 print_gradients(model_without_shortcut, sample_input)
+```
 
 The output is as follows:
 
 133
 
-```
+```python
 layers.0.0.weight has gradient mean of 0.00020173587836325169
 layers.1.0.weight has gradient mean of 0.0001201116101583466
 layers.2.0.weight has gradient mean of 0.0007152041653171182
 layers.3.0.weight has gradient mean of 0.001398873864673078
 layers.4.0.weight has gradient mean of 0.005049646366387606
 ```
-As we can see based on the output of the print_gradients function, the gradients become smaller as we progress from the last layer (layers.4) to the first layer (layers.0), which is a phenomenon called the vanishing gradient problem.
+As we can see based on the output of the `print_gradients` function, the gradients become smaller as we progress from the last layer (layers.4) to the first layer (layers.0), which is a phenomenon called the **vanishing gradient problem**.
 
 Let's now instantiate a model with skip connections and see how it compares:
 
-```
+```python
 torch.manual_seed(123)
 model_with_shortcut = ExampleDeepNeuralNetwork(
     layer_sizes, use_shortcut=True
@@ -3046,7 +3044,13 @@ print_gradients(model_with_shortcut, sample_input)
 ```
 The output is as follows:
 
-layers.0.0.weight has gradient mean of 0.22169792652130127 layers.1.0.weight has gradient mean of 0.20694105327129364 layers.2.0.weight has gradient mean of 0.32896995544433594 layers.3.0.weight has gradient mean of 0.2665732502937317 layers.4.0.weight has gradient mean of 1.3258541822433472
+```python
+layers.0.0.weight has gradient mean of 0.22169792652130127
+layers.1.0.weight has gradient mean of 0.20694105327129364
+layers.2.0.weight has gradient mean of 0.32896995544433594
+layers.3.0.weight has gradient mean of 0.2665732502937317
+layers.4.0.weight has gradient mean of 1.3258541822433472
+```
 
 As we can see, based on the output, the last layer (layers.4) still has a larger gradient than the other layers. However, the gradient value stabilizes as we progress towards the first layer (layers.0) and doesn't shrink to a vanishingly small value.
 
@@ -3060,7 +3064,7 @@ In this section, we are implementing the *transformer block*, a fundamental buil
 
 ![](_page_138_Figure_2.jpeg)
 
-Figure 4.13 An illustration of a transformer block. The bottom of the diagram shows input tokens that have been embedded into 768-dimensional vectors. Each row corresponds to one token's vector representation. The outputs of the transformer block are vectors of the same dimension as the input, which can then be fed into subsequent layers in an LLM.
+> Figure 4.13 An illustration of a transformer block. The bottom of the diagram shows input tokens that have been embedded into 768-dimensional vectors. Each row corresponds to one token's vector representation. The outputs of the transformer block are vectors of the same dimension as the input, which can then be fed into subsequent layers in an LLM.
 
 As shown in Figure 4.13, the transformer block combines several components, including the masked multi-head attention module from chapter 3 and the FeedForward module we implemented in Section 4.3.
 
@@ -3070,62 +3074,68 @@ The idea is that the self-attention mechanism in the multi-head attention block 
 
 In code, we can create the TransformerBlock as follows:
 
-```
-Listing 4.6 The transformer block component of GPT
-```
-
-```
+```python
+# Listing 4.6 The transformer block component of GPT
 from previous_chapters import MultiHeadAttention
+
 class TransformerBlock(nn.Module):
-   def __init__(self, cfg):
-       super().__init__()
-       self.att = MultiHeadAttention(
-           d_in=cfg["emb_dim"],
-           d_out=cfg["emb_dim"],
-           context_length=cfg["context_length"],
-           num_heads=cfg["n_heads"],
-           dropout=cfg["drop_rate"],
-           qkv_bias=cfg["qkv_bias"])
-       self.ff = FeedForward(cfg)
-       self.norm1 = LayerNorm(cfg["emb_dim"])
-       self.norm2 = LayerNorm(cfg["emb_dim"])
-       self.drop_shortcut = nn.Dropout(cfg["drop_rate"])
+    def __init__(self, cfg):
+        super().__init__()
+        self.att = MultiHeadAttention(
+        d_in=cfg["emb_dim"],
+        d_out=cfg["emb_dim"],
+        context_length=cfg["context_length"],
+        num_heads=cfg["n_heads"],
+        dropout=cfg["drop_rate"],
+        qkv_bias=cfg["qkv_bias"])
+        self.ff = FeedForward(cfg)
+        self.norm1 = LayerNorm(cfg["emb_dim"])
+        self.norm2 = LayerNorm(cfg["emb_dim"])
+        self.drop_shortcut = nn.Dropout(cfg["drop_rate"])
+
    def forward(self, x):
-                                                               #A
-       shortcut = x
+       shortcut = x                                          #A
        x = self.norm1(x)
        x = self.att(x)
        x = self.drop_shortcut(x)
-       x = x + shortcut # Add the original input back
-       shortcut = x #B
+       x = x + shortcut  # Add the original input back
+       shortcut = x                                          #B
        x = self.norm2(x)
+       x = self.ff(x)
+       x = self.drop_shortcut(x)
+       x = x + shortcut                                       #C
+      return x
+
+#A Shortcut connection for attention block 
+#B Shortcut connection for feed forward block 
+#C Add the original input back
 ```
 
-x = self.ff(x) x = self.drop_shortcut(x) x = x + shortcut #C return x
+The given code defines a `TransformerBlock` class in PyTorch that includes a multi-head attention mechanism (`MultiHeadAttention`) and a feed forward network (`FeedForward`), both configured based on a provided configuration dictionary (`cfg`), such as `GPT_CONFIG_124M`.
 
-#A Shortcut connection for attention block #B Shortcut connection for feed forward block #C Add the original input back
-
-The given code defines a TransformerBlock class in PyTorch that includes a multi-head attention mechanism (MultiHeadAttention) and a feed forward network (FeedForward), both configured based on a provided configuration dictionary (cfg), such as GPT_CONFIG_124M.
-
-Layer normalization (LayerNorm) is applied before each of these two components, and dropout is applied after them to regularize the model and prevent overfitting. This is also known as *Pre-LayerNorm*. Older architectures, such as the original transformer model, applied layer normalization after the self-attention and feed-forward networks instead, known as *Post-LayerNorm*, which often leads to worse training dynamics.
+Layer normalization (`LayerNorm`) is applied before each of these two components, and dropout is applied after them to regularize the model and prevent overfitting. This is also known as **Pre-LayerNorm**. Older architectures, such as the original transformer model, applied layer normalization after the self-attention and feed-forward networks instead, known as **Post-LayerNorm**, which often leads to worse training dynamics.
 
 The class also implements the forward pass, where each component is followed by a shortcut connection that adds the input of the block to its output. This critical feature helps gradients flow through the network during training and improves the learning of deep models as explained in section 4.4.
 
-Using the GPT_CONFIG_124M dictionary we defined earlier, let's instantiate a transformer block and feed it some sample data:
+Using the `GPT_CONFIG_124M` dictionary we defined earlier, let's instantiate a transformer block and feed it some sample data:
 
-```
+```python
 torch.manual_seed(123)
 x = torch.rand(2, 4, 768) #A
 block = TransformerBlock(GPT_CONFIG_124M)
 output = block(x)
-```
-print("Input shape:", x.shape) print("Output shape:", output.shape)
+
+print("Input shape:", x.shape) 
+print("Output shape:", output.shape)
 
 #A Create sample input of shape [batch_size, num_tokens, emb_dim]
-
+```
 The output is as follows:
 
-Input shape: torch.Size([2, 4, 768]) Output shape: torch.Size([2, 4, 768])
+```python
+Input shape: torch.Size([2, 4, 768]) 
+Output shape: torch.Size([2, 4, 768])
+```
 
 As we can see from the code output, the transformer block maintains the input dimensions in its output, indicating that the transformer architecture processes sequences of data without altering their shape throughout the network.
 
@@ -3141,7 +3151,7 @@ As illustrated in Figure 4.14, the transformer block combines layer normalizatio
 
 ## 4.6 Coding the GPT model
 
-We started this chapter with a big-picture overview of a GPT architecture that we called DummyGPTModel. In this DummyGPTModel code implementation, we showed the input and outputs to the GPT model, but its building blocks remained a black box using a DummyTransformerBlock and DummyLayerNorm class as placeholders.
+We started this chapter with a big-picture overview of a GPT architecture that we called `DummyGPTModel`. In this `DummyGPTModel` code implementation, we showed the input and outputs to the GPT model, but its building blocks remained a black box using a `DummyTransformerBlock` and `DummyLayerNorm` class as placeholders.
 
 In this section, we are now replacing the DummyTransformerBlock and DummyLayerNorm placeholders with the real TransformerBlock and LayerNorm classes we coded later in this chapter to assemble a fully working version of the original 124 million parameter version of GPT-2. In chapter 5, we will pretrain a GPT-2 model, and in chapter 6, we will load in the pretrained weights from OpenAI.
 
