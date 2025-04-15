@@ -6668,11 +6668,11 @@ As illustrated in the chapter overview in figure 7.16, this section focuses on f
 
 ![](_page_276_Figure_6.jpeg)
 
-Figure 7.16 In step 5 of finetuning the LLM for instruction-following, we train the pretrained model loaded in the previous section on the instruction dataset prepared earlier in this chapter.
+> Figure 7.16 In step 5 of finetuning the LLM for instruction-following, we train the pretrained model loaded in the previous section on the instruction dataset prepared earlier in this chapter.
 
 As mentioned earlier, we already did all the hard work when we implemented the instruction dataset processing at the beginning of this chapter. For the finetuning process itself, we can reuse the loss calculation and training functions implemented in chapter 5 during the pretraining:
 
-```
+```python
 from chapter05 import (
     calc_loss_loader,
     train_model_simple
@@ -6680,23 +6680,30 @@ from chapter05 import (
 ```
 Before we begin training, let's calculate the initial loss for the training and validation sets:
 
-```
+```python
 model.to(device)
 torch.manual_seed(123)
+
 with torch.no_grad():
     train_loss = calc_loss_loader(train_loader, model, device, num_batches=5)
     val_loss = calc_loss_loader(val_loader, model, device, num_batches=5)
+
 print("Training loss:", train_loss)
+print("Validation loss:", val_loss))
 ```
 The initial loss values are as follows; as in previous chapters, our goal is to minimize this loss:
 
-Training loss: 3.825908660888672 Validation loss: 3.7619335651397705
+```python
+Training loss: 3.825908660888672
+Validation loss: 3.7619335651397705
+```
 
-print("Validation loss:", val_loss)
-
-#### DEALING WITH HARDWARE LIMITATIONS
-
-Note that using and training a larger model like GPT-2 medium (355 million parameters) is more computationally intensive compared to the smaller GPT-2 model (124 million parameters) used in previous chapters. If you encounter issues due to hardware limitations, you can switch to the smaller model by changing CHOOSE_MODEL = "gpt2-medium (355M)" to CHOOSE_MODEL = "gpt2-small (124M)" in section 7.5. Alternatively, to speed up the model training, consider using a GPU. The following supplementary section in this book's code repository lists several options for using cloud GPUs: <https://github.com/rasbt/LLMs-from-scratch/tree/main/setup>
+> [!NOTE]
+>
+> **DEALING WITH HARDWARE LIMITATIONS**
+>
+> Note that using and training a larger model like GPT-2 medium (355 million parameters) is more computationally intensive compared to the smaller GPT-2 model (124 million parameters) used in previous chapters. If you encounter issues due to hardware limitations, you can switch to the smaller model by changing CHOOSE_MODEL = "gpt2-medium (355M)" to CHOOSE_MODEL = "gpt2-small (124M)" in section 7.5. Alternatively, to speed up the model training, consider using a GPU. The following supplementary section in this book's code repository lists several options for using cloud GPUs: <https://github.com/rasbt/LLMs-from-scratch/tree/main/setup>
+>
 
 Table 7.1 provides reference runtimes for training each model on various devices, including CPUs and GPUs. Running this code on a compatible GPU requires no code changes and can significantly speed up training. For the results shown in this chapter, I used the GPT-2 medium model and trained it on an A100 GPU.
 
@@ -6709,29 +6716,32 @@ Table 7.1 provides reference runtimes for training each model on various devices
 | gpt2-small (124M)  | GPU (NVIDIA L4)      | 0.69 minutes            |
 | gpt2-small (124M)  | GPU (NVIDIA A100)    | 0.39 minutes            |
 
-Table 7.1 Reference runtimes for instruction finetuning GPT-2
+> Table 7.1 Reference runtimes for instruction finetuning GPT-2
 
-With the model and data loaders prepared, we can now proceed to train the model. The following code sets up the training process, including initializing the optimizer, setting the number of epochs, and defining the evaluation frequency and starting context to evaluate generated LLM responses during training based on the first validation set instruction (val_data[0]) we looked at earlier:
+With the model and data loaders prepared, we can now proceed to train the model. The following code sets up the training process, including initializing the optimizer, setting the number of epochs, and defining the evaluation frequency and starting context to evaluate generated LLM responses during training based on the first validation set instruction (`val_data[0]`) we looked at earlier:
 
-```
-Listing 7.8 Instruction finetuning the pretrained LLM
+```python
+# Listing 7.8 Instruction finetuning the pretrained LLM
 import time
+
 start_time = time.time()
 torch.manual_seed(123)
 optimizer = torch.optim.AdamW(model.parameters(), lr=0.00005, weight_decay=0.1)
 num_epochs = 2
+
 train_losses, val_losses, tokens_seen = train_model_simple(
     model, train_loader, val_loader, optimizer, device,
     num_epochs=num_epochs, eval_freq=5, eval_iter=5,
     start_context=format_input(val_data[0]), tokenizer=tokenizer
 )
+
 end_time = time.time()
 execution_time_minutes = (end_time - start_time) / 60
 print(f"Training completed in {execution_time_minutes:.2f} minutes.")
 ```
 The following output displays the training progress over two epochs, where a steady decrease in losses indicates improving ability to follow instructions and generate appropriate responses:
 
-```
+```python
 Ep 1 (Step 000000): Train loss 2.637, Val loss 2.626
 Ep 1 (Step 000005): Train loss 1.174, Val loss 1.103
 Ep 1 (Step 000010): Train loss 0.872, Val loss 0.944
@@ -6762,11 +6772,11 @@ The training output shows that the model is learning effectively, as we can tell
 
 Moreover, the generated responses at the end of each epoch let us inspect the model's progress in correctly executing the given task in the validation set example. In this case, the model successfully converts the active sentence "The chef cooks the meal every day." into its passive voice counterpart: "The meal is cooked every day by the chef."
 
-We will revisit and evaluate the response quality of the model in more detail in a later section. But now, to conclude this section, let's examine the training and validation loss curves to gain additional insights into the model's learning process. For this, we use the plot_losses function from chapter 5:
+We will revisit and evaluate the response quality of the model in more detail in a later section. But now, to conclude this section, let's examine the training and validation loss curves to gain additional insights into the model's learning process. For this, we use the `plot_losses` function from chapter 5:
 
 277
 
-```
+```python
 from chapter05 import plot_losses
 epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
 plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
@@ -6775,17 +6785,20 @@ The resulting loss plot is shown in figure 7.17.
 
 ![](_page_281_Figure_2.jpeg)
 
-![](_page_281_Figure_3.jpeg)
+> Figure 7.17 A plot showing the training and validation loss trends over two epochs. The solid line represents the training loss, showing a sharp decrease before stabilizing, while the dotted line represents the validation loss, which follows a similar pattern.
 
 As we can see in the loss plot shown in figure 7.17, the model's performance on both the training and validation sets improves substantially over the course of training. The rapid decrease in losses during the initial phase indicates that the model is quickly learning meaningful patterns and representations from the data. Then, as training progresses to the second epoch, the losses continue to decrease but at a slower rate, suggesting that the model is finetuning its learned representations and converging to a stable solution.
 
 While the loss plot in figure 7.17 indicates that the model is training effectively, the most crucial aspect is its performance in terms of response quality and correctness. In the remaining sections of this chapter, we will extract the responses and store them in a format that allows us to evaluate and quantify the response quality.
 
-#### EXERCISE 7.3 FINETUNING ON THE ORIGINAL ALPACA DATASET
-
-The so-called Alpaca dataset by researchers at Stanford is one of the earliest and most popular openly shared instruction datasets, consisting of 52,002 entries. As an alternative to the instruction-data.json file we use in this chapter, consider finetuning an LLM on this dataset. The dataset is available at the following URL: [https://raw.githubusercontent.com/tatsu-lab/stanford\_alpaca/main/alpaca\_data.json](https://raw.githubusercontent.com/tatsu-lab/stanford_alpaca/main/alpaca_data.json)
-
-This dataset contains 52,002 entries, which is approximately 50 times more than those we used in this chapter, and most entries are longer as well. Thus, it's highly recommended to conduct the training using a GPU to accelerate the finetuning process. If you encounter out-of-memory errors, consider reducing the batch_size from 8 to 4, 2, or even 1. Additionally, lowering the allowed_max_length from 1024 to 512 or 256 can further help manage memory issues.
+> [!NOTE]
+>
+> **EXERCISE 7.3 FINETUNING ON THE ORIGINAL ALPACA DATASET**
+>
+> The so-called Alpaca dataset by researchers at Stanford is one of the earliest and most popular openly shared instruction datasets, consisting of 52,002 entries. As an alternative to the `instruction-data.json` file we use in this chapter, consider finetuning an LLM on this dataset. The dataset is available at the following URL: [https://raw.githubusercontent.com/tatsu-lab/stanford\_alpaca/main/alpaca\_data.json](https://raw.githubusercontent.com/tatsu-lab/stanford_alpaca/main/alpaca_data.json)
+>
+> This dataset contains 52,002 entries, which is approximately 50 times more than those we used in this chapter, and most entries are longer as well. Thus, it's highly recommended to conduct the training using a GPU to accelerate the finetuning process. If you encounter out-of-memory errors, consider reducing the batch_size from 8 to 4, 2, or even 1. Additionally, lowering the allowed_max_length from 1024 to 512 or 256 can further help manage memory issues.
+>
 
 ## 7.7 Extracting and saving responses
 
