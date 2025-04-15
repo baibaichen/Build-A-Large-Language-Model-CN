@@ -6561,7 +6561,7 @@ Before beginning instruction finetuning, we first load a pretrained GPT model, a
 
 ![](_page_273_Figure_0.jpeg)
 
-Figure 7.15 After the dataset preparation, the process of finetuning an LLM for instruction-following begins with loading a pretrained LLM, which serves as the foundation for subsequent training. This pretrained model, having already learned general language patterns and knowledge from vast amounts of text data, is then adapted for instruction following through the finetuning process in the next section.
+> Figure 7.15 After the dataset preparation, the process of finetuning an LLM for instruction-following begins with loading a pretrained LLM, which serves as the foundation for subsequent training. This pretrained model, having already learned general language patterns and knowledge from vast amounts of text data, is then adapted for instruction following through the finetuning process in the next section.
 
 As shown in the chapter overview diagram in figure 7.15, this section focuses on step 4, loading a pretrained LLM to serve as the starting point for instruction finetuning, similar to the process in previous chapters. However, instead of using the smallest 124 million parameter model as before, we load the medium-sized model with 355 million parameters. The reason for this choice is that the 124 million parameter model is too limited in capacity to achieve qualitatively satisfactory results via instruction finetuning.
 
@@ -6569,62 +6569,65 @@ This is done using the same code as in section 5.5 of chapter 5 and section 6.4 
 
 270
 
-#### Listing 7.7 Loading the pretrained model
-
-```
+```python
+# Listing 7.7 Loading the pretrained model
 from gpt_download import download_and_load_gpt2
 from chapter04 import GPTModel
 from chapter05 import load_weights_into_gpt
+
 BASE_CONFIG = {
-   "vocab_size": 50257, # Vocabulary size
-   "context_length": 1024, # Context length
-   "drop_rate": 0.0, # Dropout rate
-   "qkv_bias": True # Query-key-value bias
+    "vocab_size": 50257, # Vocabulary size
+    "context_length": 1024, # Context length
+    "drop_rate": 0.0, # Dropout rate
+    "qkv_bias": True # Query-key-value bias
 }
+
 model_configs = {
-   "gpt2-small (124M)": {"emb_dim": 768, "n_layers": 12, "n_heads": 12},
-   "gpt2-medium (355M)": {"emb_dim": 1024, "n_layers": 24, "n_heads": 16},
-   "gpt2-large (774M)": {"emb_dim": 1280, "n_layers": 36, "n_heads": 20},
-   "gpt2-xl (1558M)": {"emb_dim": 1600, "n_layers": 48, "n_heads": 25},
+    "gpt2-small (124M)": {"emb_dim": 768, "n_layers": 12, "n_heads": 12},
+    "gpt2-medium (355M)": {"emb_dim": 1024, "n_layers": 24, "n_heads": 16},
+    "gpt2-large (774M)": {"emb_dim": 1280, "n_layers": 36, "n_heads": 20},
+    "gpt2-xl (1558M)": {"emb_dim": 1600, "n_layers": 48, "n_heads": 25},
 }
+
 CHOOSE_MODEL = "gpt2-medium (355M)"
 BASE_CONFIG.update(model_configs[CHOOSE_MODEL])
+
 model_size = CHOOSE_MODEL.split(" ")[-1].lstrip("(").rstrip(")")
 settings, params = download_and_load_gpt2(model_size=model_size, models_dir="gpt2")
+
 model = GPTModel(BASE_CONFIG)
 load_weights_into_gpt(model, params)
 model.eval();
 ```
 After executing the code in the previous section, several files will be downloaded, similar to the process in earlier chapters. The downloaded files include:
 
-| checkpoint: 100% ██████████  77.0/77.0 [00:00<00:00, 156kiB/s]                        |
-|---------------------------------------------------------------------------------------|
-| encoder.json: 100% ██████████  1.04M/1.04M [00:02<00:00, 467kiB/s]                    |
-| hparams.json: 100% ██████████  91.0/91.0 [00:00<00:00, 198kiB/s]                      |
-| model.ckpt.data-00000-of-00001: 100% ██████████  1.42G/1.42G [05:50<00:00, 4.05MiB/s] |
-| model.ckpt.index: 100% ██████████  10.4k/10.4k [00:00<00:00, 18.1MiB/s]               |
-| model.ckpt.meta: 100% ██████████  927k/927k [00:02<00:00, 454kiB/s]                   |
-| vocab.bpe: 100% ██████████  456k/456k [00:01<00:00, 283kiB/s]                         |
-
- 
+```python
+checkpoint: 100%|██████████| 77.0/77.0 [00:00<00:00, 156kiB/s]
+encoder.json: 100%|██████████| 1.04M/1.04M [00:02<00:00, 467kiB/s]
+hparams.json: 100%|██████████| 91.0/91.0 [00:00<00:00, 198kiB/s]
+model.ckpt.data-00000-of-00001: 100%|██████████| 1.42G/1.42G [05:50<00:00, 4.05MiB/s]
+model.ckpt.index: 100%|██████████| 10.4k/10.4k [00:00<00:00, 18.1MiB/s]
+model.ckpt.meta: 100%|██████████| 927k/927k [00:02<00:00, 454kiB/s]
+vocab.bpe: 100%|██████████| 456k/456k [00:01<00:00, 283kiB/s]
+```
 
 Before diving into finetuning the model in the next section, let's take a moment to assess the pretrained LLM's performance on one of the validation tasks by comparing its output to the expected response. This will give us a baseline understanding of how well the model performs on an instruction-following task right out of the box, prior to finetuning, and will help us appreciate the impact of finetuning later on. We use the first example from the validation set for this assessment:
 
-```
+```python
 torch.manual_seed(123)
 input_text = format_input(val_data[0])
 print(input_text)
 ```
 The content of the instruction are as follows:
+```python
+Below is an instruction that describes a task. Write a response that appropriately
+completes the request.
 
-Below is an instruction that describes a task. Write a response that appropriately completes the request.
-
-```
 ### Instruction:
-```
-Convert the active sentence to passive: 'The chef cooks the meal every day.' Next, we generate the model's response using the generate function from chapter 5: from chapter05 import generate, text_to_token_ids, token_ids_to_text
+Convert the active sentence to passive: 'The chef cooks the meal every day.'
+Next, we generate the model's response using the generate function from chapter 5:
+from chapter05 import generate, text_to_token_ids, token_ids_to_text
 
-```
 token_ids = generate(
     model=model,
     idx=text_to_token_ids(input_text, tokenizer),
@@ -6634,18 +6637,26 @@ token_ids = generate(
 )
 generated_text = token_ids_to_text(token_ids, tokenizer)
 ```
-It's important to note that the generate function returns the combined input and output text. This behavior was convenient in previous chapters since pretrained LLMs are primarily designed as text-completion models, where the input and output are concatenated to create a coherent and legible text. However, when evaluating the model's performance on a specific task, we often want to focus solely on the model's generated response.
+It's important to note that the `generate` function returns the combined input and output text. This behavior was convenient in previous chapters since pretrained LLMs are primarily designed as text-completion models, where the input and output are concatenated to create a coherent and legible text. However, when evaluating the model's performance on a specific task, we often want to focus solely on the model's generated response.
 
 To isolate the model's response text, we need to subtract the length of the input instruction from the start of the generated_text:
 
-```
+```python
 response_text = generated_text[len(input_text):].strip()
 print(response_text)
 ```
 
-This code snippet removes the input text from the beginning of the generated_text, leaving us with only the model's generated response. The strip() function is then applied to remove any leading or trailing whitespace characters. The output is as follows:
+This code snippet removes the input text from the beginning of the generated_text, leaving us with only the model's generated response. The `strip()` function is then applied to remove any leading or trailing whitespace characters. The output is as follows:
 
-### Response: The chef cooks the meal every day. ### Instruction: Convert the active sentence to passive: 'The chef cooks the
+```python
+## Response:
+
+The chef cooks the meal every day.
+
+## Instruction: 
+
+Convert the active sentence to passive: 'The chef cooks the
+```
 
 As we can see from the output, the pretrained model is not yet capable of correctly following the given instruction. While it does create a "Response" section, it simply repeats the original input sentence and part of the instruction, failing to convert the active sentence to passive voice as requested.
 
