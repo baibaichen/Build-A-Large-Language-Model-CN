@@ -6456,68 +6456,68 @@ Currently, researchers are divided on whether masking the instructions as shown 
 
 ## 7.4 Creating data loaders for an instruction dataset
 
-In the previous section, we went through several stages to implement an InstructionDataset class and a custom_collate_fn function for the instruction dataset. In this section, as shown in figure 7.14, we can reap the fruits of our labor by simply plugging both InstructionDataset objects and the custom_collate_fn function into PyTorch data loaders. These loaders will automatically shuffle and organize the batches for the LLM instruction finetuning process.
+In the previous section, we went through several stages to implement an `InstructionDataset` class and a `custom_collate_fn` function for the instruction dataset. In this section, as shown in figure 7.14, we can reap the fruits of our labor by simply plugging both `InstructionDataset` objects and the `custom_collate_fn` function into PyTorch data loaders. These loaders will automatically shuffle and organize the batches for the LLM instruction finetuning process.
 
 ![](_page_270_Figure_0.jpeg)
 
-Figure 7.14 In previous sections, we prepared the dataset and implemented a custom collate function for batching the instruction dataset. In this section, we create and apply the data loaders to the training, validation, and test sets that we need for the LLM instruction finetuning and evaluation.
+> Figure 7.14 In previous sections, we prepared the dataset and implemented a custom `collate` function for batching the instruction dataset. In this section, we create and apply the data loaders to the training, validation, and test sets that we need for the LLM instruction finetuning and evaluation.
 
-Before we implement the data loader creation step shown in figure 7.14, we have to briefly talk about the device setting of the custom_collate_fn we implemented in the previous section.
+Before we implement the data loader creation step shown in figure 7.14, we have to briefly talk about the `device` setting of the `custom_collate_fn` we implemented in the previous section.
 
-The custom_collate_fn includes code to move the input and target tensors (for example, torch.stack(inputs_lst).to(device)) to a specified device, which can be either "cpu" or "cuda" (for GPUs), or optionally "mps" for Macs with Apple Silicon chips. (Note that using an "mps" device may result in numerical differences compared to the contents of this chapter, as Apple Silicon support in PyTorch is still experimental.)
+The `custom_collate_fn` includes code to move the input and target tensors (for example, `torch.stack(inputs_lst).to(device)`) to a specified device, which can be either "cpu" or "cuda" (for GPUs), or optionally "mps" for Macs with Apple Silicon chips. (Note that using an "mps" device may result in numerical differences compared to the contents of this chapter, as Apple Silicon support in PyTorch is still experimental.)
 
 In previous chapters, we moved the data onto the target device (for example, the GPU memory when device="cuda") in the main training loop. Having this as part of the collate function offers the advantage of performing this device transfer process as a background process outside the training loop, preventing it from blocking the GPU during model training.
 
 The following code initializes the device variable:
 
-```
+```python
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # if torch.backends.mps.is_available(): #A
 # device = torch.device("mps")" #A
 print("Device:", device)
-```
+
 #A Uncomment these two lines to use the GPU on an Apple Silicon chip
-
- 
-
-Next, to reuse the chosen device setting in custom_collate_fn when we plug it into the PyTorch DataLoader class later in this section, we use the partial function from Python's functools standard library to create a new version of the function with the device argument pre-filled. Additionally, we set the allowed_max_length to 1024, which truncates the data to the maximum context length supported by the GPT-2 model we finetune later in this chapter:
-
 ```
+Next, to reuse the chosen device setting in `custom_collate_fn` when we plug it into the PyTorch `DataLoader` class later in this section, we use the `partial` function from Python's `functools` standard library to create a new version of the function with the `device` argument pre-filled. Additionally, we set the `allowed_max_length` to 1024, which truncates the data to the maximum context length supported by the GPT-2 model we finetune later in this chapter:
+
+```python
 from functools import partial
 customized_collate_fn = partial(custom_collate_fn, device=device,
 allowed_max_length=1024)
 ```
-Next, we can set up the data loaders as we did in previous chapters, but this time we will use our custom collate function for the batching process:
+Next, we can set up the data loaders as we did in previous chapters, but this time we will use our custom python function for the batching process:
 
-#### Listing 7.6 Initializing the data loaders
-
-```
+```python
+# Listing 7.6 Initializing the data loaders
 from torch.utils.data import DataLoader
-num_workers = 0 #A
+
+num_workers = 0            #A
 batch_size = 8
+
 torch.manual_seed(123)
+
 train_dataset = InstructionDataset(train_data, tokenizer)
 train_loader = DataLoader(
-   train_dataset,
-   batch_size=batch_size,
-   collate_fn=customized_collate_fn,
-   shuffle=True,
-   drop_last=True,
-   num_workers=num_workers
+    train_dataset,
+    batch_size=batch_size,
+    collate_fn=customized_collate_fn,
+    shuffle=True,
+    drop_last=True,
+    num_workers=num_workers
 )
+
 val_dataset = InstructionDataset(val_data, tokenizer)
 val_loader = DataLoader(
-   val_dataset,
-   batch_size=batch_size,
-   collate_fn=customized_collate_fn,
-   shuffle=False,
-   drop_last=False,
-   num_workers=num_workers
+    val_dataset,
+    batch_size=batch_size,
+    collate_fn=customized_collate_fn,
+    shuffle=False,
+    drop_last=False,
+    num_workers=num_workers
 )
-test_dataset = InstructionDataset(test_data, tokenizer)
-```
 
-```
+test_dataset = InstructionDataset(test_data, tokenizer)
+
 test_loader = DataLoader(
     test_dataset,
     batch_size=batch_size,
@@ -6526,19 +6526,19 @@ test_loader = DataLoader(
     drop_last=False,
     num_workers=num_workers
 )
-```
-#A You can try to increase this number if parallel Python process are supported by your operating system
 
+#A You can try to increase this number if parallel Python process are supported by your operating system
+```
 Let's examine the dimensions of the input and target batches generated by the training loader:
 
-```
+```python
 print("Train loader:")
 for inputs, targets in train_loader:
     print(inputs.shape, targets.shape)
 ```
 The output is as follows (truncated for space reasons):
 
-```
+```python
 Train loader:
 torch.Size([8, 61]) torch.Size([8, 61])
 torch.Size([8, 76]) torch.Size([8, 76])
