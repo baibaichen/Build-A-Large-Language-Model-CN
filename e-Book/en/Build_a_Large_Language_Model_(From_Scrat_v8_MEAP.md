@@ -5936,7 +5936,7 @@ In previous chapters, we implemented the LLM architecture, carried out pretraini
 
 ![](_page_248_Figure_0.jpeg)
 
-Figure 7.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it. This chapter focuses on finetuning a pretrained LLM to follow human instructions.
+> Figure 7.1 A mental model of the three main stages of coding an LLM, pretraining the LLM on a general text dataset, and finetuning it. This chapter focuses on finetuning a pretrained LLM to follow human instructions.
 
 Figure 7.1 shows two main ways of finetuning an LLM: finetuning for classification (step 8) and finetuning an LLM to follow instructions (step 9). We implemented step 8 in the previous chapter. This chapter focuses on finetuning an LLM using an *instruction dataset*, a process that will be further explained in the next section.
 
@@ -5948,20 +5948,15 @@ However, pretrained LLMs often struggle with specific instructions, such as "Fix
 
 In this chapter, we focus on improving the LLM's ability to follow such instructions and generate a desired response, as illustrated in figure 7.2.
 
-| The instructions serve as<br>inputs for the LLM<br>Instruction                                        | The goal for the LLM is to<br>generate a desired response<br>Desired response |                                      |  |
-|-------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|--------------------------------------|--|
-|                                                                                                       |                                                                               |                                      |  |
-| Convert 45 kilometers to meters.                                                                      |                                                                               | 45 kilometers is 45000 meters.       |  |
-| Provide a synonym for "bright".                                                                       |                                                                               | A synonym for "bright" is "radiant". |  |
-| Edit the following sentence to<br>remove all passive voice: "The<br>song was composed by the artist." |                                                                               | The artist composed the song.        |  |
+![](7.2.jpg)
 
-Figure 7.2 This figure shows examples of instructions that are processed by an LLM to generate desired responses.
+>Figure 7.2 This figure shows examples of instructions that are processed by an LLM to generate desired responses.
 
 In the remainder of this chapter, we will implement the instruction finetuning process in several steps, beginning with the dataset preparation, as shown in figure 7.3.
 
 ![](_page_250_Figure_0.jpeg)
 
-Figure 7.3 Illustration of the three-stage process for instruction finetuning the LLM in this chapter. Stage 1 involves dataset preparation. Stage 2 focuses on model setup and finetuning. Stage 3 covers the evaluation of the model.
+> Figure 7.3 Illustration of the three-stage process for instruction finetuning the LLM in this chapter. Stage 1 involves dataset preparation. Stage 2 focuses on model setup and finetuning. Stage 3 covers the evaluation of the model.
 
 Preparing the dataset is a key aspect of instruction finetuning where most of the time in this chapter is spent. The next section, as illustrated in figure 7.3, implements the code to download and format the dataset, which is the first step in the dataset preparation process.
 
@@ -5971,53 +5966,52 @@ In this section, we download and format the instruction dataset for instruction 
 
 The following code implements and executes a function to download this dataset, which is a relatively small file, only 204 KB in size, in JSON format. JSON, or JavaScript Object Notation, mirrors the structure of Python dictionaries, providing a simple structure for data interchange that is both human-readable and machine-friendly.
 
-247
+247 
 
- 
-
-```
-Listing 7.1 Downloading the dataset
-```
-
-```
+```python
+# Listing 7.1 Downloading the dataset
 import json
 import os
 import urllib
+
 def download_and_load_file(file_path, url):
-   if not os.path.exists(file_path):
-       with urllib.request.urlopen(url) as response:
-           text_data = response.read().decode("utf-8")
-       with open(file_path, "w", encoding="utf-8") as file:
-           file.write(text_data)
-   else: #A
-       with open(file_path, "r", encoding="utf-8") as file:
-           text_data = file.read()
-   with open(file_path, "r") as file:
-       data = json.load(file)
-   return data
+    if not os.path.exists(file_path):
+        with urllib.request.urlopen(url) as response:
+            text_data = response.read().decode("utf-8")
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(text_data)
+    else: #A
+        with open(file_path, "r", encoding="utf-8") as file:
+            text_data = file.read()
+    with open(file_path, "r") as file:
+        data = json.load(file)
+    return data
+
 file_path = "instruction-data.json"
-url = "https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/main/ch07/01_main-
-chapter-code/instruction-data.json"
+url = "https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/main/ch07/01_mainchapter-code/instruction-data.json"
+
 data = download_and_load_file(file_path, url)
 print("Number of entries:", len(data))
-```
 
-```
 #A Skip download if file was already downloaded
 ```
 The output of executing the preceding code is as follows:
 
+```python
 Number of entries: 1100
+```
 
 The data list , which we loaded from the JSON file contains the 1100 entries of the instruction dataset. Let's print one of the entries to see how each entry is structured:
 
+```python
 print("Example entry:\n", data[50])
+```
 
 The content of the example entry is as follows:
 
-```
+```python
 Example entry:
- {'instruction': 'Identify the correct spelling of the following word.', 'input':
+{'instruction': 'Identify the correct spelling of the following word.', 'input':
 'Ocassion', 'output': "The correct spelling is 'Occasion.'"}
 ```
 
@@ -6025,29 +6019,35 @@ Example entry:
 
 As we can see, the example entries are Python dictionary objects containing an 'instruction', 'input', and 'output'. Let's take a look at another example:
 
-```
+```python
 print("Another example entry:\n", data[999])
 ```
 Based on the contents of this entry, the 'input' field may occasionally be empty:
 
-Another example entry: {'instruction': "What is an antonym of 'complicated'?", 'input': '', 'output': "An antonym of 'complicated' is 'simple'."}
+```python
+Another example entry:
+{'instruction': "What is an antonym of 'complicated'?", 'input': '', 'output': "An
+antonym of 'complicated' is 'simple'."}
+```
 
-Instruction finetuning, also known as *supervised instruction finetuning*, involves training a model on a dataset where the input-output pairs, like those we extracted from the JSON file, are explicitly provided. There are various methods to format these entries for LLMs. Figure 7.4 illustrates two different example formats, often referred to as *prompt styles*, used in the training of notable LLMs such as Alpaca and Phi-3. Alpaca was one of the early LLMs to publicly detail its instruction finetuning process. Phi-3, developed by Microsoft, is included to demonstrate the diversity in prompt styles.
+Instruction finetuning, also known as **supervised instruction finetuning**, involves training a model on a dataset where the input-output pairs, like those we extracted from the JSON file, are explicitly provided. There are various methods to format these entries for LLMs. Figure 7.4 illustrates two different example formats, often referred to as *prompt styles*, used in the training of notable LLMs such as Alpaca and Phi-3. Alpaca was one of the early LLMs to publicly detail its instruction finetuning process. Phi-3, developed by Microsoft, is included to demonstrate the diversity in prompt styles.
 
 ![](_page_252_Figure_5.jpeg)
 
-Figure 7.4 Comparison of prompt styles for instruction finetuning in LLMs. The Alpaca style (left) uses a structured format with defined sections for instruction, input, and response, while the Phi-3 style (right) employs a simpler format with designated <|user|> and <|assistant|> tokens.
+> Figure 7.4 Comparison of prompt styles for instruction finetuning in LLMs. The Alpaca style (left) uses a structured format with defined sections for instruction, input, and response, while the Phi-3 style (right) employs a simpler format with designated <|user|> and <|assistant|> tokens.
 
 The rest of this chapter uses the Alpaca prompt style since it is one of the most popular ones, largely because it helped define the original approach to finetuning.
 
-#### EXERCISE 7.1 CHANGING PROMPT STYLES
+> [!NOTE]
+>
+> **EXERCISE 7.1 CHANGING PROMPT STYLES**
+>
+> After finetuning the model with the Alpaca prompt style, try the Phi-3 prompt style shown in figure 7.4 and observe if it affects the response quality of the model.
 
-After finetuning the model with the Alpaca prompt style, try the Phi-3 prompt style shown in figure 7.4 and observe if it affects the response quality of the model.
+Let's define a `format_input` function that we can use to convert the entries in the data list into the Alpaca-style input format depicted in figure 7.4:
 
-Let's define a format_input function that we can use to convert the entries in the data list into the Alpaca-style input format depicted in figure 7.4:
-
-```
-Listing 7.2 Implementing the prompt formatting function
+```python
+# Listing 7.2 Implementing the prompt formatting function
 def format_input(entry):
     instruction_text = (
         f"Below is an instruction that describes a task. "
@@ -6057,61 +6057,66 @@ def format_input(entry):
     input_text = f"\n\n### Input:\n{entry['input']}" if entry["input"] else ""
     return instruction_text + input_text
 ```
-This format_input function takes a dictionary entry as input and constructs a formatted string. Let's test it to dataset entry data[50], which to looked at earlier:
+This `format_input` function takes a dictionary entry as input and constructs a formatted string. Let's test it to dataset entry data[50], which to looked at earlier:
 
-```
+```python
 model_input = format_input(data[50])
 desired_response = f"\n\n### Response:\n{data[50]['output']}"
 print(model_input + desired_response)
 ```
 For formatted input looks like as follows:
 
+```markdown
 Below is an instruction that describes a task. Write a response that appropriately completes the request.
 
-### Instruction: Identify the correct spelling of the following word.
+### Instruction:
+Identify the correct spelling of the following word.
 
-### Input: Ocassion
+### Input:
+Ocassion
 
-```
 ### Response:
 The correct spelling is 'Occasion.'
 ```
 
 Note that the format_input skips the optional ### Input: section if the 'input' field is empty, which we can test out by applying the format_input function to entry data[999] that we inspected earlier:
 
-```
+```python
 model_input = format_input(data[999])
 desired_response = f"\n\n### Response:\n{data[999]['output']}"
 print(model_input + desired_response)
 ```
-As we can see based on the following output, entries with an empty 'input' field don't contain an ### Input: section in the formatted input:
+As we can see based on the following output, entries with an empty 'input' field don't contain an <u>### Input</u>: section in the formatted input:
 
+```markdown
 Below is an instruction that describes a task. Write a response that appropriately completes the request.
 
-### Instruction: What is an antonym of 'complicated'?
+### Instruction:
+What is an antonym of 'complicated'?
 
-### Response: An antonym of 'complicated' is 'simple'.
+### Response:
+An antonym of 'complicated' is 'simple'.
+```
 
 Before we move on to setting up the PyTorch data loaders in the next section, let's divide the dataset into training, validation, and test sets analogous to what we have done with the spam classification dataset in the previous chapter. Here's how we calculate the portions:
 
-```
-Listing 7.3 Partitioning the dataset
-```
-
-```
+```python
+# Listing 7.3 Partitioning the dataset
 train_portion = int(len(data) * 0.85) # 85% for training
 test_portion = int(len(data) * 0.1) # 10% for testing
 val_portion = len(data) - train_portion - test_portion # Remaining 5% for validation
+
 train_data = data[:train_portion]
 test_data = data[train_portion:train_portion + test_portion]
 val_data = data[train_portion + test_portion:]
+
 print("Training set length:", len(train_data))
 print("Validation set length:", len(val_data))
 print("Test set length:", len(test_data))
 ```
 This partitioning results in the following dataset sizes:
 
-```
+```python
 Training set length: 935
 Validation set length: 55
 Test set length: 110
@@ -6124,7 +6129,7 @@ As we progress into the implementation phase of our instruction finetuning proce
 
 ![](_page_255_Figure_4.jpeg)
 
-Figure 7.5 After downloading the dataset and implementing text formatting utility function in the previous section, this section focuses on assembling the training batches.
+>Figure 7.5 After downloading the dataset and implementing text formatting utility function in the previous section, this section focuses on assembling the training batches.
 
 In the previous chapter, the training batches were created automatically by the PyTorch DataLoader class, which employs a default *collate* function to combine lists of samples into batches. A collate function is responsible for taking a list of individual data samples and merging them into a single batch that can be processed efficiently by the model during training.
 
@@ -6134,86 +6139,91 @@ In this section, we will tackle the *batching process* in several steps includin
 
 ![](_page_256_Figure_2.jpeg)
 
-Figure 7.6 An illustration of the five substeps involved in implementing the batching process: applying the prompt template defined in the previous section, using tokenization from previous chapters, adding padding tokens, creating target token IDs, and replacing -100 placeholder tokens to mask padding tokens in the loss function.
+> Figure 7.6 An illustration of the five substeps involved in implementing the batching process: applying the prompt template defined in the previous section, using tokenization from previous chapters, adding padding tokens, creating target token IDs, and replacing -100 placeholder tokens to mask padding tokens in the loss function.
 
-First, to implement steps 2.1 and 2.2 as illustrated in figure 7.6, we code an InstructionDataset class that applies format_input from the previous section and *pretokenizes* all inputs in the dataset, similar to the SpamDataset in chapter 6. These two steps are illustrated in more detail in figure 7.7.
+First, to implement steps 2.1 and 2.2 as illustrated in figure 7.6, we code an `InstructionDataset` class that applies `format_input` from the previous section and **pretokenizes** all inputs in the dataset, similar to the `SpamDataset` in chapter 6. These two steps are illustrated in more detail in figure 7.7.
 
 ![](_page_257_Figure_0.jpeg)
 
-Figure 7.7 This diagram shows how entries are first formatted using a specific prompt template and then tokenized, resulting in a sequence of token IDs that the model can process.
+> Figure 7.7 This diagram shows how entries are first formatted using a specific prompt template and then tokenized, resulting in a sequence of token IDs that the model can process.
 
-The 2-step process illustrated in figure 7.7 is implemented in the __init__ constructor method of the InstructionDataset:
+The 2-step process illustrated in figure 7.7 is implemented in the `__init__` constructor method of the `InstructionDataset`:
 
-```
-Listing 7.4 Implementing an instruction dataset class
+```python
+# Listing 7.4 Implementing an instruction dataset class
 import torch
 from torch.utils.data import Dataset
+
 class InstructionDataset(Dataset):
-   def __init__(self, data, tokenizer):
-       self.data = data
-       self.encoded_texts = []
-       for entry in data: #A
-           instruction_plus_input = format_input(entry)
-           response_text = f"\n\n### Response:\n{entry['output']}"
-           full_text = instruction_plus_input + response_text
-           self.encoded_texts.append(
-               tokenizer.encode(full_text)
-           )
-   def __getitem__(self, index):
-       return self.encoded_texts[index]
-   def __len__(self):
-       return len(self.data)
+    def __init__(self, data, tokenizer):
+        self.data = data
+        self.encoded_texts = []
+        for entry in data:                                           #A
+            instruction_plus_input = format_input(entry)
+            response_text = f"\n\n### Response:\n{entry['output']}"
+            full_text = instruction_plus_input + response_text
+            self.encoded_texts.append(
+                tokenizer.encode(full_text)
+            )
+
+    def __getitem__(self, index):
+        return self.encoded_texts[index]
+
+    def __len__(self):
+        return len(self.data)
+# A Pre-tokenize texts
 ```
-#### #A Pre-tokenize texts
+Similar to the approach in chapter 6, we aim to accelerate training by collecting multiple training examples in a batch, which necessitates *padding* all inputs to a similar length. As with the previous chapter, we use the `<|endoftext|>` token as a **padding token**.
 
-Similar to the approach in chapter 6, we aim to accelerate training by collecting multiple training examples in a batch, which necessitates *padding* all inputs to a similar length. As with the previous chapter, we use the <|endoftext|> token as a *padding token*.
+Instead of appending the `<|endoftext|>` tokens to the text inputs, we can append its token ID to the pre-tokenized inputs directly. To remind us which token ID we should use, we can use the tokenizer's `.encode` method on an `<|endoftext|>` token:
 
-Instead of appending the <|endoftext|> tokens to the text inputs, we can append its token ID to the pre-tokenized inputs directly. To remind us which token ID we should use, we can use the tokenizer's .encode method on an <|endoftext|> token:
-
-```
+```python
 import tiktoken
 tokenizer = tiktoken.get_encoding("gpt2")
 print(tokenizer.encode("<|endoftext|>", allowed_special={"<|endoftext|>"}))
 The resulting token ID is 50256.
 ```
-In chapter 6, we padded all examples in a dataset to the same length. Moving on to step 2.3 in figure 7.6, here, we adopt a more sophisticated approach by developing a custom collate function that we can pass to the data loader. This custom collate function pads the training examples in each batch to have the same length, while allowing different batches to have different lengths, as illustrated in figure 7.8. This approach minimizes unnecessary padding by only extending sequences to match the longest one in each batch, not the whole dataset.
+In chapter 6, we padded all examples in a dataset to the same length. Moving on to step 2.3 in figure 7.6, here, we adopt a more sophisticated approach by developing a custom `collate` function that we can pass to the data loader. This custom `collate` function pads the training examples in each batch to have the same length, while allowing different batches to have different lengths, as illustrated in figure 7.8. This approach minimizes unnecessary padding by only extending sequences to match the longest one in each batch, not the whole dataset.
 
 255
 
 ![](_page_259_Figure_0.jpeg)
 
-Figure 7.8 This figure showed the padding of training examples in batches using token ID 50256 to ensure uniform length within each batch. Each batch may have different lengths, as shown by the first and second batches in this figure.
+> Figure 7.8 This figure showed the padding of training examples in batches using token ID 50256 to ensure uniform length within each batch. Each batch may have different lengths, as shown by the first and second batches in this figure.
 
-We can implement the padding process illustrated in figure 7.8 with a custom collate function as follows:
+We can implement the padding process illustrated in figure 7.8 with a custom `collate` function as follows:
 
 256
 
-```
+```python
+def custom_collate_draft_1(
+    batch,
+    pad_token_id=50256,
+    device="cpu"
+):
+    batch_max_length = max(len(item)+1 for item in batch)          #A
+    inputs_lst = []
+
+    for item in batch:                                             #B
+        new_item = item.copy()
+        new_item += [pad_token_id]
+
+        padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
+
+        inputs = torch.tensor(padded[:-1])                         #C
+        inputs_lst.append(inputs)
+
+    inputs_tensor = torch.stack(inputs_lst).to(device)             #D
+    return inputs_tensor
+
 #A Find the longest sequence in the batch
 #B Pad and prepare inputs
-def custom_collate_draft_1(
-   batch,
-   pad_token_id=50256,
-   device="cpu"
-):
-   batch_max_length = max(len(item)+1 for item in batch) #A
-   inputs_lst = []
-   for item in batch: #B
-       new_item = item.copy()
-       new_item += [pad_token_id]
-       padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
-       inputs = torch.tensor(padded[:-1]) #C
-       inputs_lst.append(inputs)
-   inputs_tensor = torch.stack(inputs_lst).to(device) #D
-   return inputs_tensor
-```
 #C Remove extra padded token added earlier
-
 #D Convert list of inputs to tensor and transfer to target device
-
-The custom_collate_draft_1 we implemented is designed to be integrated into a PyTorch DataLoader, but it can also function as a standalone tool. Here, we use it independently to test and verify that it operates as intended. Let's try it on three different inputs that we want to assemble into a batch, where each example gets padded to the same length:
-
 ```
+The `custom_collate_draft_1` we implemented is designed to be integrated into a PyTorch `DataLoader`, but it can also function as a standalone tool. Here, we use it independently to test and verify that it operates as intended. Let's try it on three different inputs that we want to assemble into a batch, where each example gets padded to the same length:
+
+```python
 inputs_1 = [0, 1, 2, 3, 4]
 inputs_2 = [5, 6]
 inputs_3 = [7, 8, 9]
@@ -6228,18 +6238,18 @@ The resulting batch looks like as follows:
 
 257
 
-```
+```python
 tensor([[ 0, 1, 2, 3, 4],
      [ 5, 6, 50256, 50256, 50256],
      [ 7, 8, 9, 50256, 50256]])
 ```
 As we can see based on the preceding output, all inputs have been padded to the length of the longest input list, inputs_1 containing 5 token IDs.
 
-So, we have just implemented our first custom collate function to create batches from lists of inputs. However, as you learned in chapters 5 and 6, we also need to create batches with the target token IDs, corresponding to the batch of input IDs. These target IDs, as illustrated in figure 7.9, are crucial because they represent what we want the model to generate and what we need during training to calculate the loss for the weight updates, similar to previous chapters.
+So, we have just implemented our first custom `collate` function to create batches from lists of inputs. However, as you learned in chapters 5 and 6, we also need to create batches with the target token IDs, corresponding to the batch of input IDs. These target IDs, as illustrated in figure 7.9, are crucial because they represent what we want the model to generate and what we need during training to calculate the loss for the weight updates, similar to previous chapters.
 
 ![](_page_261_Figure_3.jpeg)
 
-![](_page_261_Figure_4.jpeg)
+>Figure 7.9 An illustration of the five substeps involved in implementing the batching process. We are now focusing on step 2.4, the creation of target token IDs. This step is essential as it enables the model to learn and predict the tokens it needs to generate.
 
 As illustrated in figure 7.9, we are now modifying our custom collate function to also return the target token IDs in addition to the input token IDs.
 
