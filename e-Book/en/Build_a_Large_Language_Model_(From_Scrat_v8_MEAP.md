@@ -210,7 +210,7 @@ In this book, we will implement the code for pretraining and use it to pretrain 
 
 Previously in this chapter, we mentioned the terms GPT-like models, GPT-3, and ChatGPT. Let's now take a closer look at the general GPT architecture. First, GPT stands for *G*enerative *P*retrained *T*ransformer and was originally introduced in the following paper:
 
-**Improving Language Understanding by Generative Pre-Training (2018)** by *Radford et al.* from OpenAI, [http://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf](http://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf)
+- **Improving Language Understanding by Generative Pre-Training (2018)** by *Radford et al.* from OpenAI, [http://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf](http://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf)
 
 GPT-3 is a scaled-up version of this model that has more parameters and was trained on a larger dataset. And the original model offered in ChatGPT was created by finetuning GPT-3 on a large instruction dataset using a method from OpenAI's InstructGPT paper, which we will cover in more detail in *chapter 7, Finetuning with Human Feedback To Follow Instructions*. As we have seen earlier in Figure 1.6, these models are competent text completion models and can carry out other tasks such as spelling correction, classification, or language translation. This is actually very remarkable given that GPT models are pretrained on a relatively simple next-word prediction task, as illustrated in Figure 1.7.
 
@@ -474,7 +474,7 @@ for i, item in enumerate(vocab.items()):
 
 The output is as follows:
 
-```
+```python
 ('!', 0)
 ('"', 1)
 ("'", 2)
