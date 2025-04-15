@@ -6257,46 +6257,51 @@ Similar to the process described in chapter 5 for pretraining an LLM, the target
 
 ![](_page_262_Figure_1.jpeg)
 
-Figure 7.10 This figure illustrates the input and target token alignment used in the instruction finetuning process of an LLM. For each input sequence, the corresponding target sequence is created by shifting the token IDs one position to the right, omitting the first token of the input, and appending an end-of-text token.
+> Figure 7.10 This figure illustrates the input and target token alignment used in the instruction finetuning process of an LLM. For each input sequence, the corresponding target sequence is created by shifting the token IDs one position to the right, omitting the first token of the input, and appending an end-of-text token.
 
-The following updated collate function generates the target token IDs, as illustrated in figure 7.10, from the input token IDs:
+The following updated `collate` function generates the target token IDs, as illustrated in figure 7.10, from the input token IDs:
 
-```
+```python
 def custom_collate_draft_2(
-   batch,
-   pad_token_id=50256,
-   device="cpu"
+    batch,
+    pad_token_id=50256,
+    device="cpu"
 ):
-   batch_max_length = max(len(item)+1 for item in batch)
-   inputs_lst, targets_lst = [], []
-   for item in batch:
-       new_item = item.copy()
-       new_item += [pad_token_id]
-       padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
-       inputs = torch.tensor(padded[:-1]) #A
-       targets = torch.tensor(padded[1:]) #B
-       inputs_lst.append(inputs)
-       targets_lst.append(targets)
-   inputs_tensor = torch.stack(inputs_lst).to(device)
-   targets_tensor = torch.stack(targets_lst).to(device)
-   return inputs_tensor, targets_tensor
+    batch_max_length = max(len(item)+1 for item in batch)
+    inputs_lst, targets_lst = [], []
+
+    for item in batch:
+        new_item = item.copy()
+        new_item += [pad_token_id]
+        padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
+        inputs = torch.tensor(padded[:-1])             #A
+        targets = torch.tensor(padded[1:])             #B
+        inputs_lst.append(inputs)
+        targets_lst.append(targets)
+
+    inputs_tensor = torch.stack(inputs_lst).to(device)
+    targets_tensor = torch.stack(targets_lst).to(device)
+    return inputs_tensor, targets_tensor
+
 inputs, targets = custom_collate_draft_2(batch)
 print(inputs)
 print(targets)
-```
-#A Truncate the last token for inputs #B Shift +1 to the right for targets
 
+#A Truncate the last token for inputs
+#B Shift +1 to the right for targets
+```
 Applied to the example batch consisting of 3 input lists we defined earlier, the new custom_collate_draft_2 function now returns the input and the target batch:
 
-| tensor([[ | 0, | 1, | 2, | 3, | 4],                             | #A |
-|-----------|----|----|----|----|---------------------------------|----|
-| [         | 5, |    |    |    | 6, 50256, 50256, 50256],        |    |
-| [         | 7, | 8, |    |    | 9, 50256, 50256]])              |    |
-| tensor([[ | 1, | 2, | 3, |    | 4, 50256],                      | #B |
-| [         |    |    |    |    | 6, 50256, 50256, 50256, 50256], |    |
-| [         | 8, |    |    |    | 9, 50256, 50256, 50256]])       |    |
-
-#A The 1st tensor represents inputs #B The 2nd tensor represents the targets
+```python
+tensor([[ 0, 1, 2, 3, 4],                   #A
+        [ 5, 6, 50256, 50256, 50256],
+        [ 7, 8, 9, 50256, 50256]])
+tensor([[ 1, 2, 3, 4, 50256],               #B
+        [ 6, 50256, 50256, 50256, 50256],
+        [ 8, 9, 50256, 50256, 50256]])
+#A The 1st tensor represents inputs
+#B The 2nd tensor represents the targets
+```
 
 In the next step, we assign a -100 placeholder value to all padding tokens, as illustrated in figure 2.5. This special value allows us to exclude these padding tokens from contributing to the *training loss* calculation, ensuring that only meaningful data influences model learning.
 
@@ -6304,7 +6309,7 @@ More details on this process will be discussed after implementing this modificat
 
 ![](_page_264_Figure_1.jpeg)
 
-![](_page_264_Figure_2.jpeg)
+>Figure 7.11 This figure illustrates step 2.5 in the token replacement process we apply to the data batches. After creating the target sequence by shifting token IDs one position to the right and appending an end-of-text token, step 2.5 focuses on replacing end-of-text padding tokens with a placeholder value (-100).
 
 In step 2.4, as shown in figure 7.11, wereplace the end-of-text tokens, which we previously used as padding tokens and are assigned token ID 50256, with -100 in the target token list. (The choice of -100 as a replacement will be clarified later.)
 
@@ -6312,67 +6317,72 @@ However, note that we retain one end-of-text token, ID 50256, in the target list
 
 ![](_page_265_Figure_0.jpeg)
 
-Figure 7.12 This figure illustrates step 2.4 in the token replacement process in the target batch for the training data preparation. It shows the replacement of all but the first instance of the end-of-text token, which we use as padding, with the placeholder value -100, while keeping the initial end-of-text token in each target sequence.
+> Figure 7.12 This figure illustrates step 2.4 in the token replacement process in the target batch for the training data preparation. It shows the replacement of all but the first instance of the end-of-text token, which we use as padding, with the placeholder value -100, while keeping the initial end-of-text token in each target sequence.
 
-In the following code, we modify our custom collate function to replace tokens with ID 50256 with -100 in the target lists, as illustrated in figure 7.12. Additionally, we introduce an allowed_max_length parameter to optionally limit the length of the samples. This adjustment will be useful if you plan to work with your own datasets that exceed the 1024 token *context size* supported by the GPT-2 model. The code for this updated collate function is as follows:
+In the following code, we modify our custom `collate` function to replace tokens with ID 50256 with -100 in the target lists, as illustrated in figure 7.12. Additionally, we introduce an `allowed_max_length` parameter to optionally limit the length of the samples. This adjustment will be useful if you plan to work with your own datasets that exceed the 1024 token **context size** supported by the GPT-2 model. The code for this updated collate function is as follows:
 
-```
-Listing 7.5 Implementing a custom batch collate function
+```python
+# Listing 7.5 Implementing a custom batch collate function
 def custom_collate_fn(
-   batch,
-   pad_token_id=50256,
-   ignore_index=-100,
-   allowed_max_length=None,
-   device="cpu"
+    batch,
+    pad_token_id=50256,
+    ignore_index=-100,
+    allowed_max_length=None,
+    device="cpu"
 ):
-   batch_max_length = max(len(item)+1 for item in batch)
-   inputs_lst, targets_lst = [], []
-   for item in batch:
-       new_item = item.copy()
-       new_item += [pad_token_id]
-       # Pad sequences to max_length
-       padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
-       inputs = torch.tensor(padded[:-1]) # Truncate the last token for inputs
-       targets = torch.tensor(padded[1:]) # Shift +1 to the right for targets
-       mask = targets == pad_token_id #A
-       indices = torch.nonzero(mask).squeeze() #A
-       if indices.numel() > 1: #A
-```
-| targets[indices[1:]] = ignore_index                                                                                                                | #A |  |
-|----------------------------------------------------------------------------------------------------------------------------------------------------|----|--|
-| if allowed_max_length is not None:                                                                                                                 |    |  |
-| inputs = inputs[:allowed_max_length]                                                                                                               | #B |  |
-| targets = targets[:allowed_max_length]                                                                                                             | #B |  |
-| inputs_lst.append(inputs)<br>targets_lst.append(targets)                                                                                           |    |  |
-| inputs_tensor = torch.stack(inputs_lst).to(device)<br>targets_tensor = torch.stack(targets_lst).to(device)<br>return inputs_tensor, targets_tensor |    |  |
-|                                                                                                                                                    |    |  |
+    batch_max_length = max(len(item)+1 for item in batch)
+    inputs_lst, targets_lst = [], []
 
-```
+    for item in batch:
+        new_item = item.copy()
+        new_item += [pad_token_id]
+        # Pad sequences to max_length
+        padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
+        inputs = torch.tensor(padded[:-1]) # Truncate the last token for inputs
+        targets = torch.tensor(padded[1:]) # Shift +1 to the right for targets
+
+        mask = targets == pad_token_id                  #A
+        indices = torch.nonzero(mask).squeeze()         #A
+        if indices.numel() > 1:                         #A
+            targets[indices[1:]] = ignore_index         #A
+
+        if allowed_max_length is not None:
+            inputs = inputs[:allowed_max_length]        #B
+            targets = targets[:allowed_max_length]      #B
+
+        inputs_lst.append(inputs)
+        targets_lst.append(targets)
+
+    inputs_tensor = torch.stack(inputs_lst).to(device)
+    targets_tensor = torch.stack(targets_lst)
+    return inputs_tensor, targets_tensor
+
 #A Replace all but the first padding tokens in targets by ignore_index
 #B Optionally truncate to maximum sequence length
 ```
-Again, let's try the collate function on the sample batch that we created earlier to check that it works as intended:
+Again, let's try the `collate` function on the sample batch that we created earlier to check that it works as intended:
 
-```
+```python
 inputs, targets = custom_collate_fn(batch)
 print(inputs)
 print(targets)
 ```
 The results are as follows, where the first tensor represents the inputs, and the second tensor represents the targets:
 
-| tensor([[ | 0, | 1,        | 2,        | 3,    | 4],                      |
-|-----------|----|-----------|-----------|-------|--------------------------|
-| [         | 5, |           |           |       | 6, 50256, 50256, 50256], |
-| [         | 7, | 8,        |           |       | 9, 50256, 50256]])       |
-| tensor([[ | 1, | 2,        | 3,        |       | 4, 50256],               |
-| [         |    | 6, 50256, | -100,     | -100, | -100],                   |
-| [         | 8, |           | 9, 50256, | -100, | -100]])                  |
-
-The modified collate function works as expected, altering the target list by inserting the token ID -100. What is the logic behind this adjustment? Let's explore the underlying purpose of this modification.
-
-For demonstration purposes, consider the following simple and self-contained example where each output logit can correspond to a potential token from the model's vocabulary. Here's how we might calculate the *cross entropy loss* (introduced in chapter 5) during training when the model predicts a sequence of tokens, similar to what we have done in chapter 5 when pretraining the model, or in chapter 6 when finetuning the model for classification:
-
+```python
+tensor([[ 0, 1, 2, 3, 4],
+        [ 5, 6, 50256, 50256, 50256],
+        [ 7, 8, 9, 50256, 50256]])
+tensor([[ 1, 2, 3, 4, 50256],
+        [ 6, 50256, -100, -100, -100],
+        [ 8, 9, 50256, -100, -100]])
 ```
+
+The modified `collate` function works as expected, altering the target list by inserting the token ID -100. What is the logic behind this adjustment? Let's explore the underlying purpose of this modification.
+
+For demonstration purposes, consider the following simple and self-contained example where each output logit can correspond to a potential token from the model's vocabulary. Here's how we might calculate the **cross entropy loss** (introduced in chapter 5) during training when the model predicts a sequence of tokens, similar to what we have done in chapter 5 when pretraining the model, or in chapter 6 when finetuning the model for classification:
+
+```python
 logits_1 = torch.tensor(
     [[-1.0, 1.0], # predictions for 1st token
      [-0.5, 1.5]] # predictions for 2nd token
@@ -6383,34 +6393,36 @@ print(loss_1)
 ```
 The loss value calculated by the previous code is 1.1269.
 
+```python
 tensor(1.1269)
+```
 
 Adding an additional token ID will, as we would expect, affect the loss calculation.
 
-```
+```python
 logits_2 = torch.tensor(
-   [[-1.0, 1.0],
-    [-0.5, 1.5],
-    [-0.5, 1.5]] #A
+    [[-1.0, 1.0],
+     [-0.5, 1.5],
+     [-0.5, 1.5]]                        #A
 )
 targets_2 = torch.tensor([0, 1, 1])
 loss_2 = torch.nn.functional.cross_entropy(logits_2, targets_2)
 print(loss_2)
-```
-#A New 3rd token ID prediction
 
+#A New 3rd token ID prediction
+```
 The loss value, after adding the third token, is now 0.7936.
 
 So far, we have carried out some more or less obvious example calculations using the cross entropy loss function in PyTorch, the same loss function we used in the training functions of chapters 5 and 6, as well as the one we will use in this chapter.
 
 Now, let's get to the interesting part and see what happens if we replace the third target token ID with -100:
 
-```
+```python
 targets_3 = torch.tensor([0, 1, -100])
 loss_3 = torch.nn.functional.cross_entropy(logits_2, targets_3)
 print(loss_3)
 print("loss_1 == loss_3:", loss_1 == loss_3)
-The resulting output is as follows:
+# The resulting output is as follows:
 tensor(1.1269)
 loss_1 == loss_3: tensor(True)
 ```
@@ -6419,35 +6431,28 @@ Based on this result, we can see that the resulting loss on these 3 training exa
 
 265
 
-So, what's so special about -100 that it's ignored by the cross entropy loss? The default setting of the cross entropy function in PyTorch is cross_entropy(..., ignore_index=-100). This means that it ignores targets labeled with -100.
+So, what's so special about -100 that it's ignored by the cross entropy loss? The default setting of the cross entropy function in PyTorch is `cross_entropy(..., ignore_index=-100)`. This means that it ignores targets labeled with -100.
 
-In this chapter, we take advantage of this ignore_index to ignore the additional end-oftext (padding) tokens that we used to pad the training examples to have the same length in each batch.
+In this chapter, we take advantage of this `ignore_index` to ignore the additional end-of-text (padding) tokens that we used to pad the training examples to have the same length in each batch.
 
 However, as shown earlier in figure 7.12, we want to keep one 50256 (end-of-text) token ID in the targets because it helps the LLM to learn to generate end-of-text tokens, which we can use as an indicator that a response is complete.
 
 In addition to masking out padding tokens, it is also common to mask out the target token IDs that correspond to the instruction, as illustrated in figure 7.13.
 
-|                                                                                                              | Mask out the instruction when calculating the loss                                                     |
-|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| Input text:                                                                                                  | Target text:                                                                                           |
-| Below is an instruction that describes a task. Write a<br>response that appropriately completes the request. | is an instruction that describes a task. Write a response<br>that appropriately completes the request. |
-| ### Instruction:<br>Rewrite the following sentence using passive voice.                                      | ### Instruction:<br>Rewrite the following sentence using passive voice.                                |
-| ### Input:<br>The team achieved great results.                                                               | ### Input:<br>The team achieved great results.                                                         |
-| ### Response:<br>Great results were achieved by the team.                                                    | ### Response:<br>Great results were achieved by the team. <   endoftext  >                             |
-| Tokenize                                                                                                     | Tokenize                                                                                               |
-| [21106, 318, 281, 12064, 326, , 13]                                                                          | [-100, -100, -100, -100, -100, , 13, 50256]                                                            |
-|                                                                                                              |                                                                                                        |
-| he token IDs corresponding to the input text                                                                 | The instruction tokens are replaced by -100                                                            |
+![](7.13.jpg)
 
-Figure 7.13 The left side shows the formatted input text we tokenize and then feed to the LLM during training. The right side shows the target text we prepare for the LLM where we can optionally mask out the instruction section, which means replacing the corresponding token IDs with the -100 ignore_index value.
+>Figure 7.13 The left side shows the formatted input text we tokenize and then feed to the LLM during training. The right side shows the target text we prepare for the LLM where we can optionally mask out the instruction section, which means replacing the corresponding token IDs with the -100 ignore_index value.
 
 By masking out the target token IDs that correspond to the instruction, as shown in figure 7.13, the LLM the cross entropy loss is only computed for the generated response target IDs. By masking out the instruction tokens, the model is trained to focus on generating accurate responses rather than additionally also memorizing instructions, which can help with reducing overfitting.
 
 Currently, researchers are divided on whether masking the instructions as shown in figure 7.13 is universally beneficial during instruction finetuning. For instance, a recent paper titled "Instruction Tuning With Loss Over Instructions" demonstrated that not masking the instructions benefits the LLM performance (see the references in appendix B for more details). In this chapter, we do not apply masking and leave it as an optional exercise for the reader.
 
-#### EXERCISE 7.2 INSTRUCTION AND INPUT MASKING
-
-After completing the chapter and finetuning the model with the InstructionDataset implemented in this section, replace the instruction and input tokens with the -100 mask to implement the instruction masking method illustrated in Figure 7.13. Then, evaluate whether this has a positive effect on model performance.
+> [!NOTE]
+>
+> **EXERCISE 7.2 INSTRUCTION AND INPUT MASKING**
+>
+> After completing the chapter and finetuning the model with the InstructionDataset implemented in this section, replace the instruction and input tokens with the -100 mask to implement the instruction masking method illustrated in Figure 7.13. Then, evaluate whether this has a positive effect on model performance.
+>
 
 ## 7.4 Creating data loaders for an instruction dataset
 
