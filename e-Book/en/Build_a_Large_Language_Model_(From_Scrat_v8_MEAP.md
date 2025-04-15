@@ -122,9 +122,9 @@ The general process of creating an LLM includes pretraining and finetuning. The 
 
 ![](_page_10_Figure_0.jpeg)
 
-Figure 1.3 Pretraining an LLM involves next-word prediction on large text datasets. A pretrained LLM can then be finetuned using a smaller labeled dataset.
+> Figure 1.3 Pretraining an LLM involves next-word prediction on large text datasets. A pretrained LLM can then be finetuned using a smaller labeled dataset.
 
-As illustrated in Figure 1.3, the first step in creating an LLM is to train it on a large corpus of text data, sometimes referred to as *raw* text. Here, "raw" refers to the fact that this data is just regular text without any labeling information [\[1\]](#page-20-0) . (Filtering may be applied, such as removing formatting characters or documents in unknown languages.)
+As illustrated in Figure 1.3, the first step in creating an LLM is to train it on a large corpus of text data, sometimes referred to as *raw* text. Here, "raw" refers to the fact that this data is just regular text without any labeling information[^1]. (Filtering may be applied, such as removing formatting characters or documents in unknown languages.)
 
 This first training stage of an LLM is also known as *pretraining*, creating an initial pretrained LLM, often called a *base* or *foundation model*. A typical example of such a model is the GPT-3 model (the precursor of the original model offered in ChatGPT). This model is capable of text completion, that is, finishing a half-written sentence provided by a user. It also has limited few-shot capabilities, which means it can learn to perform new tasks based on only a few examples instead of needing extensive training data. This is further illustrated in the next section*, Introducing the transformer architecture*.
 
@@ -138,7 +138,7 @@ In this book, we will cover both code implementations for pretraining and finetu
 
 ## 1.4 Introducing the transformer architecture
 
-Most modern LLMs rely on the **transformer** architecture, which is a deep neural network architecture introduced in the 2017 paper **Attention Is All You Need**. To understand LLMs we briefly have to go over the original transformer, which was originally developed for machine translation, translating English texts to German and French. A simplified version of the transformer architecture is depicted in Figure 1.4.
+Most modern LLMs rely on the **transformer** architecture, which is a deep neural network architecture introduced in the 2017 paper **[Attention Is All You Need](https://arxiv.org/abs/1706.03762)**. To understand LLMs we briefly have to go over the original transformer, which was originally developed for machine translation, translating English texts to German and French. A simplified version of the transformer architecture is depicted in Figure 1.4.
 
 ![](_page_11_Figure_2.jpeg)
 
@@ -148,7 +148,7 @@ The transformer architecture depicted in Figure 1.4 consists of two submodules, 
 
 A key component of transformers and LLMs is the self-attention mechanism (not shown), which allows the model to weigh the importance of different words or tokens in a sequence relative to each other. This mechanism enables the model to capture long-range dependencies and contextual relationships within the input data, enhancing its ability to generate coherent and contextually relevant output. However, due to its complexity, we will defer the explanation to chapter 3, where we will discuss and implement it step by step. Moreover, we will also discuss and implement the data preprocessing steps to create the model inputs in [chapter 2, Working with Text Data](# 2 Working with Text Data).
 
-Later variants of the transformer architecture, such as the so-called BERT (short for *bidirectional encoder representations from transformers*) and the various GPT models (short for *generative pretrained transformers*), built on this concept to adapt this architecture for different tasks. (References can be found in Appendix B.)
+Later variants of the transformer architecture, such as the so-called BERT (short for **bidirectional encoder representations from transformers**) and the various GPT models (short for **generative pretrained transformers**), built on this concept to adapt this architecture for different tasks. (References can be found in Appendix B.)
 
 BERT, which is built upon the original transformer's encoder submodule, differs in its training approach from GPT. While GPT is designed for generative tasks, BERT and its variants specialize in masked word prediction, where the model predicts masked or hidden words in a given sentence as illustrated in Figure 1.5. This unique training strategy equips BERT with strengths in text classification tasks, including sentiment prediction and document categorization. As an application of its capabilities, as of this writing, Twitter uses BERT to detect toxic content.
 
@@ -183,21 +183,24 @@ The large training datasets for popular GPT- and BERT-like models represent dive
 | Books2                 | Internet-based book<br>corpus |                     | 8%                             |  |
 | Wikipedia              | High-quality text             | 3 billion           | 3%                             |  |
 
-Table 1.1 The pretraining dataset of the popular GPT-3 LLM
+> Table 1.1 The pretraining dataset of the popular GPT-3 LLM
 
 Table 1.1 reports the number of tokens, where a token is a unit of text that a model reads, and the number of tokens in a dataset is roughly equivalent to the number of words and punctuation characters in the text. We will cover tokenization, the process of converting text into tokens, in more detail in the next chapter.
 
 The main takeaway is that the scale and diversity of this training dataset allows these models to perform well on diverse tasks including language syntax, semantics, and context, and even some requiring general knowledge.
 
-#### GPT-3 DATASET DETAILS
+> [!NOTE]
+>
+> **GPT-3 DATASET DETAILS**
+>
+> Table 1.1 displays the dataset used for GPT-3. The proportions column in the table sums up to 100% of the sampled data, adjusted for rounding errors. Although the subsets in the "Number of Tokens" column total 509 billion, the model was trained on only 300 billion tokens. The authors of the GPT-3 paper did not specify why the model was not trained on all 509 billion tokens.
+>
+> For context, consider the size of the CommonCrawl dataset, which alone consists of 410 billion tokens and requires about 570 GB of storage. In comparison, later iterations of models like GPT-3, such as Meta's LLaMA, have expanded their training scope to include additional data sources like Arxiv research papers (92 GB) and StackExchange's code-related Q&As (78 GB).
+>
+> The authors of the GPT-3 paper did not share the training dataset but a comparable dataset that is publicly available is **Dolma: an Open Corpus of Three Trillion Tokens for LLM Pretraining Research** by Soldaini *et al. 2024 (*[https://arxiv.org/abs/2402.](https://arxiv.org/abs/2402.00159) [00159\)](https://arxiv.org/abs/2402.00159). However, the collection may contain copyrighted works, and the exact usage terms may depend on the intended use case and country.
+>
 
-Table 1.1 displays the dataset used for GPT-3. The proportions column in the table sums up to 100% of the sampled data, adjusted for rounding errors. Although the subsets in the "Number of Tokens" column total 509 billion, the model was trained on only 300 billion tokens. The authors of the GPT-3 paper did not specify why the model was not trained on all 509 billion tokens.
-
-For context, consider the size of the CommonCrawl dataset, which alone consists of 410 billion tokens and requires about 570 GB of storage. In comparison, later iterations of models like GPT-3, such as Meta's LLaMA, have expanded their training scope to include additional data sources like Arxiv research papers (92 GB) and StackExchange's code-related Q&As (78 GB).
-
-The authors of the GPT-3 paper did not share the training dataset but a comparable dataset that is publicly available is *Dolma: an Open Corpus of Three Trillion Tokens for LLM Pretraining Research* by Soldaini *et al. 2024 (*[https://arxiv.org/abs/2402.](https://arxiv.org/abs/2402.00159) [00159\)](https://arxiv.org/abs/2402.00159). However, the collection may contain copyrighted works, and the exact usage terms may depend on the intended use case and country.
-
-The pretrained nature of these models makes them incredibly versatile for further finetuning on downstream tasks, which is why they are also known as base or foundation models. Pretraining LLMs requires access to significant resources and is very expensive. For example, the GPT-3 pretraining cost is estimated to be \$4.6 million in terms of cloud computing credits [\[2\]](#page-20-1) .
+The pretrained nature of these models makes them incredibly versatile for further finetuning on downstream tasks, which is why they are also known as base or foundation models. Pretraining LLMs requires access to significant resources and is very expensive. For example, the GPT-3 pretraining cost is estimated to be \$4.6 million in terms of cloud computing credits [^2] .
 
 The good news is that many pretrained LLMs, available as open-source models, can be used as general purpose tools to write, extract, and edit texts that were not part of the training data. Also, LLMs can be finetuned on specific tasks with relatively smaller datasets, reducing the computational resources needed and improving performance on the specific task.
 
@@ -207,7 +210,7 @@ In this book, we will implement the code for pretraining and use it to pretrain 
 
 Previously in this chapter, we mentioned the terms GPT-like models, GPT-3, and ChatGPT. Let's now take a closer look at the general GPT architecture. First, GPT stands for *G*enerative *P*retrained *T*ransformer and was originally introduced in the following paper:
 
-*Improving Language Understanding by Generative Pre-Training* (2018) by *Radford et al.* from OpenAI, [http://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf](http://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf)
+**Improving Language Understanding by Generative Pre-Training (2018)** by *Radford et al.* from OpenAI, [http://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf](http://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf)
 
 GPT-3 is a scaled-up version of this model that has more parameters and was trained on a larger dataset. And the original model offered in ChatGPT was created by finetuning GPT-3 on a large instruction dataset using a method from OpenAI's InstructGPT paper, which we will cover in more detail in *chapter 7, Finetuning with Human Feedback To Follow Instructions*. As we have seen earlier in Figure 1.6, these models are competent text completion models and can carry out other tasks such as spelling correction, classification, or language translation. This is actually very remarkable given that GPT models are pretrained on a relatively simple next-word prediction task, as illustrated in Figure 1.7.
 
@@ -215,7 +218,7 @@ GPT-3 is a scaled-up version of this model that has more parameters and was trai
 
 ![](image.062B42.png)
 
-Figure 1.7 In the next-word pretraining task for GPT models, the system learns to predict the upcoming word in a sentence by looking at the words that have come before it. This approach helps the model understand how words and phrases typically fit together in language, forming a foundation that can be applied to various other tasks.
+> Figure 1.7 In the next-word pretraining task for GPT models, the system learns to predict the upcoming word in a sentence by looking at the words that have come before it. This approach helps the model understand how words and phrases typically fit together in language, forming a foundation that can be applied to various other tasks.
 
 The next-word prediction task is a form of self-supervised learning, which is a form of self-labeling. This means that we don't need to collect labels for the training data explicitly but can leverage the structure of the data itself: we can use the next word in a sentence or document as the label that the model is supposed to predict. Since this next-word prediction task allows us to create labels "on the fly", it is possible to leverage massive unlabeled text datasets to train LLMs as previously discussed in <u>section 1.5</u>, Utilizing large datasets.
 
@@ -225,7 +228,7 @@ Architectures such as GPT-3 are also significantly larger than the original tran
 
 ![](_page_18_Figure_0.jpeg)
 
-Figure 1.8 The GPT architecture employs only the decoder portion of the original transformer. It is designed for unidirectional, left-to-right processing, making it well-suited for text generation and next-word prediction tasks to generate text in iterative fashion one word at a time.
+> Figure 1.8 The GPT architecture employs only the decoder portion of the original transformer. It is designed for unidirectional, left-to-right processing, making it well-suited for text generation and next-word prediction tasks to generate text in iterative fashion one word at a time.
 
 GPT-3 was introduced in 2020, which, by the standards of deep learning and large language model (LLM) development, is considered a long time ago. However, more recent architectures, such as Meta's Llama models, are still based on the same underlying concepts, introducing only minor modifications. Hence, understanding GPT remains as relevant as ever, and this book focuses on implementing the prominent architecture behind GPT while providing pointers to specific tweaks employed by alternative LLMs.
 
@@ -239,7 +242,7 @@ In this chapter, we laid the groundwork for understanding LLMs. In the remainder
 
 ![](_page_19_Figure_2.jpeg)
 
-Figure 1.9 The stages of building LLMs covered in this book include implementing the LLM architecture and data preparation process, pretraining an LLM to create a foundation model, and finetuning the foundation model to become a personal assistant or text classifier.
+> Figure 1.9 The stages of building LLMs covered in this book include implementing the LLM architecture and data preparation process, pretraining an LLM to create a foundation model, and finetuning the foundation model to become a personal assistant or text classifier.
 
 First, we will learn about the fundamental data preprocessing steps and code the attention mechanism that is at the heart of every LLM.
 
@@ -264,12 +267,9 @@ I hope you are looking forward to embarking on this exciting journey!
 - While the general pretraining task for GPT-like models is to predict the next word in a sentence, these LLMs exhibit "emergent" properties such as capabilities to classify, translate, or summarize texts.
 - Once an LLM is pretrained, the resulting foundation model can be finetuned more efficiently for various downstream tasks.
 - LLMs finetuned on custom datasets can outperform general LLMs on specific tasks.
-- [\[1\]](#page-10-0) Readers with a background in machine learning may note that labeling information is typically required for traditional machine learning models and deep neural networks trained via the conventional supervised learning paradigm. However, this is not the case for the pretraining stage of LLMs. In this phase, LLMs leverage selfsupervised learning, where the model generates its own labels from the input data. This concept is covered later in this chapter
-- [\[2\]](#page-16-0) *GPT-3, The \$4,600,000 Language Model,* [https://www.reddit.com/r/MachineLearning/comments/h0jwoz/d_gpt3_the_4600000_language_model/](https://www.reddit.com/r/MachineLearning/comments/h0jwoz/d_gpt3_the_4600000_language_model/)
 
-<span id="page-20-1"></span><span id="page-20-0"></span>
-
-<span id="page-21-0"></span>
+[^1]:   Readers with a background in machine learning may note that labeling information is typically required for traditional machine learning models and deep neural networks trained via the conventional supervised learning paradigm. However, this is not the case for the pretraining stage of LLMs. In this phase, LLMs leverage selfsupervised learning, where the model generates its own labels from the input data. This concept is covered later in this chapter
+[^2]:  **GPT-3, The $4,600,000 Language Model** https://www.reddit.com/r/MachineLearning/comments/h0jwoz/d_gpt3_the_4600000_language_model/
 
 # 2 Working with Text Data
 
