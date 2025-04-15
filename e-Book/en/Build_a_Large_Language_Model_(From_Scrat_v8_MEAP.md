@@ -140,7 +140,7 @@ In this book, we will cover both code implementations for pretraining and finetu
 
 ## 1.4 Introducing the transformer architecture
 
-Most modern LLMs rely on the **transformer** architecture, which is a deep neural network architecture introduced in the 2017 paper *Attention Is All You Need*. To understand LLMs we briefly have to go over the original transformer, which was originally developed for machine translation, translating English texts to German and French. A simplified version of the transformer architecture is depicted in Figure 1.4.
+Most modern LLMs rely on the **transformer** architecture, which is a deep neural network architecture introduced in the 2017 paper **Attention Is All You Need**. To understand LLMs we briefly have to go over the original transformer, which was originally developed for machine translation, translating English texts to German and French. A simplified version of the transformer architecture is depicted in Figure 1.4.
 
 ![](_page_11_Figure_2.jpeg)
 
