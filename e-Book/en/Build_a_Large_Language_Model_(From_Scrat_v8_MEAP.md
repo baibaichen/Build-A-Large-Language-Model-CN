@@ -6972,15 +6972,17 @@ Previously, we judged the performance of an instruction finetuned model by looki
 
 ![](_page_288_Figure_4.jpeg)
 
-Figure 7.19 In this last step of the instruction finetuning pipeline, we implement a method to quantify the performance of the finetuned model by scoring the responses it generated for the test.
+> Figure 7.19 In this last step of the instruction finetuning pipeline, we implement a method to quantify the performance of the finetuned model by scoring the responses it generated for the test.
 
-To implement step 9 shown in figure 7.19, which involves evaluating test set responses in an automated fashion, we utilize an existing instruction-finetuned 8 billion parameter Llama 3 model developed by Meta AI. This model can be run locally using the open-source Ollama application ([https://ollama.com\)](https://ollama.com/).
+To implement step 9 shown in figure 7.19, which involves evaluating test set responses in an automated fashion, we utilize an existing instruction-finetuned 8 billion parameter Llama 3 model developed by Meta AI. This model can be run locally using the open-source Ollama application ([https://ollama.com](https://ollama.com/)).
 
-Ollama is an efficient application for running LLMs on a laptop. It serves as a wrapper around the open-source llama.cpp library [\(https://github.com/ggerganov/llama.cpp](https://github.com/ggerganov/llama.cpp)), which implements LLMs in pure C/C++ to maximize efficiency. However, note that Ollama is only a tool for generating text using LLMs (inference) and does not support training or finetuning LLMs.
+Ollama is an efficient application for running LLMs on a laptop. It serves as a wrapper around the open-source `llama.cpp` library ([https://github.com/ggerganov/llama.cpp](https://github.com/ggerganov/llama.cpp)), which implements LLMs in pure C/C++ to maximize efficiency. However, note that Ollama is only a tool for generating text using LLMs (inference) and does not support training or finetuning LLMs.
 
-#### USING LARGER LLMS VIA WEB APIS
-
-The 8 billion parameter Llama 3 model is a very capable LLM that runs locally. However, it's not as capable as large proprietary LLMs such as GPT-4 offered by OpenAI. For readers interested in exploring how to utilize GPT-4 through the OpenAI API to assess generated model responses, an optional code notebook is available within the supplementary materials accompanying this book at [https://github.](https://github.com/rasbt/LLMs-from-scratch/blob/main/ch07/03_model-evaluation/llm-instruction-eval-openai.ipynb) [com/rasbt/LLMs-from-scratch/blob/main/ch07/03\_model-evaluation/llm-instruction](https://github.com/rasbt/LLMs-from-scratch/blob/main/ch07/03_model-evaluation/llm-instruction-eval-openai.ipynb)[eval-openai.ipynb](https://github.com/rasbt/LLMs-from-scratch/blob/main/ch07/03_model-evaluation/llm-instruction-eval-openai.ipynb)
+> [!NOTE]
+>
+> **USING LARGER LLMS VIA WEB APIS**
+>
+> The 8 billion parameter Llama 3 model is a very capable LLM that runs locally. However, it's not as capable as large proprietary LLMs such as GPT-4 offered by OpenAI. For readers interested in exploring how to utilize GPT-4 through the OpenAI API to assess generated model responses, an optional code notebook is available within the supplementary materials accompanying this book at https://github.com/rasbt/LLMs-from-scratch/blob/main/ch07/03_model-evaluation/llm-instruction-eval-openai.ipynb
 
 To execute the following code, please install Ollama by visiting [https://ollama.com](https://ollama.com/) and following the provided instructions for your operating system:
 
@@ -6993,25 +6995,42 @@ Before implementing the model evaluation code, let's first download the Llama 3 
 
 287
 
-Figure 7.20 Two options for running Ollama. The left panel illustrates starting Ollama using ollama serve. The right panel shows a second option in macOS, running the Ollama application in the background instead of using the ollama serve command to start the application.
+> Figure 7.20 Two options for running Ollama. The left panel illustrates starting Ollama using ollama serve. The right panel shows a second option in macOS, running the Ollama application in the background instead of using the ollama serve command to start the application.
 
 With the Ollama application or ollama serve running in a different terminal as shown in figure 7.20, execute the following command on the command line (not in a Python session) to try out the 8 billion parameter Llama 3 model:
 
+```python
 ollama run llama3
+```
 
 The first time you execute this command, the 8 billion parameter Llama 3 model, which takes up 4.7 GB of storage space, will be automatically downloaded. The output looks like as follows:
 
-![](_page_290_Figure_5.jpeg)
+```python
+pulling manifest
+pulling 6a0746a1ec1a... 100% ▕████████████████▏ 4.7 GB
+pulling 4fa551d4f938... 100% ▕████████████████▏ 12 KB
+pulling 8ab4849b038c... 100% ▕████████████████▏ 254 B
+pulling 577073ffcc6c... 100% ▕████████████████▏ 110 B
+pulling 3f8eb4da87fa... 100% ▕████████████████▏ 485 B
+verifying sha256 digest
+writing manifest
+removing any unused layers
+success
+```
 
-#### ALTERNATIVE OLLAMA MODELS
-
-Note that the llama3 in the ollama run llama3 command refers to the instructionfinetuned 8 billion parameter Llama 3 model. Using Ollama with the llama3 model requires approximately 16 GB of RAM. If your machine does not have sufficient RAM, you can try using a smaller model, such as the 3.8 billion parameter phi-3 model via ollama run llama3, which only requires around 8 GB of RAM.
-
-For more powerful computers, you can also use the larger 70 billion parameter Llama 3 model by replacing llama3 with llama3:70b. However, keep in mind that this model requires significantly more computational resources.
+> [!NOTE]
+>
+> **ALTERNATIVE OLLAMA MODELS**
+>
+> Note that the llama3 in the ollama run llama3 command refers to the instructionfinetuned 8 billion parameter Llama 3 model. Using Ollama with the llama3 model requires approximately 16 GB of RAM. If your machine does not have sufficient RAM, you can try using a smaller model, such as the 3.8 billion parameter phi-3 model via ollama run llama3, which only requires around 8 GB of RAM.
+>
+> For more powerful computers, you can also use the larger 70 billion parameter Llama 3 model by replacing llama3 with llama3:70b. However, keep in mind that this model requires significantly more computational resources.
 
 Once the model download is complete, we are presented with a command-line interface that allows us to interact with the model. For example, try asking the model, "What do llamas eat?":
 
+```python
 >>> What do llamas eat? Llamas are ruminant animals, which means they have a four-chambered stomach and eat plants that are high in fiber. In the wild, llamas typically feed on: 1. Grasses: They love to graze on various types of grasses, including tall grasses, wheat, oats, and barley.
+```
 
 Note that the response you may be seeing might differ since Ollama is not deterministic as of this writing.
 
@@ -7019,7 +7038,7 @@ You can end this ollama run llama3 session using the input /bye. However, make s
 
 The following code verifies that the Ollama session is running properly before we use Ollama to evaluate the test set responses generated in the previous section:
 
-```
+```python
 import psutil
 def check_if_running(process_name):
     running = False
@@ -7033,13 +7052,15 @@ if not ollama_running:
     raise RuntimeError("Ollama not running. Launch ollama before proceeding.")
 print("Ollama running:", check_if_running("ollama"))
 ```
-Ensure that the output from executing the previous code displays Ollama running: True. If it shows False, please verify that the ollama serve command or the Ollama application is actively running.
+Ensure that the output from executing the previous code displays Ollama running: True. If it shows False, please verify that the `ollama serve` command or the Ollama application is actively running.
 
-#### RUNNING THE CODE IN A NEW PYTHON SESSION
+> [!NOTE]
+>
+> **RUNNING THE CODE IN A NEW PYTHON SESSION**
+>
+> If you closed your Python session after section 7.7, or if you prefer to execute the remaining code in this chapter in different Python session, you execute the following code, which loads the instruction and response data file we created in section 7.7, and it redefines the format_input function we used earlier (the tqdm progress bar utility is used later):
 
-If you closed your Python session after section 7.7, or if you prefer to execute the remaining code in this chapter in different Python session, you execute the following code, which loads the instruction and response data file we created in section 7.7, and it redefines the format_input function we used earlier (the tqdm progress bar utility is used later):
-
-```
+```python
 import json
 from tqdm import tqdm
 file_path = "instruction-data-with-response.json"
@@ -7054,47 +7075,47 @@ def format_input(entry):
     input_text = f"\n\n### Input:\n{entry['input']}" if entry["input"] else ""
        return instruction_text + input_text
 ```
-An alternative to the ollama run command for interacting with the model is through its REST API using Python. The following query_model function demonstrates how to use the API:
+An alternative to the `ollama run` command for interacting with the model is through its REST API using Python. The following `query_model` function demonstrates how to use the API:
 
-```
-Listing 7.10 Querying a local Ollama model
-```
-
-```
+```python
+# Listing 7.10 Querying a local Ollama model
 import urllib.request
+
 def query_model(prompt, model="llama3", url="http://localhost:11434/api/chat"):
-   data = { #A
-       "model": model,
-       "seed": 123, # for deterministic responses
-       "temperature": 0, # for deterministic responses
-       "messages": [
-          {"role": "user", "content": prompt}
-       ]
-   }
-   payload = json.dumps(data).encode("utf-8") #B
-   request = urllib.request.Request(url, data=payload, method="POST") #C
-   request.add_header("Content-Type", "application/json") #C
-   response_data = ""
-   with urllib.request.urlopen(request) as response: #D
-       while True:
-          line = response.readline().decode("utf-8")
-          if not line:
-              break
-          response_json = json.loads(line)
-          response_data += response_json["message"]["content"]
-   return response_data
-```
-#A Create the data payload as a dictionary #B Convert the dictionary to a JSON formatted string and encode it to bytes
+    data = {                                                               #A
+        "model": model,
+        "seed": 123, # for deterministic responses
+        "temperature": 0, # for deterministic responses
+        "messages": [
+            {"role": "user", "content": prompt}
+        ]
+    }
 
+    payload = json.dumps(data).encode("utf-8")                             #B
+    request = urllib.request.Request(url, data=payload, method="POST")     #C
+    request.add_header("Content-Type", "application/json")                 #C
+
+    response_data = ""
+    with urllib.request.urlopen(request) as response:                      #D
+        while True:
+            line = response.readline().decode("utf-8")
+            if not line:
+                break
+            response_json = json.loads(line)
+            response_data += response_json["message"]["content"]
+    return response_data
+
+#A Create the data payload as a dictionary
+#B Convert the dictionary to a JSON formatted string and encode it to bytes
 #C Create a request object, setting the method to POST and adding necessary headers
-
 #D Send the request and capture the response
+```
 
 Before running the subsequent code cells in this notebook, ensure that Ollama is still running. The previous code cells should print "Ollama running: True" to confirm that the model is active and ready to receive requests.
 
-Here's an example of how to use the query_llama function we just implemented:
+Here's an example of how to use the `query_llama` function we just implemented:
 
-```
+```python
 model = "llama3"
 result = query_model("What do Llamas eat?", model)
 print(result)
@@ -7102,18 +7123,17 @@ print(result)
 The resulting response is as follows:
 
 291
-
+```python
 Llamas are ruminant animals, which means they have a four-chambered stomach that allows them to digest plant-based foods. Their diet typically consists of:
 
 1. Grasses: Llamas love to graze on grasses, including tall grasses, short grasses, and even weeds.
-
 ...
-
-Using the query_model function defined earlier, we can evaluate the responses generated by our finetuned model with a prompt that prompts the Llama 3 model to rate our finetuned model's responses on a scale from 0 to 100 based on the given test set response as reference.
+```
+Using the `query_model` function defined earlier, we can evaluate the responses generated by our finetuned model with a `prompt` that prompts the Llama 3 model to rate our finetuned model's responses on a scale from 0 to 100 based on the given test set response as reference.
 
 First, we apply this approach to the first three examples from the test set that we examined in a previous section:
 
-```
+```python
 for entry in test_data[:3]:
     prompt = (
         f"Given the input `{format_input(entry)}` "
@@ -7131,58 +7151,92 @@ for entry in test_data[:3]:
 ```
 This prints outputs similar to the following ones (note that Ollama is not fully deterministic, as of this writing, so the generated texts may vary):
 
-Dataset response: >> The car is as fast as lightning. Model response: >> The car is as fast as a bullet. Score: >> A scoring task!
+```python
+Dataset response:
+>> The car is as fast as lightning.
+
+Model response:
+>> The car is as fast as a bullet.
+
+Score:
+>> A scoring task!
 
 To evaluate the model response "The car is as fast as a bullet.", I'll consider how well
-
-it follows the instruction and uses a simile that's coherent, natural-sounding, and effective in conveying the idea of speed.
+it follows the instruction and uses a simile that's coherent, natural-sounding, and
+effective in conveying the idea of speed.
 
 Here are some factors to consider:
 
-1. **Follows instruction**: Yes, the model uses a simile to rewrite the sentence. 2. **Coherence and naturalness**: The comparison between the car's speed and a bullet is common and easy to understand. It's a good choice for a simile that conveys the idea of rapid movement.
+1. **Follows instruction**: Yes, the model uses a simile to rewrite the sentence.
+2. **Coherence and naturalness**: The comparison between the car's speed and a bullet is
+common and easy to understand. It's a good choice for a simile that conveys the idea of
+rapid movement.
+3. **Effectiveness in conveying idea of speed**: A bullet is known for its high
+velocity, which makes it an excellent choice to describe a fast-moving car.
 
-3. **Effectiveness in conveying idea of speed**: A bullet is known for its high velocity, which makes it an excellent choice to describe a fast-moving car.
-
-Considering these factors, I'd score the model response "The car is as fast as a bullet." around 85 out of 100. The simile is well-chosen, coherent, and effectively conveys the idea of speed. Well done, model!
-
--------------------------
-
-Dataset response: >> The type of cloud typically associated with thunderstorms is cumulonimbus.
-
-Model response: >> The type of cloud associated with thunderstorms is a cumulus cloud.
-
-Score: >> A scoring task!
-
-I'll evaluate the model's response based on its accuracy and relevance to the original instruction.
-
-**Accuracy:** The model's response is partially correct. Cumulus clouds are indeed associated with fair weather and not typically linked to thunderstorms. The correct answer, cumulonimbus, is a type of cloud that is closely tied to thunderstorm formation.
-
-**Relevance:** The model's response is somewhat relevant, as it mentions clouds in the context of thunderstorms. However, the specific type of cloud mentioned (cumulus) is not directly related to thunderstorms.
-
-Considering these factors, I would score the model response a **40 out of 100**. While the response attempts to address the instruction, it provides an incorrect answer and lacks relevance to the original question.
+Considering these factors, I'd score the model response "The car is as fast as a
+bullet." around 85 out of 100. The simile is well-chosen, coherent, and effectively
+conveys the idea of speed. Well done, model!
 
 -------------------------
 
-293
+Dataset response:
+>> The type of cloud typically associated with thunderstorms is cumulonimbus.
 
-Dataset response: >> Jane Austen. Model response: >> The author of 'Pride and Prejudice' is Jane Austen. Score: >> A simple one! My model response: "The author of 'Pride and Prejudice' is Jane Austen." Score: **99** Reasoning:
+Model response:
+>> The type of cloud associated with thunderstorms is a cumulus cloud.
 
-- * The response directly answers the question, providing the correct name of the author.
-- * The sentence structure is clear and easy to understand.
-- * There's no room for misinterpretation or ambiguity.
+Score:
+>> A scoring task!
+
+I'll evaluate the model's response based on its accuracy and relevance to the original
+instruction.
+
+**Accuracy:** The model's response is partially correct. Cumulus clouds are indeed
+associated with fair weather and not typically linked to thunderstorms. The correct
+answer, cumulonimbus, is a type of cloud that is closely tied to thunderstorm formation.
+
+**Relevance:** The model's response is somewhat relevant, as it mentions clouds in the
+context of thunderstorms. However, the specific type of cloud mentioned (cumulus) is not
+directly related to thunderstorms.
+
+Considering these factors, I would score the model response a **40 out of 100**. While
+the response attempts to address the instruction, it provides an incorrect answer and
+lacks relevance to the original question.
+
+-------------------------
+
+Dataset response:
+>> Jane Austen.
+
+Model response:
+>> The author of 'Pride and Prejudice' is Jane Austen.
+
+Score:
+>> A simple one!
+
+My model response: "The author of 'Pride and Prejudice' is Jane Austen."
+
+Score: **99**
+
+Reasoning:
+
+* The response directly answers the question, providing the correct name of the author.
+* The sentence structure is clear and easy to understand.
+* There's no room for misinterpretation or ambiguity.
 
 Overall, a perfect score!
 
 -------------------------
-
+```
 Based on the generated responses, we can observe that the Llama 3 model provides reasonable evaluations and is capable of assigning partial points when a model's answer is not entirely correct. For instance, if we consider the evaluation of the "cumulus cloud" answer, the model acknowledges the partial correctness of the response.
 
-The previous prompt returns highly detailed evaluations in addition to the score. We can modify the prompt to just generate integer scores ranging from 0 to 100, where 100 represents the best possible score. This modification allows us to calculate an average score for our model, which serves as a more concise and quantitative assessment of its performance.
+The previous `prompt` returns highly detailed evaluations in addition to the score. We can modify the `prompt` to just generate integer scores ranging from 0 to 100, where 100 represents the best possible score. This modification allows us to calculate an average score for our model, which serves as a more concise and quantitative assessment of its performance.
 
-The following generate_model_scores function uses a modified the prompt telling the model to "Respond with the integer number only.":
+The following `generate_model_scores` function uses a modified the `prompt` telling the model to "Respond with the integer number only.":
 
-```
-Listing 7.11 Evaluating the instruction finetuning LLM
+```python
+# Listing 7.11 Evaluating the instruction finetuning LLM
 def generate_model_scores(json_data, json_key, model="llama3"):
     scores = []
     for entry in tqdm(json_data, desc="Scoring entries"):
@@ -7191,7 +7245,7 @@ def generate_model_scores(json_data, json_key, model="llama3"):
             f"and correct output `{entry['output']}`, "
             f"score the model response `{entry[json_key]}`"
             f" on a scale from 0 to 100, where 100 is the best score. "
-            f"Respond with the integer number only." #A
+            f"Respond with the integer number only."                        #A
         )
         score = query_model(prompt, model)
         try:
@@ -7199,21 +7253,24 @@ def generate_model_scores(json_data, json_key, model="llama3"):
         except ValueError:
             print(f"Could not convert score: {score}")
             continue
+
     return scores
-```
-Let's now apply the generate_model_scores function to the entire test_data set, which
-
 #A Modified instruction line to only return the score
-
 ```
-takes about 1 minute on a M3 Macbook Air:
+
+```python
+#Let's now apply the generate_model_scores function to the entire test_data set, which takes about 1 minute on a M3 Macbook Air:
 scores = generate_model_scores(test_data, "model_response")
 print(f"Number of scores: {len(scores)} of {len(test_data)}")
 print(f"Average score: {sum(scores)/len(scores):.2f}\n")
 ```
 The results are as follows:
 
-Scoring entries: 100%|████████████████████████| 110/110 [01:10<00:00, 1.56it/s] Number of scores: 110 of 110 Average score: 54.16
+```python
+Scoring entries: 100%|████████████████████████| 110/110 [01:10<00:00, 1.56it/s]
+Number of scores: 110 of 110
+Average score: 54.16
+```
 
 The evaluation output shows that our finetuned model achieves an average score above 50, which provides a useful benchmark for comparison against other models or for experimenting with different training configurations to improve the model's performance.
 
@@ -7228,13 +7285,18 @@ To further improve our model's performance, we can explore various strategies, s
 - Experimenting with different prompts or instruction formats to guide the model's responses more effectively.
 - Considering the use of a larger pretrained model, which may have greater capacity to capture complex patterns and generate more accurate responses.
 
-#### PERFORMANCE OF LLAMA 3 MODELS
+> [!NOTE]
+>
+> **PERFORMANCE OF LLAMA 3 MODELS**
+>
+> For reference, when using the methodology described in this section, the Llama 3 8B base model, without any finetuning, achieves an average score of 58.51 on the test set. The Llama 3 8B instruct model, which has been finetuned on a general instruction-following dataset, achieves an impressive average score of 82.6.
+>
 
-For reference, when using the methodology described in this section, the Llama 3 8B base model, without any finetuning, achieves an average score of 58.51 on the test set. The Llama 3 8B instruct model, which has been finetuned on a general instruction-following dataset, achieves an impressive average score of 82.6.
-
-#### EXERCISE 7.4 PARAMETER-EFFICIENT FINETUNING WITH LORA
-
-To instruction finetune an LLM more efficiently, modify the code in this chapter to use the low-rank adaptation method (LoRA) from appendix E. Compare the training runtime and model performance before and after the modification.
+> [!NOTE]
+>
+> **EXERCISE 7.4 PARAMETER-EFFICIENT FINETUNING WITH LORA**
+>
+> To instruction finetune an LLM more efficiently, modify the code in this chapter to use the low-rank adaptation method (LoRA) from appendix E. Compare the training runtime and model performance before and after the modification.
 
 ## 7.9 Conclusions
 
@@ -7242,17 +7304,17 @@ This chapter marks the conclusion of our journey through the LLM development cyc
 
 ![](_page_300_Figure_0.jpeg)
 
-Figure 7.21 An overview of the different stages of implementing, pretraining, and finetuning an LLM covered in this book.
+> Figure 7.21 An overview of the different stages of implementing, pretraining, and finetuning an LLM covered in this book.
 
 The next subsection will give you some ideas for what to look into next after the essential steps shown in figure 7.21.
 
-#### 7.9.1 What's next?
+### 7.9.1 What's next?
 
 While we covered the most essential steps, as illustrated in figure 7.21, there is an optional step that can be performed after instruction finetuning: preference finetuning. Preference finetuning is particularly useful for customizing a model to better align with specific user preferences. If you are interested in exploring this further, please refer to the 04_preference-tuning-with-dpo folder in this book's supplementary GitHub repository at [https://github.com/rasbt/LLMs-from-scratch/tree/main/ch07/04\_preference-tuning-with](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch07/04_preference-tuning-with-dpo)[dpo.](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch07/04_preference-tuning-with-dpo)
 
 In addition to the main content covered in this book, the GitHub repository also contains a large selection bonus material that you may find valuable. To learn more about these additional resources, please visit the Bonus Material section on the repository's README page:<https://github.com/rasbt/LLMs-from-scratch?tab=readme-ov-file#bonus-material>.
 
-## 7.9.2 Staying up to date in a fast-moving field
+### 7.9.2 Staying up to date in a fast-moving field
 
 The fields of AI and LLM research are evolving at a rapid (and depending on who you ask, exciting) pace. One way to keep up with the latest advancements, consider exploring recent research papers on arXiv at <https://arxiv.org/list/cs.LG/recent>. Additionally, many researchers and practitioners are very active in sharing and discussing the latest developments on social media platforms like X (formerly Twitter) and Reddit. The subreddit r/LocalLLaMA, in particular, is a good resource for connecting with the community and staying informed about the latest tools and trends.
 
@@ -7260,11 +7322,11 @@ The fields of AI and LLM research are evolving at a rapid (and depending on who 
 
 I also regularly share insights and write about the latest in LLM research on my blog, available at [https://magazine.sebastianraschka.com](https://magazine.sebastianraschka.com/) and [https://sebastianraschka.](https://sebastianraschka.com/blog/) [com/blog/.](https://sebastianraschka.com/blog/)
 
-#### 7.9.3 Final words
+### 7.9.3 Final words
 
 I hope you have enjoyed this journey of implementing an LLM from the ground up and coding the pretraining and finetuning functions from scratch. In my opinion, building an LLM from scratch is the most effective way to gain a deep understanding of how LLMs work. I hope that this hands-on approach has provided you with valuable insights and a solid foundation in LLM development.
 
-While the primary purpose of this book is educational, you may be interested in utilizing different and more powerful LLMs for real-world applications. For this, I recommend exploring popular tools such as Axolotl [\(https://github.com/OpenAccess-AI-Collective/](https://github.com/OpenAccess-AI-Collective/axolotl) [axolotl\)](https://github.com/OpenAccess-AI-Collective/axolotl) or LitGPT [\(https://github.com/Lightning-AI/litgpt\)](https://github.com/Lightning-AI/litgpt), which I am actively involved in developing.
+While the primary purpose of this book is educational, you may be interested in utilizing different and more powerful LLMs for real-world applications. For this, I recommend exploring popular tools such asAxolotl (https://github.com/OpenAccess-AI-Collective/axolotl) or LitGPT (https://github.com/Lightning-AI/litgpt), which I am actively involved in developing.
 
 Thank you for joining me on this learning journey, and I wish you all the best in your future endeavors in the exciting field of LLMs and AI!
 
@@ -7278,7 +7340,9 @@ Thank you for joining me on this learning journey, and I wish you all the best i
 - Evaluation involves extracting model responses on a test set and scoring them, e.g. using another LLM.
 - The Ollama application with an 8B parameter Llama model can be used to automatically score the finetuned model's responses on the test set, providing an average score to quantify performance.
 
-# <span id="page-302-0"></span>Appendix A.Introduction to PyTorch
+# Appendix A.Introduction to PyTorch
+
+<span id="page-302-0"></span>
 
 **This chapter covers**
 
