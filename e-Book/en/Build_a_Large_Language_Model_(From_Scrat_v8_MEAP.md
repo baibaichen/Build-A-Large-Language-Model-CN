@@ -6806,58 +6806,98 @@ After finetuning the LLM on the training portion of the instruction dataset as d
 
 ![](_page_283_Figure_0.jpeg)
 
-Figure 7.18 This section is focused on extracting and collecting the model responses on the held-out test dataset for further analysis. The next section covers model evaluation to quantify the performance of the instruction-finetuned LLM.
+> Figure 7.18 This section is focused on extracting and collecting the model responses on the held-out test dataset for further analysis. The next section covers model evaluation to quantify the performance of the instruction-finetuned LLM.
 
 We start with step 7, the response instruction step illustrated in figure 7.18, using the generate function. We then print the model responses alongside the expected test set answers for the first three test set entries, presenting them side by side for comparison:
 
-```
+```python
 torch.manual_seed(123)
-for entry in test_data[:3]: #A
-   input_text = format_input(entry)
-   token_ids = generate( #B
-       model=model,
-       idx=text_to_token_ids(input_text, tokenizer).to(device),
-       max_new_tokens=256,
-       context_size=BASE_CONFIG["context_length"],
-       eos_id=50256
-   )
-   generated_text = token_ids_to_text(token_ids, tokenizer)
-   response_text = generated_text[len(input_text):].replace("### Response:",
+for entry in test_data[:3]:                #A
+    input_text = format_input(entry)
+    token_ids = generate(                  #B
+        model=model,
+        idx=text_to_token_ids(input_text, tokenizer).to(device),
+        max_new_tokens=256,
+        context_size=BASE_CONFIG["context_length"],
+        eos_id=50256
+    )
+    generated_text = token_ids_to_text(token_ids, tokenizer)
+    response_text = generated_text[len(input_text):].replace("### Response:",
 "").strip()
-   print(input_text)
-   print(f"\nCorrect response:\n>> {entry['output']}")
-   print(f"\nModel response:\n>> {response_text.strip()}")
-   print("-------------------------------------")
+
+    print(input_text)
+    print(f"\nCorrect response:\n>> {entry['output']}")
+    print(f"\nModel response:\n>> {response_text.strip()}")
+    print("-------------------------------------")
+
+#A Iterate over the first 3 test set samples
+#B Use the generate function imported in section 7.5
 ```
-#### #A Iterate over the first 3 test set samples #B Use the generate function imported in section 7.5
+As mentioned earlier, the `generate` function returns the combined input and output text, so we use slicing and the `.replace()` method on the `generated_text` contents to extract the model's response. The instructions, followed by the given test set response and model response are shown below:
 
-As mentioned earlier, the generate function returns the combined input and output text, so we use slicing and the .replace() method on the generated_text contents to extract the model's response. The instructions, followed by the given test set response and model response are shown below:
+```python
+Below is an instruction that describes a task. Write a response that appropriately
+completes the request.
 
-Below is an instruction that describes a task. Write a response that appropriately completes the request.
+### Instruction:
+Rewrite the sentence using a simile. #用明喻改写句子。
 
-### Instruction: Rewrite the sentence using a simile.
+### Input:
+The car is very fast.
 
-### Input: The car is very fast.
+Correct response:
+>> The car is as fast as lightning.
 
-Correct response: >> The car is as fast as lightning.
+Model response:
+>> The car is as fast as a bullet.
+-------------------------------------
+Below is an instruction that describes a task. Write a response that appropriately
+completes the request.
 
-Model response: >> The car is as fast as a bullet. ------------------------------------- Below is an instruction that describes a task. Write a response that appropriately
+### Instruction:
+What type of cloud is typically associated with thunderstorms?
 
-281
+Correct response:
+>> The type of cloud typically associated with thunderstorms is cumulonimbus.
 
-completes the request. ### Instruction: What type of cloud is typically associated with thunderstorms? Correct response: >> The type of cloud typically associated with thunderstorms is cumulonimbus. Model response: >> The type of cloud associated with thunderstorms is a cumulus cloud. ------------------------------------- Below is an instruction that describes a task. Write a response that appropriately completes the request. ### Instruction: Name the author of 'Pride and Prejudice'. Correct response: >> Jane Austen. Model response: >> The author of 'Pride and Prejudice' is Jane Austen. -------------------------------------
+Model response:
+>> The type of cloud associated with thunderstorms is a cumulus cloud.
+-------------------------------------
+Below is an instruction that describes a task. Write a response that appropriately
+completes the request.
+
+### Instruction:
+Name the author of 'Pride and Prejudice'.
+
+Correct response:
+>> Jane Austen.
+
+Model response:
+>> The author of 'Pride and Prejudice' is Jane Austen.
+-------------------------------------
+什么样的云通常与雷暴有关？
+正确答案：
+>>通常与雷暴相关的云类型是积雨云。
+模型响应：
+>>与雷暴相关的云类型是积云。
+说出《傲慢与偏见》的作者。
+正确答案：
+>>简·奥斯汀。
+模型响应：
+>>《傲慢与偏见》的作者是简·奥斯汀。
+```
 
 As we can see based on the test set instructions, given responses, and the model's responses, the model performs relatively well. The answers to the first and last instructions are clearly correct, while the second answer is close but not entirely accurate. The model answers with "cumulus cloud" instead of "cumulonimbus," although it's worth noting that cumulus clouds can develop into cumulonimbus clouds, which are capable of producing thunderstorms.
 
 Most importantly, we can see that model evaluation is not as straightforward as in the previous chapter, where we simply calculated the percentage of correct spam/non-spam class labels to obtain the classification accuracy. In practice, instruction-finetuned LLMs such as chatbots are evaluated via multiple approaches:
 
-- 1. Short-answer and multiple choice benchmarks such as MMLU ("Measuring Massive Multitask Language Understanding," [https://arxiv.org/abs/2009.](https://arxiv.org/abs/2009.03300) [03300](https://arxiv.org/abs/2009.03300)), which test the general knowledge of a model.
-- 2. Human preference comparison to other LLMs, such as LMSYS chatbot arena [\(https://arena.lmsys.org\)](https://arena.lmsys.org/).
-- 3. Automated conversational benchmarks, where another LLM like GPT-4 is used to evaluate the responses, such as AlpacaEval ([https://tatsu](https://tatsu-lab.github.io/alpaca_eval/)[lab.github.io/alpaca\_eval/\)](https://tatsu-lab.github.io/alpaca_eval/).
+- Short-answer and multiple choice benchmarks such as MMLU ("[Measuring Massive Multitask Language Understanding](https://arxiv.org/abs/2009.03300)"), which test the general knowledge of a model.
+- Human preference comparison to other LLMs, such as [LMSYS chatbot arena](https://arena.lmsys.org).
+- Automated conversational benchmarks, where another LLM like GPT-4 is used to evaluate the responses, such as [AlpacaEval](https://github.com/tatsu-lab/alpaca_eval).
 
 282
 
-In practice, it can be useful to consider all three types of evaluation methods: multiplechoice question answering, human evaluation, and automated metrics that measure conversational performance. However, since we are primarily interested in assessing conversational performance in this chapter rather than just the ability to answer multiplechoice questions, methods 2 (human evaluation) and 3 (automated metrics) may be more relevant.
+In practice, it can be useful to consider all three types of evaluation methods: multiple-choice question answering, human evaluation, and automated metrics that measure conversational performance. However, since we are primarily interested in assessing conversational performance in this chapter rather than just the ability to answer multiple-choice questions, methods 2 (human evaluation) and 3 (automated metrics) may be more relevant.
 
 Human evaluation, while providing valuable insights, can be relatively laborious and time-consuming, especially when dealing with a large number of responses. For instance, reading and assigning ratings to all 1,100 responses would require a significant amount of effort.
 
@@ -6865,17 +6905,19 @@ So, considering the scale of the task at hand, we will implement an approach sim
 
 In the next section, we employ an approach inspired by AlpacaEval, leveraging another LLM to evaluate our finetuned model's responses. However, instead of relying on a publicly available benchmark dataset, we use our own custom test set. This allows for a more targeted and relevant assessment of the model's performance within the context of our intended use cases represented in our instruction dataset.
 
-To prepare the responses for this evaluation process, we append the generated model responses to the test_set dictionary and save the updated data as an "instructiondata-with-response.json" file for record keeping. Additionally, by saving this file, we can easily load and analyze the responses in separate Python sessions later on if needed.
+To prepare the responses for this evaluation process, we append the generated model responses to the `test_set` dictionary and save the updated data as an `instructiondata-with-response.json` file for record keeping. Additionally, by saving this file, we can easily load and analyze the responses in separate Python sessions later on if needed.
 
-The following code uses the generate method in the same manner as before; however, we now iterate over the entire test_set. Also, instead of printing the model responses, we add them to the test_set dictionary:
+The following code uses the `generate` method in the same manner as before; however, we now iterate over the entire `test_set`. Also, instead of printing the model responses, we add them to the `test_set` dictionary:
 
 283
 
-```
-Listing 7.9 Generating test set responses
+```python
+# Listing 7.9 Generating test set responses
 from tqdm import tqdm
+
 for i, entry in tqdm(enumerate(test_data), total=len(test_data)):
     input_text = format_input(entry)
+
     token_ids = generate(
         model=model,
         idx=text_to_token_ids(input_text, tokenizer).to(device),
@@ -6887,29 +6929,36 @@ for i, entry in tqdm(enumerate(test_data), total=len(test_data)):
     response_text = generated_text[len(input_text):].replace("### Response:",
 "").strip()
     test_data[i]["model_response"] = response_text
+
 with open("instruction-data-with-response.json", "w") as file:
     json.dump(test_data, file, indent=4) # "indent" for pretty-printing
 ```
 Processing the dataset takes about 1 minute on an A100 GPU and 6 minutes on an M3 MacBook Air:
 
+```python
 100%|██████████| 110/110 [01:05<00:00, 1.68it/s]
+```
 
 Let's verify that the responses have been correctly added to the test_set dictionary by examining one of the entries:
 
-```
+```python
 print(test_data[0])
 ```
 Based on the output, we can see that the model_response has been added correctly:
 
-{'instruction': 'Rewrite the sentence using a simile.', 'input': 'The car is very fast.', 'output': 'The car is as fast as lightning.', 'model_response': 'The car is as fast as a bullet.'}
+```python
+{'instruction': 'Rewrite the sentence using a simile.', 'input': 'The car is very
+fast.', 'output': 'The car is as fast as lightning.', 'model_response': 'The car is as
+fast as a bullet.'}
+```
 
 Finally, we save the model as gpt2-medium355M-sft.pth file to be able to reuse it in future projects:
 
 284
 
+```python
 import re
 
-```
 # Remove white spaces and parentheses from file name
 file_name = f"{re.sub(r'[ ()]', '', CHOOSE_MODEL) }-sft.pth"
 torch.save(model.state_dict(), file_name)
