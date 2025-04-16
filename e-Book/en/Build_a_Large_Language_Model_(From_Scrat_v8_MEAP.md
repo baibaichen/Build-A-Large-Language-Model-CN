@@ -7541,27 +7541,33 @@ A computational graph (or computation graph in short) is a directed graph that a
 
 Let's look at a concrete example to illustrate the concept of a computation graph. The following code implements the forward pass (prediction step) of a simple logistic regression classifier, which can be seen as a single-layer neural network, returning a score between 0 and 1 that is compared to the true class label (0 or 1) when computing the loss:
 
-| Listing A.2 A logistic regression forward pass |    |
-|------------------------------------------------|----|
-| import torch.nn.functional as F                | #A |
-| y = torch.tensor([1.0])                        | #B |
-| x1 = torch.tensor([1.1])                       | #C |
-| w1 = torch.tensor([2.2])                       | #D |
-| b = torch.tensor([0.0])                        | #E |
-| z = x1 * w1 + b                                | #F |
-| a = torch.sigmoid(z)                           | #G |
-|                                                |    |
+```python
+# Listing A.2 A logistic regression forward pass
 
-```
+import torch.nn.functional as F #A
+
+y = torch.tensor([1.0])         #B
+x1 = torch.tensor([1.1])        #C
+w1 = torch.tensor([2.2])        #D
+b = torch.tensor([0.0])         #E
+z = x1 * w1 + b                 #F
+a = torch.sigmoid(z)            #G
+
 loss = F.binary_cross_entropy(a, y)
+
+#A This import statement is a common convention in PyTorch to prevent long lines of code
+#B true label
+#C input feature
+#D weight parameter
+#E bias unit
+#F net input #G activation & output
 ```
-#A This import statement is a common convention in PyTorch to prevent long lines of code #B true label #C input feature #D weight parameter #E bias unit #F net input #G activation & output
 
 If not all components in the code above make sense to you, don't worry. The point of this example is not to implement a logistic regression classifier but rather to illustrate how we can think of a sequence of computations as a computation graph, as shown in figure A.7.
 
 ![](_page_317_Figure_1.jpeg)
 
-Figure A.7 A logistic regression forward pass as a computation graph. The input feature x1 is multiplied by a model weight w<sup>1</sup> and passed through an activation function σ after adding the bias. The loss is computed by comparing the model output a with a given label y.
+> Figure A.7 A logistic regression forward pass as a computation graph. The input feature x1 is multiplied by a model weight w<sup>1</sup> and passed through an activation function σ after adding the bias. The loss is computed by comparing the model output a with a given label y.
 
 In fact, PyTorch builds such a computation graph in the background, and we can use this to calculate gradients of a loss function with respect to the model parameters (here w1 and b) to train the model, which is the topic of the upcoming sections.
 
@@ -7825,15 +7831,14 @@ In the previous section, we defined a custom neural network model. Before we can
 
 ![](_page_327_Figure_2.jpeg)
 
-Figure A.10 PyTorch implements a Dataset and a DataLoader class. The Dataset class is used to instantiate objects that define how each data record is loaded. The DataLoader handles how the data is shuffled and assembled into batches.
+> Figure A.10 PyTorch implements a Dataset and a DataLoader class. The Dataset class is used to instantiate objects that define how each data record is loaded. The DataLoader handles how the data is shuffled and assembled into batches.
 
 Following the illustration in figure A.10, in this section, we will implement a custom Dataset class that we will use to create a training and a test dataset that we'll then use to create the data loaders.
 
 Let's start by creating a simple toy dataset of five training examples with two features each. Accompanying the training examples, we also create a tensor containing the corresponding class labels: three examples below to class 0, and two examples belong to class 1. In addition, we also make a test set consisting of two entries. The code to create this dataset is shown below.
 
-#### Listing A.5 Creating a small toy dataset
-
-```
+```python
+# Listing A.5 Creating a small toy dataset
 X_train = torch.tensor([
     [-1.2, 3.1],
     [-0.9, 2.9],
@@ -7848,80 +7853,91 @@ X_test = torch.tensor([
 ])
 y_test = torch.tensor([0, 1])
 ```
-CLASS LABEL NUMBERING PyTorch requires that class labels start with label 0, and the largest class label value should not exceed the number of output nodes minus 1 (since Python index counting starts at 0. So, if we have class labels 0, 1, 2, 3, and 4, the neural network output layer should consist of 5 nodes.
+**CLASS LABEL NUMBERING** PyTorch requires that class labels start with label 0, and the largest class label value should not exceed the number of output nodes minus 1 (since Python index counting starts at 0. So, if we have class labels 0, 1, 2, 3, and 4, the neural network output layer should consist of 5 nodes.
 
 Next, we create a custom dataset class, ToyDataset, by subclassing from PyTorch's Dataset parent class, as shown below.
 
-```
-Listing A.6 Defining a custom Dataset class
+```python
+# Listing A.6 Defining a custom Dataset class
+
 from torch.utils.data import Dataset
+
 class ToyDataset(Dataset):
-  def __init__(self, X, y):
-     self.features = X
-     self.labels = y
-  def __getitem__(self, index): #A
-     one_x = self.features[index] #A
-     one_y = self.labels[index] #A
-     return one_x, one_y #A
-  def __len__(self):
-     return self.labels.shape[0] #B
+    def __init__(self, X, y):
+        self.features = X
+        self.labels = y
+
+    def __getitem__(self, index):          #A
+        one_x = self.features[index]       #A
+        one_y = self.labels[index]         #A
+        return one_x, one_y                #A
+
+    def __len__(self):
+    		return self.labels.shape[0]        #B
+
 train_ds = ToyDataset(X_train, y_train)
 test_ds = ToyDataset(X_test, y_test)
-```
-#A Instructions for retrieving exactly one data record and the corresponding label #B Instructions for returning the total length of the dataset
 
+
+#A Instructions for retrieving exactly one data record and the corresponding label #B Instructions for returning the total length of the dataset
+```
 This custom ToyDataset class's purpose is to use it to instantiate a PyTorch DataLoader. But before we get to this step, let's briefly go over the general structure of the ToyDataset code.
 
-In PyTorch, the three main components of a custom Dataset class are the __init__ constructor, the __getitem__ method, and the __len__ method, as shown in code listing A.6 above.
+In PyTorch, the three main components of a custom Dataset class are the `__init__` constructor, the `__getitem__` method, and the `__len__` method, as shown in code listing A.6 above.
 
-In the __init__ method, we set up attributes that we can access later in the __getitem__ and __len__ methods. This could be file paths, file objects, database connectors, and so on. Since we created a tensor dataset that sits in memory, we are simply assigning X and y to these attributes, which are placeholders for our tensor objects.
+In the `__init__` method, we set up attributes that we can access later in the `__getitem__` and `__len__` methods. This could be file paths, file objects, database connectors, and so on. Since we created a tensor dataset that sits in memory, we are simply assigning X and y to these attributes, which are placeholders for our tensor objects.
 
-In the __getitem__ method, we define instructions for returning exactly one item from the dataset via an index. This means the features and the class label corresponding to a single training example or test instance. (The data loader will provide this index, which we will cover shortly.)
+In the `__getitem__` method, we define instructions for returning exactly one item from the dataset via an index. This means the features and the class label corresponding to a single training example or test instance. (The data loader will provide this index, which we will cover shortly.)
 
-Finally, the __len__ method constrains instructions for retrieving the length of the dataset. Here, we use the .shape attribute of a tensor to return the number of rows in the feature array. In the case of the training dataset, we have five rows, which we can doublecheck as follows:
+Finally, the `__len__` method constrains instructions for retrieving the length of the dataset. Here, we use the .shape attribute of a tensor to return the number of rows in the feature array. In the case of the training dataset, we have five rows, which we can double check as follows:
 
-print\(len(train_ds))
+```python
+print(len(train_ds))
+```
 
- 
+ The result is:
 
-The result is:
-
+```python
 5
+```
 
 Now that we defined a PyTorch Dataset class we can use for our toy dataset, we can use PyTorch's DataLoader class to sample from it, as shown in the code listing below:
 
-```
-Listing A.7 Instantiating data loaders
+```python
+# Listing A.7 Instantiating data loaders
+
+from torch.utils.data import DataLoader
+
+torch.manual_seed(123)
+
+train_loader = DataLoader(
+    dataset=train_ds,       #A
+    batch_size=2,
+    shuffle=True,           #B
+    num_workers=0           #C
+)
+
+test_loader = DataLoader(
+    dataset=test_ds,
+    batch_size=2,
+    shuffle=False,          #D
+    num_workers=0
+)
+
 #A The ToyDataset instance created earlier serves as input to the data loader.
 #B Whether or not to shuffle the data
 #C The number of background processes
 #D It is not necessary to shuffle a test dataset
-from torch.utils.data import DataLoader
-torch.manual_seed(123)
-train_loader = DataLoader(
-   dataset=train_ds, #A
-   batch_size=2,
-   shuffle=True, #B
-   num_workers=0 #C
-)
-test_loader = DataLoader(
-   dataset=test_ds,
-   batch_size=2,
-   shuffle=False, #D
-   num_workers=0
-)
 ```
 After instantiating the training data loader, we can iterate over it as shown below. (The iteration over the test_loader works similarly but is omitted for brevity.)
 
-```
+```python
 for idx, (x, y) in enumerate(train_loader):
     print(f"Batch {idx+1}:", x, y)
 ```
 The result is:
 
- 
-
-```
+```python
 Batch 1: tensor([[-1.2000, 3.1000],
                  [-0.5000, 2.6000]]) tensor([0, 0])
 Batch 2: tensor([[ 2.3000, -1.1000],
@@ -7932,29 +7948,26 @@ As we can see based on the output above, the train_loader iterates over the trai
 
 Note that we specified a batch size of 2 above, but the 3rd batch only contains a single example. That's because we have five training examples, which is not evenly divisible by 2. In practice, having a substantially smaller batch as the last batch in a training epoch can disturb the convergence during training. To prevent this, it's recommended to set drop_last=True, which will drop the last batch in each epoch, as shown below:
 
-```
-Listing A.8 A training loader that drops the last batch
-```
-
-```
+```python
+# Listing A.8 A training loader that drops the last batch
 train_loader = DataLoader(
     dataset=train_ds,
     batch_size=2,
     shuffle=True,
     num_workers=0,
     drop_last=True
-```
 )
+```
 
 Now, iterating over the training loader, we can see that the last batch is omitted:
 
-```
+```python
 for idx, (x, y) in enumerate(train_loader):
     print(f"Batch {idx+1}:", x, y)
 ```
 The result is:
 
-```
+```python
 Batch 1: tensor([[-0.9000, 2.9000],
         [ 2.3000, -1.1000]]) tensor([0, 1])
 Batch 2: tensor([[ 2.7000, -1.5000],
@@ -7965,7 +7978,7 @@ Lastly, let's discuss the setting num_workers=0 in the DataLoader. This paramete
 
 ![](_page_332_Figure_1.jpeg)
 
-Figure A.11 Loading data without multiple workers (setting num_workers=0) will create a data loading bottleneck where the model sits idle until the next batch is loaded as illustrated in the left subpanel. If multiple workers are enabled, the data loader can already queue up the next batch in the background as shown in the right subpanel.
+> Figure A.11 Loading data without multiple workers (setting num_workers=0) will create a data loading bottleneck where the model sits idle until the next batch is loaded as illustrated in the left subpanel. If multiple workers are enabled, the data loader can already queue up the next batch in the background as shown in the right subpanel.
 
 However, if we are working with very small datasets, setting num_workers to 1 or larger may not be necessary since the total training time takes only fractions of a second anyway. On the contrary, if you are working with tiny datasets or interactive environments such as Jupyter notebooks, increasing num_workers may not provide any noticeable speedup. They might, in fact, lead to some issues. One potential issue is the overhead of spinning up multiple worker processes, which could take longer than the actual data loading when your dataset is small.
 
@@ -9007,7 +9020,7 @@ The main observation is that the training and validation set performances are in
 
 2. The Verdict was part of GPT -2's training dataset. In this case, we can't tell whether the model is overfitting the training data because the validation set would have been used for training as well. To evaluate the degree of overfitting, we'd need a new dataset generated after OpenAI finished training GPT-2 to make sure that it couldn't have been part of the pretraining.
 
-#### E[XER](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=68---book-markup-container)CISE 5.6
+#### EXERCISE 5.6
 
 In the main chapter, we experimented with the smallest GPT-2 model, which has only 124M parameters. The reason was to keep the resource requirements as low as possible. However, you can easily experiment with larger models with minimal code changes. For example, instead of loading the 1558M instead of 124M model weights in chapter 5, the only 2 lines of code that we have to change are the following:
 
