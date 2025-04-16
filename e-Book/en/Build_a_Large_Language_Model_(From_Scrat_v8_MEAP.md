@@ -7220,13 +7220,13 @@ PyTorch is a relatively comprehensive library, and one way to approach it is to 
 
 ![](_page_303_Figure_6.jpeg)
 
-Figure A.1 PyTorch's three main components include a tensor library as a fundamental building block for computing, automatic differentiation for model optimization, and deep learning utility functions, making it easier to implement and train deep neural network models.
+> Figure A.1 PyTorch's three main components include a tensor library as a fundamental building block for computing, automatic differentiation for model optimization, and deep learning utility functions, making it easier to implement and train deep neural network models.
 
-Firstly, PyTorch is a *tensor library* that extends the concept of array-oriented programming library NumPy with the additional feature of accelerated computation on GPUs, thus providing a seamless switch between CPUs and GPUs.
+Firstly, PyTorch is a **tensor library** that extends the concept of array-oriented programming library NumPy with the additional feature of accelerated computation on GPUs, thus providing a seamless switch between CPUs and GPUs.
 
-Secondly, PyTorch is an *automatic differentiation engine*, also known as autograd, which enables the automatic computation of gradients for tensor operations, simplifying backpropagation and model optimization.
+Secondly, PyTorch is an **automatic differentiation engine**, also known as autograd, which enables the automatic computation of gradients for tensor operations, simplifying backpropagation and model optimization.
 
-Finally, PyTorch is a *deep learning library*, meaning that it offers modular, flexible, and efficient building blocks (including pre-trained models, loss functions, and optimizers) for designing and training a wide range of deep learning models, catering to both researchers and developers.
+Finally, PyTorch is a **deep learning library**, meaning that it offers modular, flexible, and efficient building blocks (including pre-trained models, loss functions, and optimizers) for designing and training a wide range of deep learning models, catering to both researchers and developers.
 
 After defining the term deep learning and installing PyTorch in the two following subsections, the remainder of this chapter will go over these three core components of PyTorch in more detail, along with hands-on code examples.
 
@@ -7240,11 +7240,11 @@ AI is fundamentally about creating computer systems capable of performing tasks 
 
 ![](_page_305_Figure_0.jpeg)
 
-Figure A.2 Deep learning is a subcategory of machine learning that is focused on the implementation of deep neural networks. In turn, machine learning is a subcategory of AI that is concerned with algorithms that learn from data. AI is the broader concept of machines being able to perform tasks that typically require human intelligence.
+> Figure A.2 Deep learning is a subcategory of machine learning that is focused on the implementation of deep neural networks. In turn, machine learning is a subcategory of AI that is concerned with algorithms that learn from data. AI is the broader concept of machines being able to perform tasks that typically require human intelligence.
 
 Machine learning has been integral in the evolution of AI, powering many of the advancements we see today, including LLMs. Machine learning is also behind technologies like recommendation systems used by online retailers and streaming services, email spam filtering, voice recognition in virtual assistants, and even self-driving cars. The introduction and advancement of machine learning have significantly enhanced AI's capabilities, enabling it to move beyond strict rule-based systems and adapt to new inputs or changing environments.
 
-*Deep learning* is a subcategory of machine learning that focuses on the training and application of deep neural networks. These deep neural networks were originally inspired by how the human brain works, particularly the interconnection between many neurons. The "deep" in deep learning refers to the multiple hidden layers of artificial neurons or nodes that allow them to model complex, nonlinear relationships in the data.
+**Deep learning** is a subcategory of machine learning that focuses on the training and application of deep neural networks. These deep neural networks were originally inspired by how the human brain works, particularly the interconnection between many neurons. The "deep" in deep learning refers to the multiple hidden layers of artificial neurons or nodes that allow them to model complex, nonlinear relationships in the data.
 
 Unlike traditional machine learning techniques that excel at simple pattern recognition, deep learning is particularly good at handling unstructured data like images, audio, or text, so deep learning is particularly well suited for LLMs.
 
@@ -7252,7 +7252,7 @@ The typical predictive modeling workflow (also referred to as *supervised learni
 
 ![](_page_306_Figure_0.jpeg)
 
-Figure A.3 The supervised learning workflow for predictive modeling consists of a training stage where a model is trained on labeled examples in a training dataset. The trained model can then be used to predict the labels of new observations.
+> Figure A.3 The supervised learning workflow for predictive modeling consists of a training stage where a model is trained on labeled examples in a training dataset. The trained model can then be used to predict the labels of new observations.
 
 Using a learning algorithm, a model is trained on a training dataset consisting of examples and corresponding labels. In the case of an email spam classifier, for example, the training dataset consists of emails and their *spam* and *not-spam* labels that a human identified. Then, the trained model can be used on new observations (new emails) to predict their unknown label (*spam* or *not spam*).
 
@@ -7264,55 +7264,80 @@ Note that the workflow for training and using LLMs, as we will see later in this
 
 PyTorch can be installed just like any other Python library or package. However, since PyTorch is a comprehensive library featuring CPU- and GPU-compatible codes, the installation may require additional explanation.
 
-#### PYTHON VERSION
-
-Many scientific computing libraries do not immediately support the newest version of Python. Therefore, when installing PyTorch, it's advisable to use a version of Python that is one or two releases older. For instance, if the latest version of Python is 3.13, using Python 3.10 or 3.11 is recommended.
+> [!NOTE]
+>
+> **PYTHON VERSION**
+>
+> Many scientific computing libraries do not immediately support the newest version of Python. Therefore, when installing PyTorch, it's advisable to use a version of Python that is one or two releases older. For instance, if the latest version of Python is 3.13, using Python 3.10 or 3.11 is recommended.
+>
 
 For instance, there are two versions of PyTorch: a leaner version that only supports CPU computing and a version that supports both CPU and GPU computing. If your machine has a CUDA-compatible GPU that can be used for deep learning (ideally an NVIDIA T4, RTX 2080 Ti, or newer), I recommend installing the GPU version. Regardless, the default command for installing PyTorch is as follows in a code terminal:
 
+```bash
 pip install torch
+```
 
 Suppose your computer supports a CUDA-compatible GPU. In that case, this will automatically install the PyTorch version that supports GPU acceleration via CUDA, given that the Python environment you're working on has the necessary dependencies (like pip) installed.
 
-#### AMD GPUS FOR DEEP LEARNING
-
-As of this writing, PyTorch has also added experimental support for AMD GPUs via ROCm. Please see [https://pytorch.org](https://pytorch.org/) for additional instructions.
+> [!NOTE]
+>
+> **AMD GPUS FOR DEEP LEARNING**
+>
+> As of this writing, PyTorch has also added experimental support for AMD GPUs via ROCm. Please see [https://pytorch.org](https://pytorch.org/) for additional instructions.
+>
 
 However, to explicitly install the CUDA-compatible version of PyTorch, it's often better to specify the CUDA you want PyTorch to be compatible with. PyTorch's official website [\(https://pytorch.org\)](https://pytorch.org/) provides commands to install PyTorch with CUDA support for different operating systems as shown in figure A.4.
 
 ![](_page_308_Figure_0.jpeg)
 
-Figure A.4 Access the PyTorch installation recommendation on [https://pytorch.org](https://pytorch.org/) to customize and select the installation command for your system.
+> Figure A.4 Access the PyTorch installation recommendation on [https://pytorch.org](https://pytorch.org/) to customize and select the installation command for your system.
 
 (Note that the command shown in figure A.4 will also install the torchvision and torchaudio libraries, which are optional for this book.)
 
 As of this writing, this book is based on PyTorch 2.0.1, so it's recommended to use the following installation command to install the exact version to guarantee compatibility with this book:
 
+```python
 pip install torch==2.0.1
+```
 
 However, as mentioned earlier, given your operating system, the installation command might slightly differ from the one shown above. Thus, I recommend visiting the [https://pytorch.org](https://pytorch.org/) website and using the installation menu (see figure A4) to select the installation command for your operating system and replace torch with torch==2.0.1 in this command.
 
 To check the version of PyTorch, you can execute the following code in PyTorch:
 
-import torch torch.__version__
+```python
+import torch
+torch.__version__
+```
 
 This prints:
 
+```python
 '2.0.1'
+```
 
-#### PYTORCH AND TORCH
 
-Note that the Python library is named "torch" primarily because it's a continuation of the Torch library but adapted for Python (hence, "PyTorch"). The name "torch" acknowledges the library's roots in Torch, a scientific computing framework with wide support for machine learning algorithms, which was initially created using the Lua programming language.
+
+> [!NOTE]
+>
+> **PYTORCH AND TORCH**
+>
+> Note that the Python library is named "torch" primarily because it's a continuation of the Torch library but adapted for Python (hence, "PyTorch"). The name "torch" acknowledges the library's roots in Torch, a scientific computing framework with wide support for machine learning algorithms, which was initially created using the Lua programming language.
+>
 
 If you are looking for additional recommendations and instructions for setting up your Python environment or installing the other libraries used later in this book, I recommend visiting the supplementary GitHub repository of this book at [https://github.com/rasbt/](https://github.com/rasbt/LLMs-from-scratch) [LLMs-from-scratch](https://github.com/rasbt/LLMs-from-scratch).
 
 After installing PyTorch, you can check whether your installation recognizes your built-in NVIDIA GPU by running the following code in Python:
 
-import torch torch.cuda.is_available()
+```python
+import torch 
+torch.cuda.is_available()
+```
 
 This returns:
 
+```python
 True
+```
 
 If the command returns True, you are all set. If the command returns False, your computer may not have a compatible GPU, or PyTorch does not recognize it. While GPUs are not required for the initial chapters in this book, which are focused on implementing LLMs for educational purposes, they can significantly speed up deep learning-related computations.
 
@@ -7320,23 +7345,34 @@ If you don't have access to a GPU, there are several cloud computing providers w
 
 ![](_page_310_Picture_0.jpeg)
 
-Figure A.5 Select a GPU device for Google Colab under the Runtime/Change runtime typemenu.
+> Figure A.5 Select a GPU device for Google Colab under the Runtime/Change runtime typemenu.
 
-#### PYTORCH ON APPLE SILICON
+> [!NOTE]
+>
+> **PYTORCH ON APPLE SILICON**
+>
+> If you have an Apple Mac with an Apple Silicon chip (like the M1, M2, M3, or newer models), you have the option to leverage its capabilities to accelerate PyTorch code execution. To use your Apple Silicon chip for PyTorch, you first need to install PyTorch as you normally would. Then, to check if your Mac supports PyTorch acceleration with its Apple Silicon chip, you can run a simple code snippet in Python:
+>
+> ```python
+> print(torch.backends.mps.is_available())
+> ```
+>
+> If it returns True, it means that your Mac has an Apple Silicon chip that can be used to accelerate PyTorch code.
+>
 
-If you have an Apple Mac with an Apple Silicon chip (like the M1, M2, M3, or newer models), you have the option to leverage its capabilities to accelerate PyTorch code execution. To use your Apple Silicon chip for PyTorch, you first need to install PyTorch as you normally would. Then, to check if your Mac supports PyTorch acceleration with its Apple Silicon chip, you can run a simple code snippet in Python:
+> [!NOTE]
+>
+> **EXERCISE A.1**
+>
+> Install and set up PyTorch on your computer.
+>
 
-print(torch.backends.mps.is_available())
-
-If it returns True, it means that your Mac has an Apple Silicon chip that can be used to accelerate PyTorch code.
-
-#### EXERCISE A.1
-
-Install and set up PyTorch on your computer.
-
-#### EXERCISE A.2
-
-Run the supplementary Chapter 2 code at [https://github.com/rasbt/LLMs-from](https://github.com/rasbt/LLMs-from-scratch)[scratch](https://github.com/rasbt/LLMs-from-scratch) that checks whether your environment is set up correctly..
+> [!NOTE]
+>
+> **EXERCISE A.2**
+>
+> Run the supplementary Chapter 2 code at [https://github.com/rasbt/LLMs-from](https://github.com/rasbt/LLMs-from-scratch)[scratch](https://github.com/rasbt/LLMs-from-scratch) that checks whether your environment is set up correctly..
+>
 
 ## A.2 Understanding tensors
 
