@@ -8190,7 +8190,7 @@ Now, we are well equipped to use PyTorch to implement large language models in t
 
 In this last section of this chapter, we will see how we can utilize GPUs, which will accelerate deep neural network training compared to regular CPUs. First, we will introduce the main concepts behind GPU computing in PyTorch. Then, we will train a model on a single GPU. Finally, we'll then look at distributed training using multiple GPUs.
 
-#### A.9.1 PyTorch computations on GPU devices
+### A.9.1 PyTorch computations on GPU devices
 
 As you will see, modifying the training loop from section 2.7 to optionally run on a GPU is relatively simple and only requires changing three lines of code.
 
@@ -8198,47 +8198,53 @@ Before we make the modifications, it's crucial to understand the main concept be
 
 Let's see how this works in action. Assuming that you installed a GPU-compatible version of PyTorch as explained in section 2.1.3, Installing PyTorch, we can double-check that our runtime indeed supports GPU computing via the following code:
 
-```
+```python
 print(torch.cuda.is_available())
 ```
 The result is:
 
+```python
 True
+```
 
 Now, suppose we have two tensors that we can add as follows -- this computation will be carried out on the CPU by default:
 
-```
+```python
 tensor_1 = torch.tensor([1., 2., 3.])
 tensor_2 = torch.tensor([4., 5., 6.])
 print(tensor_1 + tensor_2)
 ```
 This outputs:
 
+```python
 tensor([5., 7., 9.])
-
-We can now use the .to() method[\[1\]](#page-354-0) to transfer these tensors onto a GPU and perform the addition there:
-
 ```
+
+We can now use the `.to()` method [[1]](#page-354-0) to transfer these tensors onto a GPU and perform the addition there:
+
+```python
 tensor_1 = tensor_1.to("cuda")
 tensor_2 = tensor_2.to("cuda")
 print(tensor_1 + tensor_2)
 ```
 The output is as follows:
 
-```
+```python
 tensor([5., 7., 9.], device='cuda:0')
 ```
-Notice that the resulting tensor now includes the device information, device='cuda:0', which means that the tensors reside on the first GPU. If your machine hosts multiple GPUs, you have the option to specify which GPU you'd like to transfer the tensors to. You can do this by indicating the device ID in the transfer command. For instance, you can use .to("cuda:0"), .to("cuda:1"), and so on.
+Notice that the resulting tensor now includes the device information, `device='cuda:0'`, which means that the tensors reside on the first GPU. If your machine hosts multiple GPUs, you have the option to specify which GPU you'd like to transfer the tensors to. You can do this by indicating the device ID in the transfer command. For instance, you can use `.to("cuda:0")`, `.to("cuda:1")`, and so on.
 
 However, it is important to note that all tensors must be on the same device. Otherwise, the computation will fail, as shown below, where one tensor resides on the CPU and the other on the GPU:
 
+```python
 tensor_1 = tensor_1.to("cpu") print(tensor_1 + tensor_2)
+```
 
 This results in the following:
 
 <span id="page-341-0"></span>
 
-```
+```python
 RuntimeError Traceback (most recent call last)
 <ipython-input-7-4ff3c4d20fc3> in <cell line: 2>()
      1 tensor_1 = tensor_1.to("cpu")
@@ -8252,210 +8258,246 @@ In this section, we learned that GPU computations on PyTorch are relatively stra
 
 Now that we are familiar with transferring tensors to the GPU, we can modify the training loop from *section 2.7, A typical training loop*, to run on a GPU. This requires only changing three lines of code, as shown in code listing A.11 below.
 
-```
-Listing A.11 A training loop on a GPU
-```
+```python
+# Listing A.11 A training loop on a GPU
 
-```
 torch.manual_seed(123)
 model = NeuralNetwork(num_inputs=2, num_outputs=2)
-device = torch.device("cuda") #A
-model = model.to(device) #B
+
+device = torch.device("cuda")                                          #A
+model = model.to(device)                                               #B
+
 optimizer = torch.optim.SGD(model.parameters(), lr=0.5)
+
 num_epochs = 3
+
 for epoch in range(num_epochs):
-   model.train()
-   for batch_idx, (features, labels) in enumerate(train_loader):
-       features, labels = features.to(device), labels.to(device) #C
-       logits = model(features)
-       loss = F.cross_entropy(logits, labels) # Loss function
-       optimizer.zero_grad()
-       loss.backward()
-       optimizer.step()
-       ### LOGGING
+  
+    model.train()
+    for batch_idx, (features, labels) in enumerate(train_loader):
+      
+        features, labels = features.to(device), labels.to(device)      #C
+        logits = model(features)
+        loss = F.cross_entropy(logits, labels) # Loss function
+        
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        ### LOGGING
+        print(f"Epoch: {epoch+1:03d}/{num_epochs:03d}"
+        f" | Batch {batch_idx:03d}/{len(train_loader):03d}"
+        f" | Train/Val Loss: {loss:.2f}")
+        
+		model.eval()
+		# Optional model evaluation
+
+#A Define a device variable that defaults to a GPU.
+#B Transfer the model onto the GPU.
+#C Transfer the data onto the GPU.
 ```
-```
-print(f"Epoch: {epoch+1:03d}/{num_epochs:03d}"
-          f" | Batch {batch_idx:03d}/{len(train_loader):03d}"
-          f" | Train/Val Loss: {loss:.2f}")
-model.eval()
-# Optional model evaluation
-```
-#A Define a device variable that defaults to a GPU. #B Transfer the model onto the GPU. #C Transfer the data onto the GPU.
 
 Running the above code will output the following, similar to the results obtained on the CPU previously in section 2.7:
 
-Epoch: 001/003 | Batch 000/002 | Train/Val Loss: 0.75 Epoch: 001/003 | Batch 001/002 | Train/Val Loss: 0.65 Epoch: 002/003 | Batch 000/002 | Train/Val Loss: 0.44 Epoch: 002/003 | Batch 001/002 | Train/Val Loss: 0.13 Epoch: 003/003 | Batch 000/002 | Train/Val Loss: 0.03 Epoch: 003/003 | Batch 001/002 | Train/Val Loss: 0.00
-
-We can also use .to("cuda") instead of device = torch.device("cuda"). As we saw in section 2.9.1, transferring a tensor to "cuda" instead of torch.device("cuda") works as well and is shorter. We can also modify the statement to the following, which will make the same code executable on a CPU if a GPU is not available, which is usually considered best practice when sharing PyTorch code:
-
+```python
+Epoch: 001/003 | Batch 000/002 | Train/Val Loss: 0.75
+Epoch: 001/003 | Batch 001/002 | Train/Val Loss: 0.65
+Epoch: 002/003 | Batch 000/002 | Train/Val Loss: 0.44
+Epoch: 002/003 | Batch 001/002 | Train/Val Loss: 0.13
+Epoch: 003/003 | Batch 000/002 | Train/Val Loss: 0.03
+Epoch: 003/003 | Batch 001/002 | Train/Val Loss: 0.00
 ```
+
+We can also use `.to("cuda")` instead of `device = torch.device("cuda")`. As we saw in section 2.9.1, transferring a tensor to "cuda" instead of `torch.device("cuda")` works as well and is shorter. We can also modify the statement to the following, which will make the same code executable on a CPU if a GPU is not available, which is usually considered best practice when sharing PyTorch code:
+
+```python
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ```
 In the case of the modified training loop above, we probably won't see a speed-up because of the memory transfer cost from CPU to GPU. However, we can expect a significant speedup when training deep neural networks, especially large language models.
 
 As we saw in this section, training a model on a single GPU in PyTorch is relatively easy. Next, let's introduce another concept: training models on multiple GPUs.
 
-#### PYTORCH ON MACOS
+> [!NOTE]
+>
+> **PYTORCH ON MACOS**
+>
+> On an Apple Mac with an Apple Silicon chip (like the M1, M2, M3, or newer models) instead of a computer with an Nvidia GPU, you can change
+>
+> ```python
+> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+> 
+> ```
+> to
+> ```python
+> device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+> ```
+> to take advantage of this chip.
+>
 
-On an Apple Mac with an Apple Silicon chip (like the M1, M2, M3, or newer models) instead of a computer with an Nvidia GPU, you can change
+> [!NOTE]
+>
+> **EXERCISE A.4**
+>
+> Compare the runtime of matrix multiplication on a CPU to a GPU. At what matrix size do you begin to see the matrix multiplication on the GPU being faster than on the CPU? Hint: I recommend using the `%timeit` command in Jupyter to compare the runtime. For example, given matrices `a` and `b`, run the command `%timeit a @ b` in a new notebook cell.
+>
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-```
-to
-```
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-
-to take advantage of this chip.
-
-#### EXERCISE A.4
-
-Compare the runtime of matrix multiplication on a CPU to a GPU. At what matrix size do you begin to see the matrix multiplication on the GPU being faster than on the CPU? Hint: I recommend using the %timeit command in Jupyter to compare the runtime. For example, given matrices a and b, run the command %timeit a @ b in a new notebook cell.
-
-#### A.9.3 Training with multiple GPUs
+### A.9.3 Training with multiple GPUs
 
 In this section, we will briefly go over the concept of distributed training. Distributed training is the concept of dividing the model training across multiple GPUs and machines.
 
 Why do we need this? Even when it is possible to train a model on a single GPU or machine, the process could be exceedingly time-consuming. The training time can be significantly reduced by distributing the training process across multiple machines, each with potentially multiple GPUs. This is particularly crucial in the experimental stages of model development, where numerous training iterations might be necessary to finetune the model parameters and architecture.
 
-MULTI-GPU COMPUTING IS OPTIONAL For this book, it is not required to have access to or use multiple-GPU. This section is included for those who are interested in how multi-GPU computing works in PyTorch.
+> [!NOTE]
+>
+> **MULTI-GPU COMPUTING IS OPTIONAL** For this book, it is not required to have access to or use multiple-GPU. This section is included for those who are interested in how multi-GPU computing works in PyTorch.
 
-In this section, we will look at the most basic case of distributed training: PyTorch's DistributedDataParallel (DDP) strategy. DDP enables parallelism by splitting the input data across the available devices and processing these data subsets simultaneously.
+In this section, we will look at the most basic case of distributed training: PyTorch's `DistributedDataParallel` (DDP) strategy. DDP enables parallelism by splitting the input data across the available devices and processing these data subsets simultaneously.
 
 How does this work? PyTorch launches a separate process on each GPU, and each process receives and keeps a copy of the model -- these copies will be synchronized during training. To illustrate this, suppose we have two GPUs that we want to use to train a neural network, as shown in figure A.12.
 
 ![](_page_345_Figure_0.jpeg)
 
-Figure A.12 The model and data transfer in DDP involves two key steps. First, we create a copy of the model on each of the GPUs. Then we divide the input data into unique minibatches that we pass on to each model copy.
+> Figure A.12 The model and data transfer in DDP involves two key steps. First, we create a copy of the model on each of the GPUs. Then we divide the input data into unique minibatches that we pass on to each model copy.
 
-Each of the two GPUs will receive a copy of the model. Then, in every training iteration, each model will receive a minibatch (or just batch) from the data loader. We can use a DistributedSampler to ensure that each GPU will receive a different, non-overlapping batch when using DDP.
+Each of the two GPUs will receive a copy of the model. Then, in every training iteration, each model will receive a minibatch (or just batch) from the data loader. We can use a `DistributedSampler` to ensure that each GPU will receive a different, non-overlapping batch when using DDP.
 
 Since each model copy will see a different sample of the training data, the model copies will return different logits as outputs and compute different gradients during the backward pass. These gradients are then averaged and synchronized during training to update the models. This way, we ensure that the models don't diverge, as illustrated in figure A.13.
 
 ![](_page_345_Figure_4.jpeg)
 
-Figure A.13 The forward and backward pass in DDP are executed independently on each GPU with its corresponding data subset. Once the forward and backward passes are completed, gradients from each model replica (on each GPU) are synchronized across all GPUs. This ensures that every model replica has the same updated weights.
+> Figure A.13 The forward and backward pass in DDP are executed independently on each GPU with its corresponding data subset. Once the forward and backward passes are completed, gradients from each model replica (on each GPU) are synchronized across all GPUs. This ensures that every model replica has the same updated weights.
 
 The benefit of using DDP is the enhanced speed it offers for processing the dataset compared to a single GPU. Barring a minor communication overhead between devices that comes with DDP use, it can theoretically process a training epoch in half the time with two GPUs compared to just one. The time efficiency scales up with the number of GPUs, allowing us to process an epoch eight times faster if we have eight GPUs, and so on.
 
-MULTI-GPU COMPUTING IN INTERACTIVE ENVIRONMENTS DDP does not function properly within interactive Python environments like Jupyter notebooks, which don't handle multiprocessing in the same way a standalone Python script does. Therefore, the following code should be executed as a script, not within a notebook interface like Jupyter. This is because DDP needs to spawn multiple processes, and each process should have its own Python interpreter instance.
+> [!NOTE]
+>
+> **MULTI-GPU COMPUTING IN INTERACTIVE ENVIRONMENTS** DDP does not function properly within interactive Python environments like Jupyter notebooks, which don't handle multiprocessing in the same way a standalone Python script does. Therefore, the following code should be executed as a script, not within a notebook interface like Jupyter. This is because DDP needs to spawn multiple processes, and each process should have its own Python interpreter instance.
 
 Let's now see how this works in practice. For brevity, we will only focus on the core parts of the previous code that need to be adjusted for DDP training. However, for readers who want to run the code on their own multi-GPU machine or a cloud instance of their choice, it is recommended to use the standalone script provided in this book's GitHub repository at [https://github.com/rasbt/LLMs-from-scratch.](https://github.com/rasbt/LLMs-from-scratch)
 
 First, we will import a few additional submodules, classes, and functions for distributed training PyTorch as shown in code listing A.13 below.
 
-Listing A.12 PyTorch utilities for distributed training
+```python
+# Listing A.12 PyTorch utilities for distributed training
 
-import torch.multiprocessing as mp from torch.utils.data.distributed import DistributedSampler from torch.nn.parallel import DistributedDataParallel as DDP from torch.distributed import init_process_group, destroy_process_group
-
-Before we dive deeper into the changes to make the training compatible with DDP, let's briefly go over the rationale and usage for these newly imported utilities that we need alongside the DistributedDataParallel class.
-
-PyTorch's multiprocessing submodule contains functions such as multiprocessing.spawn, which we will use to spawn multiple processes and apply a function to multiple inputs in parallel. We will use it to spawn one training process per GPU.
-
-If we spawn multiple processes for training, we will need a way to divide the dataset among these different processes. For this, we will use the DistributedSampler.
-
-The init_process_group and destroy_process_group are used to initialize and quit the distributed training mods. The init_process_group function should be called at the beginning of the training script to initialize a process group for each process in the distributed setup, and destroy_process_group should be called at the end of the training script to destroy a given process group and release its resources.
-
-The following code in listing A.13 below illustrates how these new components are used to implement DDP training for the NeuralNetwork model we implemented earlier.
+import torch.multiprocessing as mp
+from torch.utils.data.distributed import DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.distributed import init_process_group, destroy_process_group
 
 ```
-Listing A.13 Model training with DistributedDataParallel strategy
+
+Before we dive deeper into the changes to make the training compatible with DDP, let's briefly go over the rationale and usage for these newly imported utilities that we need alongside the `DistributedDataParallel` class.
+
+PyTorch's `multiprocessing` submodule contains functions such as `multiprocessing.spawn`, which we will use to spawn multiple processes and apply a function to multiple inputs in parallel. We will use it to spawn one training process per GPU.
+
+If we spawn multiple processes for training, we will need a way to divide the dataset among these different processes. For this, we will use the `DistributedSampler`.
+
+The `init_process_group` and `destroy_process_group` are used to initialize and quit the distributed training mods. The `init_process_group` function should be called at the beginning of the training script to initialize a process group for each process in the distributed setup, and `destroy_process_group` should be called at the end of the training script to destroy a given process group and release its resources.
+
+The following code in listing A.13 below illustrates how these new components are used to implement DDP training for the `NeuralNetwork` model we implemented earlier.
+
+```python
+# Listing A.13 Model training with DistributedDataParallel strategy
+
 def ddp_setup(rank, world_size):
-   os.environ["MASTER_ADDR"] = "localhost" #A
-   os.environ["MASTER_PORT"] = "12345" #B
-   init_process_group(
-       backend="nccl", #C
-       rank=rank, #D
-       world_size=world_size #E
-   )
-   torch.cuda.set_device(rank) #F
+    os.environ["MASTER_ADDR"] = "localhost"            #A
+    os.environ["MASTER_PORT"] = "12345"                #B
+    init_process_group(
+        backend="nccl",                                #C
+        rank=rank,                                     #D
+        world_size=world_size                          #E
+    )
+    torch.cuda.set_device(rank)                        #F
+    
 def prepare_dataset():
-   ...
-   train_loader = DataLoader(
-       dataset=train_ds,
-       batch_size=2,
-       shuffle=False, #G
-       pin_memory=True, #H
-       drop_last=True,
-       sampler=DistributedSampler(train_ds) #I
-   )
-   return train_loader, test_loader
-def main(rank, world_size, num_epochs): #J
-   ddp_setup(rank, world_size)
-   train_loader, test_loader = prepare_dataset()
-   model = NeuralNetwork(num_inputs=2, num_outputs=2)
-   model.to(rank)
-   optimizer = torch.optim.SGD(model.parameters(), lr=0.5)
-   model = DDP(model, device_ids=[rank])
-   for epoch in range(num_epochs):
-   for features, labels in train_loader:
-           features, labels = features.to(rank), labels.to(rank) #K
-           ...
-           print(f"[GPU{rank}] Epoch: {epoch+1:03d}/{num_epochs:03d}"
-                f" | Batchsize {labels.shape[0]:03d}"
-                f" | Train/Val Loss: {loss:.2f}")
-   model.eval()
-   train_acc = compute_accuracy(model, train_loader, device=rank)
-   print(f"[GPU{rank}] Training accuracy", train_acc)
-   test_acc = compute_accuracy(model, test_loader, device=rank)
-   print(f"[GPU{rank}] Test accuracy", test_acc)
-```
-
-```
-destroy_process_group() #L
-```
+    ...
+    train_loader = DataLoader(
+        dataset=train_ds,
+        batch_size=2,
+        shuffle=False,                                 #G
+        pin_memory=True,                               #H
+        drop_last=True,
+        sampler=DistributedSampler(train_ds)           #I
+    )
+    return train_loader, test_loader
+  
+def main(rank, world_size, num_epochs):                             #J
+    ddp_setup(rank, world_size)
+    train_loader, test_loader = prepare_dataset()
+    model = NeuralNetwork(num_inputs=2, num_outputs=2)
+    model.to(rank)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.5)
+    model = DDP(model, device_ids=[rank])
+    for epoch in range(num_epochs):
+    for features, labels in train_loader:
+        features, labels = features.to(rank), labels.to(rank)        #K
+        ...
+        print(f"[GPU{rank}] Epoch: {epoch+1:03d}/{num_epochs:03d}"
+              f" | Batchsize {labels.shape[0]:03d}"
+              f" | Train/Val Loss: {loss:.2f}")
+    model.eval()
+    train_acc = compute_accuracy(model, train_loader, device=rank)
+    print(f"[GPU{rank}] Training accuracy", train_acc)
+    test_acc = compute_accuracy(model, test_loader, device=rank)
+    print(f"[GPU{rank}] Test accuracy", test_acc)
+    destroy_process_group()                                           #L
+    
 if __name__ == "__main__":
+    print("Number of GPUs available:", torch.cuda.device_count())
+    torch.manual_seed(123)
+    num_epochs = 3
+    world_size = torch.cuda.device_count()
+    mp.spawn(main, args=(world_size, num_epochs), nprocs=world_size)  #M
 
-print("Number of GPUs available:", torch.cuda.device_count()) torch.manual_seed(123) num_epochs = 3 world_size = torch.cuda.device_count() mp.spawn(main, args=(world_size, num_epochs), nprocs=world_size) #M
-
-- #A Address of the main node
-- #B Any free port on the machine
-
+#A Address of the main node
+#B Any free port on the machine
 #C nccl stands for NVIDIA Collective Communication Library.
-
 #D rank refers to the index of the GPU we want to use.
-
 #E world_size is the number of GPUs to use.
-
 #F Sets the current GPU device on which tensors will be allocated and operations will be performed.
-
-- #G DistibutedSampler takes care of the shuffling now
-- #H Enables faster memory transfer when training on GPU
-- #I Splits the dataset into distinct, non-overlapping subsets for each process (GPU)
-- #J The main function running the model training
-- #K rank is the GPU ID
-- #L Clean up resource allocation
-
+#G DistibutedSampler takes care of the shuffling now
+#H Enables faster memory transfer when training on GPU
+#I Splits the dataset into distinct, non-overlapping subsets for each process (GPU)
+#J The main function running the model training
+#K rank is the GPU ID
+#L Clean up resource allocation
 #M Launch the main function using multiple processes, where nprocs=world_size means one process per GPU.
+```
 
-Before we run the code from listing A.13, here is a summary of how it works, in addition to the annotations above. We have a __name__ == "__main__" clause at the bottom containing code that is executed when we run the code as a Python script instead of importing it as a module. This code first prints the number of available GPUs using torch.cuda.device_count(), sets a random seed for reproducibility and then spawns new processes using PyTorch's multiprocesses.spawn function. Here, the spawn function launches one process per GPU setting nproces=world_size, where the world size is the number of available GPUs. This spawn function launches the code in the main function we define in the same script with some additional arguments provided via args. Note that the main function has a rank argument that we don't include in the mp.spawn() call. That's because the rank, which refers to the process ID we use as the GPU ID, is already passed automatically.
+Before we run the code from listing A.13, here is a summary of how it works, in addition to the annotations above. We have a `__name__ == "__main__"` clause at the bottom containing code that is executed when we run the code as a Python script instead of importing it as a module. This code first prints the number of available GPUs using `torch.cuda.device_count()`, sets a random seed for reproducibility and then spawns new processes using PyTorch's `multiprocesses.spawn` function. Here, the `spawn` function launches one process per GPU setting `nproces=world_size`, where the `world_size` is the number of available GPUs. This `spawn` function launches the code in the main function we define in the same script with some additional arguments provided via `args`. Note that the main function has a `rank` argument that we don't include in the `mp.spawn()` call. That's because the `rank`, which refers to the process ID we use as the GPU ID, is already passed automatically.
 
-The main function sets up the distributed environment via ddp_setup -- another function we defined, loads the training and test sets, sets up the model, and carries out the training. Compared to the single-GPU training in section 2.12, we now transfer the model and data to the target device via .to(rank), which we use to refer to the GPU device ID. Also, we wrap the model via DDP, which enables the synchronization of the gradients between the different GPUs during training. After the training finishes and we evaluate the models, we use destroy_process_group() to cleanly exit the distributed training and free up the allocated resources.
+The `main` function sets up the distributed environment via `ddp_setup` -- another function we defined, loads the training and test sets, sets up the model, and carries out the training. Compared to the single-GPU training in section 2.12, we now transfer the model and data to the target device via `.to(rank)`, which we use to refer to the GPU device ID. Also, we wrap the model via DDP, which enables the synchronization of the gradients between the different GPUs during training. After the training finishes and we evaluate the models, we use `destroy_process_group()` to cleanly exit the distributed training and free up the allocated resources.
 
-Earlier, we mentioned that each GPU will receive a different subsample of the training data. To ensure this, we set sampler=DistributedSampler(train_ds) in the training loader.
+Earlier, we mentioned that each GPU will receive a different subsample of the training data. To ensure this, we set `sampler=DistributedSampler(train_ds)` in the training loader.
 
-The last function to discuss is ddp_setup. It sets the main node's address and port to allow for communication between the different processes, initializes the process group with the NCCL backend (designed for GPU-to-GPU communication), and sets the rank (process identifier) and world size (total number of processes). Finally, it specifies the GPU device corresponding to the current model training process rank.
+The last function to discuss is `ddp_setup`. It sets the main node's address and port to allow for communication between the different processes, initializes the process group with the NCCL backend (designed for GPU-to-GPU communication), and sets the rank (process identifier) and world size (total number of processes). Finally, it specifies the GPU device corresponding to the current model training process rank.
 
-#### SELECTING AVAILABLE GPUS ON A MULTI-GPU MACHINE
+**SELECTING AVAILABLE GPUS ON A MULTI-GPU MACHINE**
 
-If you wish to restrict the number of GPUs used for training on a multi-GPU machine, the simplest way is to use the CUDA_VISIBLE_DEVICES environment variable. To illustrate this, suppose your machine has multiple GPUs, and you only want to use one GPU, for example, the GPU with index 0. Instead of python some_script.py, you can run the code from the terminal as follows:
+If you wish to restrict the number of GPUs used for training on a multi-GPU machine, the simplest way is to use the `CUDA_VISIBLE_DEVICES` environment variable. To illustrate this, suppose your machine has multiple GPUs, and you only want to use one GPU, for example, the GPU with index 0. Instead of `python some_script.py`, you can run the code from the terminal as follows:
 
+```python
 CUDA_VISIBLE_DEVICES=0 python some_script.py
+```
 
 Or, if your machine has four GPUs and you only want to use the first and third GPU, you can use
 
+```python
 CUDA_VISIBLE_DEVICES=0,2 python some_script.py
+```
 
-Setting CUDA_VISIBLE_DEVICES in this way is a simple and effective way to manage GPU allocation without modifying your PyTorch scripts.
+Setting `CUDA_VISIBLE_DEVICES` in this way is a simple and effective way to manage GPU allocation without modifying your PyTorch scripts.
 
 Let's now run this code and see how it works in practice by launching the code as a script from the terminal:
 
+```python
 python ch02-DDP-script.py
+```
 
 Note that it should work on both single- and multi-GPU machines. If we run this code on a single GPU, we should see the following output:
 
-```
+```python
 PyTorch version: 2.0.1+cu117
 CUDA available: True
 Number of GPUs available: 1
@@ -8472,7 +8514,7 @@ The code output looks similar to the one in section 2.9.2, which is a good sanit
 
 Now, if we run the same command and code on a machine with two GPUs, we should see the following:
 
-```
+```python
 PyTorch version: 2.0.1+cu117
 CUDA available: True
 Number of GPUs available: 2
@@ -8491,16 +8533,19 @@ As expected, we can see that some batches are processed on the first GPU (GPU0) 
 
 If this bothers you, you can fix this using the rank of each process to control your print statements.
 
-```
+```python
 if rank == 0: # only print in the first process
 print("Test accuracy: ", accuracy)
 ```
 
 This is, in a nutshell, how distributed training via DDP works. If you are interested in additional details, I recommend checking the official API documentation at [https://pytorch.](https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html#torch.nn.parallel.DistributedDataParallel) [org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html.](https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html#torch.nn.parallel.DistributedDataParallel)
 
-#### ALTERNATIVE PYTORCH APIS FOR MULTI-GPU TRAINING
-
-If you prefer more straightforward ways to use multiple GPUs in PyTorch, you can also consider add-on APIs like the open-source Fabric library, which I've written about in Accelerating PyTorch Model Training: Using Mixed-Precision and Fully Sharded Data Parallelism [https://magazine.sebastianraschka.com/p/accelerating-pytorch-model](https://magazine.sebastianraschka.com/p/accelerating-pytorch-model-training)[training](https://magazine.sebastianraschka.com/p/accelerating-pytorch-model-training).
+> [!NOTE]
+>
+> **ALTERNATIVE PYTORCH APIS FOR MULTI-GPU TRAINING**
+>
+> If you prefer more straightforward ways to use multiple GPUs in PyTorch, you can also consider add-on APIs like the open-source Fabric library, which I've written about in Accelerating PyTorch Model Training: Using Mixed-Precision and Fully Sharded Data Parallelism [https://magazine.sebastianraschka.com/p/accelerating-pytorch-model](https://magazine.sebastianraschka.com/p/accelerating-pytorch-model-training)[training](https://magazine.sebastianraschka.com/p/accelerating-pytorch-model-training).
+>
 
 ## A.10 Summary
 
@@ -8523,36 +8568,40 @@ While this chapter should be sufficient to get you up to speed, in addition, if 
 
 For a more thorough introduction to the concepts of tensors, readers can find a 15 min video tutorial that I recorded:
 
-Lecture 4.1: Tensors in Deep Learning, [https://www.youtube.com/watch?](https://www.youtube.com/watch?v=JXfDlgrfOBY) [v=JXfDlgrfOBY](https://www.youtube.com/watch?v=JXfDlgrfOBY)
+- Lecture 4.1: Tensors in Deep Learning, [https://www.youtube.com/watch?](https://www.youtube.com/watch?v=JXfDlgrfOBY) [v=JXfDlgrfOBY](https://www.youtube.com/watch?v=JXfDlgrfOBY)
 
 If you want to learn more about model evaluation in machine learning, I recommend my article:
 
-*Model Evaluation, Model Selection, and Algorithm Selection in Machine Learning* (2018) by Sebastian Raschka, <https://arxiv.org/abs/1811.12808>
+- *Model Evaluation, Model Selection, and Algorithm Selection in Machine Learning* (2018) by Sebastian Raschka, <https://arxiv.org/abs/1811.12808>
 
 For readers who are interested in a refresher or gentle introduction to calculus, I've written a chapter on calculus that is freely available on my website:
 
-*Introduction to Calculus* by Sebastian Raschka, [https://sebastianraschka.](https://sebastianraschka.com/pdf/supplementary/calculus.pdf) [com/pdf/supplementary/calculus.pdf](https://sebastianraschka.com/pdf/supplementary/calculus.pdf)
+- *Introduction to Calculus* by Sebastian Raschka, [https://sebastianraschka.](https://sebastianraschka.com/pdf/supplementary/calculus.pdf) [com/pdf/supplementary/calculus.pdf](https://sebastianraschka.com/pdf/supplementary/calculus.pdf)
 
-Why does PyTorch not call optimizer.zero_grad() automatically for us in the background? In some instances, it may be desirable to accumulate the gradients, and PyTorch will leave this as an option for us. If you want to learn more about gradient accumulation, please see the following article:
+Why does PyTorch not call `optimizer.zero_grad()` automatically for us in the background? In some instances, it may be desirable to accumulate the gradients, and PyTorch will leave this as an option for us. If you want to learn more about gradient accumulation, please see the following article:
 
-*Finetuning Large Language Models On A Single GPU Using Gradient Accumulation* by Sebastian Raschka, [https://sebastianraschka.com/blog/](https://sebastianraschka.com/blog/2023/llm-grad-accumulation.html) [2023/llm-grad-accumulation.html](https://sebastianraschka.com/blog/2023/llm-grad-accumulation.html)
+- *Finetuning Large Language Models On A Single GPU Using Gradient Accumulation* by Sebastian Raschka, [https://sebastianraschka.com/blog/](https://sebastianraschka.com/blog/2023/llm-grad-accumulation.html) [2023/llm-grad-accumulation.html](https://sebastianraschka.com/blog/2023/llm-grad-accumulation.html)
 
 This chapter covered DDP, which is a popular approach for training deep learning models across multiple GPUs. For more advanced use cases where a single model doesn't fit onto the GPU, you may also consider PyTorch's *Fully Sharded Data Parallel* (FSDP) method, which performs distributed data parallelism and distributes large layers across different GPUs. For more information, see this overview with further links to the API documentation:
 
-Introducing PyTorch Fully Sharded Data Parallel (FSDP) API, [https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel](https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/)[api/](https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/)
+- Introducing PyTorch Fully Sharded Data Parallel (FSDP) API, [https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel](https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/)[api/](https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/)
 
 ## A.12 Exercise answers
 
-### EXERCISE A.3:
+**EXERCISE A.3**:
 
 The network has 2 inputs and 2 outputs. In addition, there are 2 hidden layers with 30 and 20 nodes, respectively. Programmatically, we can calculate the number of parameters as follows:
 
-```
+```python
 model = NeuralNetwork(2, 2)
 num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print("Total number of trainable model parameters:", num_params)
 ```
 This returns:
+
+```python
+752
+```
 
 We can also calculate this manually as follows:
 
@@ -8560,33 +8609,46 @@ We can also calculate this manually as follows:
 - second hidden layer: 30 incoming units times 20 nodes plus 20 bias units.
 - output layer: 20 incoming nodes times 2 output nodes plus 2 bias units.
 
-Then, adding all the parameters in each layer results in 2×30+30 + 30×20+20 + 20×2+2 = 752.
+Then, adding all the parameters in each layer results in `2×30+30 + 30×20+20 + 20×2+2 = 752`.
 
-### EXERCISE A.4:
+**EXERCISE A.4**:
 
 The exact runtime results will be specific to the hardware used for this experiment. In my experiments, I observed significant speed-ups even for small matrix multiplications as the following one when using a Google Colab instance connected to a V100 GPU:
 
-a = torch.rand(100, 200) b = torch.rand(200, 300) %timeit a@b
+```python
+a = torch.rand(100, 200)
+b = torch.rand(200, 300)
+%timeit a@b
+```
 
 On the CPU this resulted in:
 
+```
 63.8 µs ± 8.7 µs per loop
+```
 
 When executed on a GPU:
 
-a, b = a.to("cuda"), b.to("cuda") %timeit a @ b
+```python
+a, b = a.to("cuda"), b.to("cuda") 
+%timeit a @ b
+```
 
 The result was:
 
+```
 13.8 µs ± 425 ns per loop
+```
 
 In this case, on a V100, the computation was approximately four times faster.
 
-<span id="page-354-0"></span>[\[1\]](#page-341-0) This is the same .to() method we previously used to change a tensor's datatype in section 2.2.2, Tensor data types.
+<span id="page-354-0"></span>[[1]](#page-341-0) This is the same `.to()` method we previously used to change a tensor's datatype in section 2.2.2, Tensor data types.
 
-# <span id="page-355-0"></span>Appendix B. References and Further Reading
+# Appendix B. References and Further Reading
 
-Chapter 1
+<span id="page-355-0"></span>
+
+## Chapter 1
 
 Custom-built LLMs are able to outperform general-purpose LLMs as a team at Bloomberg showed via a version of GPT pretrained on finance data from scratch. The custom LLM outperformed ChatGPT on financial tasks while maintaining good performance on general LLM benchmarks:
 
