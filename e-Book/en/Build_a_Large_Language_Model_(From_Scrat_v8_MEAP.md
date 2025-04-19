@@ -7991,34 +7991,46 @@ In my experience, setting num_workers=4 usually leads to optimal performance on 
 
 So far, we've discussed all the requirements for training neural networks: PyTorch's tensor library, autograd, the Module API, and efficient data loaders. Let's now combine all these things and train a neural network on the toy dataset from the previous section. The training code is shown in code listing A.9 below.
 
-```
-Listing A.9 Neural network training in PyTorch
-#A The dataset from the previous section has 2 features and 2 classes
-import torch.nn.functional as F
-torch.manual_seed(123)
-model = NeuralNetwork(num_inputs=2, num_outputs=2) #A
-optimizer = torch.optim.SGD(model.parameters(), lr=0.5) #B
-num_epochs = 3
-for epoch in range(num_epochs):
-   model.train()
-   for batch_idx, (features, labels) in enumerate(train_loader):
-      logits = model(features)
-      loss = F.cross_entropy(logits, labels)
-      optimizer.zero_grad() #C
-      loss.backward() #D
-      optimizer.step() #E
-      ### LOGGING
-      print(f"Epoch: {epoch+1:03d}/{num_epochs:03d}"
-            f" | Batch {batch_idx:03d}/{len(train_loader):03d}"
-            f" | Train Loss: {loss:.2f}")
-   model.eval()
-   # Optional model evaluation
-```
-#B We led the optimizer needs to know which parameters to optimize #C Set the gradients from the previous round to zero to prevent unintended gradient accumulation #D Compute the gradients of the loss with respect to the model parameters #E The optimizer users the gradients to update the model parameters
+```python
+# Listing A.9 Neural network training in PyTorch
 
+import torch.nn.functional as F
+
+torch.manual_seed(123)
+model = NeuralNetwork(num_inputs=2, num_outputs=2)         #A
+optimizer = torch.optim.SGD(model.parameters(), lr=0.5)    #B
+
+num_epochs = 3
+
+for epoch in range(num_epochs):
+  
+    model.train()
+    for batch_idx, (features, labels) in enumerate(train_loader):
+      
+        logits = model(features)
+        loss = F.cross_entropy(logits, labels)
+        
+        optimizer.zero_grad()                             #C
+        loss.backward()                                   #D
+        optimizer.step()                                  #E
+
+        ### LOGGING
+        print(f"Epoch: {epoch+1:03d}/{num_epochs:03d}"
+              f" | Batch {batch_idx:03d}/{len(train_loader):03d}"
+              f" | Train Loss: {loss:.2f}")
+    
+    model.eval()
+    # Optional model evaluation
+
+#A The dataset from the previous section has 2 features and 2 classes
+#B We led the optimizer needs to know which parameters to optimize
+#C Set the gradients from the previous round to zero to prevent unintended gradient accumulation
+#D Compute the gradients of the loss with respect to the model parameters
+#E The optimizer users the gradients to update the model parameters
+```
 Running the code in listing A.9 above yields the following outputs:
 
-```
+```python
 Epoch: 001/003 | Batch 000/002 | Train Loss: 0.75
 Epoch: 001/003 | Batch 001/002 | Train Loss: 0.65
 Epoch: 002/003 | Batch 000/002 | Train Loss: 0.44
@@ -8026,21 +8038,24 @@ Epoch: 002/003 | Batch 001/002 | Trainl Loss: 0.13
 Epoch: 003/003 | Batch 000/002 | Train Loss: 0.03
 Epoch: 003/003 | Batch 001/002 | Train Loss: 0.00
 ```
-As we can see, the loss reaches zero after 3 epochs, a sign that the model converged on the training set. However, before we evaluate the model's predictions, let's go over some of the details of the preceding code listing.
+As we can see, the loss reaches zero after 3 epochs, a sign that the model **converged** on the training set. However, before we evaluate the model's predictions, let's go over some of the details of the preceding code listing.
 
 First, note that we initialized a model with two inputs and two outputs. That's because the toy dataset from the previous section has two input features and two class labels to predict. We used a stochastic gradient descent (SGD) optimizer with a learning rate (lr) of 0.5. The learning rate is a hyperparameter, meaning it's a tunable setting that we have to experiment with based on observing the loss. Ideally, we want to choose a learning rate such that the loss converges after a certain number of epochs -- the number of epochs is another hyperparameter to choose.
 
-#### EXERCISE A.3
-
-How many parameters does the neural network introduced at the beginning of this section have?
+> [!NOTE]
+>
+> **EXERCISE A.3**
+>
+> How many parameters does the neural network introduced at the beginning of this section have?
+>
 
 In practice, we often use a third dataset, a so-called validation dataset, to find the optimal hyperparameter settings. A validation dataset is similar to a test set. However, while we only want to use a test set precisely once to avoid biasing the evaluation, we usually use the validation set multiple times to tweak the model settings.
 
-We also introduced new settings called model.train() and model.eval(). As these names imply, these settings are used to put the model into a training and an evaluation mode. This is necessary for components that behave differently during training and inference, such as *dropout* or *batch normalization* layers. Since we don't have dropout or other components in our NeuralNetwork class that are affected by these settings, using model.train() and model.eval() is redundant in our code above. However, it's best practice to include them anyway to avoid unexpected behaviors when we change the model architecture or reuse the code to train a different model.
+We also introduced new settings called `model.train()` and `model.eval()`. As these names imply, these settings are used to put the model into a training and an evaluation mode. This is necessary for components that behave differently during training and inference, such as **dropout** or **batch normalization** layers. Since we don't have dropout or other components in our `NeuralNetwork` class that are affected by these settings, using `model.train()` and `model.eval()` is redundant in our code above. However, it's best practice to include them anyway to avoid unexpected behaviors when we change the model architecture or reuse the code to train a different model.
 
-As discussed earlier, we pass the logits directly into the cross_entropy loss function, which will apply the softmax function internally for efficiency and numerical stability reasons. Then, calling loss.backward() will calculate the gradients in the computation graph that PyTorch constructed in the background. The optimizer.step() method will use the gradients to update the model parameters to minimize the loss. In the case of the SGD optimizer, this means multiplying the gradients with the learning rate and adding the scaled negative gradient to the parameters.
+As discussed earlier, we pass the logits directly into the `cross_entropy` loss function, which will apply the `softmax` function internally for efficiency and numerical stability reasons. Then, calling `loss.backward()` will calculate the gradients in the computation graph that PyTorch constructed in the background. The `optimizer.step()` method will use the gradients to update the model parameters to minimize the loss. In the case of the SGD optimizer, this means multiplying the gradients with the learning rate and adding the scaled negative gradient to the parameters.
 
-PREVENTING UNDESIRED GRADIENT ACCUMULATION It is important to include an optimizer.zero_grad() call in each update round to reset the gradients to zero. Otherwise, the gradients will accumulate, which may be undesired.
+**PREVENTING UNDESIRED GRADIENT ACCUMULATION** It is important to include an optimizer.zero_grad() call in each update round to reset the gradients to zero. Otherwise, the gradients will accumulate, which may be undesired.
 
 After we trained the model, we can use it to make predictions, as shown below:
 
