@@ -8668,27 +8668,27 @@ In this case, on a V100, the computation was approximately four times faster.
 
 Custom-built LLMs are able to outperform general-purpose LLMs as a team at Bloomberg showed via a version of GPT pretrained on finance data from scratch. The custom LLM outperformed ChatGPT on financial tasks while maintaining good performance on general LLM benchmarks:
 
-*BloombergGPT: A Large Language Model for Finance* (2023) by Wu *et al.*, <https://arxiv.org/abs/2303.17564>
+- *BloombergGPT: A Large Language Model for Finance* (2023) by Wu *et al.*, <https://arxiv.org/abs/2303.17564>
 
 Existing LLMs can be adapted and finetuned to outperform general LLMs as well, which teams from Google Research and Google DeepMind showed in a medical context:
 
-*Towards Expert-Level Medical Question Answering with Large Language Models* (2023) by Singhal *et al.*, <https://arxiv.org/abs/2305.09617>
+- *Towards Expert-Level Medical Question Answering with Large Language Models* (2023) by Singhal *et al.*, <https://arxiv.org/abs/2305.09617>
 
 The paper that proposed the original transformer architecture:
 
-*Attention Is All You Need* (2017) by Vaswani *et al.*, [https://arxiv.](https://arxiv.org/abs/1706.03762) [org/abs/1706.03762](https://arxiv.org/abs/1706.03762)
+- *Attention Is All You Need* (2017) by Vaswani *et al.*, <https://arxiv.org/abs/1706.03762>
 
 The original encoder-style transformer, called BERT:
 
-*BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding* (2018) by Devlin *et al.*, <https://arxiv.org/abs/1810.04805>
+- *BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding* (2018) by Devlin *et al.*, <https://arxiv.org/abs/1810.04805>
 
 The paper describing the decoder-style GPT-3 model, which inspired modern LLMs and will be used as a template for implementing an LLM from scratch in this book:
 
-*Language Models are Few-Shot Learners* (2020) by Brown *et al.*, <https://arxiv.org/abs/2005.14165>
+- *Language Models are Few-Shot Learners* (2020) by Brown *et al.*, <https://arxiv.org/abs/2005.14165>
 
 The original vision transformer for classifying images, which illustrates that transformer architectures are not only restricted to text inputs:
 
-*An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale* (2020) by Dosovitskiy *et al.*,<https://arxiv.org/abs/2010.11929>
+- *An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale* (2020) by Dosovitskiy *et al.*,<https://arxiv.org/abs/2010.11929>
 
 Two experimental (but less popular) LLM architectures that serve as examples that not all LLMs need to be based on the transformer architecture:
 
@@ -8697,34 +8697,35 @@ Two experimental (but less popular) LLM architectures that serve as examples tha
 
 Meta AI's model is a popular implementation of a GPT-like model that is openly available in contrast to GPT-3 and ChatGPT:
 
-*Llama 2: Open Foundation and Fine-Tuned Chat Models* (2023) by Touvron *et al.*,<https://arxiv.org/abs/2307.09288>[1](https://arxiv.org/abs/2302.13971)
+- *Llama 2: Open Foundation and Fine-Tuned Chat Models* (2023) by Touvron *et al.*,<https://arxiv.org/abs/2307.09288> [1](https://arxiv.org/abs/2302.13971)
 
 For readers interested in additional details about the dataset references in section 1.5, this paper describes the publicly available *The Pile* dataset curated by Eleuther AI:
 
-*The Pile: An 800GB Dataset of Diverse Text for Language Modeling* (2020) by Gao *et al.*, [https://arxiv.org/abs/2101.00027.](https://arxiv.org/abs/2101.00027)
+- *The Pile: An 800GB Dataset of Diverse Text for Language Modeling* (2020) by Gao *et al.*, <https://arxiv.org/abs/2101.00027>
 
 The following paper provides the reference for InstructGPT for finetuning GPT-3, which was mentioned in section 1.6 and will be discussed in more detail in chapter 7:
 
-*Training Language Models to Follow Instructions with Human Feedback* (2022) by *Ouyang et al.*,<https://arxiv.org/abs/2203.02155>
+- *Training Language Models to Follow Instructions with Human Feedback* (2022) by *Ouyang et al.*,<https://arxiv.org/abs/2203.02155>
 
 ## Chapter 2
 
 - *Machine Learning Q and AI* (2023) by Sebastian Raschka, [https://leanpub.com/machine-learning-q-and-ai](https://leanpub.com/machine-learning-q-and-ai/)
-- The following paper provides more in-depth discussions of how how byte pair encoding is used as a tokenization method:
 
-Neural Machine Translation of Rare Words with Subword Units (2015) by Sennrich at al., <https://arxiv.org/abs/1508.07909>
+The following paper provides more in-depth discussions of how how byte pair encoding is used as a tokenization method:
+
+- Neural Machine Translation of Rare Words with Subword Units (2015) by Sennrich at al., <https://arxiv.org/abs/1508.07909>
 
 The code for the byte pair encoding tokenizer used to train GPT-2 was open-sourced by OpenAI:
 
-<https://github.com/openai/gpt-2/blob/master/src/encoder.py>
+- <https://github.com/openai/gpt-2/blob/master/src/encoder.py>
 
 OpenAI provides an interactive web UI to illustrate how the byte pair tokenizer in GPT models works:
 
-<https://platform.openai.com/tokenizer>
+- <https://platform.openai.com/tokenizer>
 
 For readers interested in coding and training a BPE tokenizer from the ground up, Andrej Karpathy's GitHub repository minbpe offers a minimal and readable implementation:
 
-A minimal implementation of a BPE tokenizer, [https://github.](https://github.com/karpathy/minbpe) [com/karpathy/minbpe](https://github.com/karpathy/minbpe)
+- A minimal implementation of a BPE tokenizer, [https://github.](https://github.com/karpathy/minbpe) [com/karpathy/minbpe](https://github.com/karpathy/minbpe)
 
 Readers who are interested in studying alternative tokenization schemes that are used by some other popular LLMs can find more information in the SentencePiece and WordPiece papers:
 
@@ -8735,38 +8736,38 @@ Readers who are interested in studying alternative tokenization schemes that are
 
 Readers interested in learning more about Bahdanau attention for RNN and language translation can find detailed insights in the following paper:
 
-*Neural Machine Translation by Jointly Learning to Align and Translate* (2014) by Bahdanau, Cho, and Bengio,<https://arxiv.org/abs/1409.0473>
+- *Neural Machine Translation by Jointly Learning to Align and Translate* (2014) by Bahdanau, Cho, and Bengio,<https://arxiv.org/abs/1409.0473>
 
 The concept of self-attention as scaled dot-product attention was introduced in the original transformer paper:
 
-*Attention Is All You Need* (2017) by Vaswani et al., [https://arxiv.](https://arxiv.org/abs/1706.03762) [org/abs/1706.03762](https://arxiv.org/abs/1706.03762)
+- *Attention Is All You Need* (2017) by Vaswani et al., [https://arxiv.](https://arxiv.org/abs/1706.03762) [org/abs/1706.03762](https://arxiv.org/abs/1706.03762)
 
 *FlashAttentio*n is a highly efficient implementation of self-attention mechanism, which accelerates the computation process by optimizing memory access patterns. FlashAttention is mathematically the same as the standard self-attention mechanism but optimizes the computational process for efficiency:
 
-- *FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awarenes*s (2022) by Dao *et al.*, <https://arxiv.org/abs/2205.14135>
-- *FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning* (2023) by Dao,<https://arxiv.org/abs/2307.08691>
+- **FlashAttention**: Fast and Memory-Efficient Exact Attention with IO-Awareness (2022) by Dao *et al.*, <https://arxiv.org/abs/2205.14135>
+- **FlashAttention-2**: Faster Attention with Better Parallelism and Work Partitioning (2023) by Dao,<https://arxiv.org/abs/2307.08691>
 
-PyTorch implements a function for self-attention and causal attention that supports FlashAttention for efficiency. This function is beta and subject to change:
+PyTorch implements a function for self-attention and causal attention that supports `FlashAttention` for efficiency. This function is beta and subject to change:
 
-scaled_dot_product_attention documentation: [https://pytorch.](https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html) [org/docs/stable/generated/torch.nn.functional.scaled\_dot\_](https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html) [product\_attention.html](https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html)
+- `scaled_dot_product_attention` documentation: [https://pytorch.](https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html) [org/docs/stable/generated/torch.nn.functional.scaled\_dot\_](https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html) [product\_attention.html](https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html)
 
-PyTorch also implements an efficient MultiHeadAttention class based on the scaled_dot_product function:
+PyTorch also implements an efficient `MultiHeadAttention` class based on the scaled_dot_product function:
 
-MultiHeadAttention documentation: [https://pytorch.org/docs/](https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html) [stable/generated/torch.nn.MultiheadAttention.html](https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html)
+- `MultiHeadAttention` documentation: [https://pytorch.org/docs/](https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html) [stable/generated/torch.nn.MultiheadAttention.html](https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html)
 
-Dropout is a regularization technique used in neural networks to prevent overfitting by randomly dropping units (along with their connections) from the neural network during training:
+**Dropout** is a regularization technique used in neural networks to prevent overfitting by randomly dropping units (along with their connections) from the neural network during training:
 
-*Dropout: A Simple Way to Prevent Neural Networks from Overfitting* (2014) by Srivastava *et al.*, [https://jmlr.org/papers/v15/srivastava14a.](https://jmlr.org/papers/v15/srivastava14a.html) [html](https://jmlr.org/papers/v15/srivastava14a.html)
+- *Dropout: A Simple Way to Prevent Neural Networks from Overfitting* (2014) by Srivastava *et al.*, [https://jmlr.org/papers/v15/srivastava14a.](https://jmlr.org/papers/v15/srivastava14a.html) [html](https://jmlr.org/papers/v15/srivastava14a.html)
 
 While using the multi-head attention based on scaled-dot product attention remains the most common variant of self-attention in practice, authors found that it's possible to also achieve good performance without the value weight matrix and projection layer:
 
-*Simplifying Transformer Blocks* (2023) by He and Hofmann, [https://arxiv.](https://arxiv.org/abs/2311.01906) [org/abs/2311.01906](https://arxiv.org/abs/2311.01906)
+- *Simplifying Transformer Blocks* (2023) by He and Hofmann, [https://arxiv.](https://arxiv.org/abs/2311.01906) [org/abs/2311.01906](https://arxiv.org/abs/2311.01906)
 
 ## Chapter 4
 
 The layer normalization paper, titled "Layer Normalization," introduces a technique that stabilizes the hidden state dynamics neural networks by normalizing the summed inputs to the neurons within a hidden layer, significantly reducing training time compared to previously published methods:
 
-*Layer Normalization* (2016) by Ba, Kiros, and Hinton, [https://arxiv.](https://arxiv.org/abs/1607.06450) [org/abs/1607.06450](https://arxiv.org/abs/1607.06450)
+- *Layer Normalization* (2016) by Ba, Kiros, and Hinton, [https://arxiv.](https://arxiv.org/abs/1607.06450) [org/abs/1607.06450](https://arxiv.org/abs/1607.06450)
 
 Post-LayerNorm, used in the original Transformer model, applies layer normalization after the self-attention and feed forward networks. In contrast, Pre-LayerNorm, as adopted in models like GPT-2 and newer LLMs, applies layer normalization before these components, which can lead to more stable training dynamics and has been shown to improve performance in some cases, as discussed in the following papers:
 
@@ -8775,35 +8776,35 @@ Post-LayerNorm, used in the original Transformer model, applies layer normalizat
 
 A popular variant of LayerNorm used in modern LLMs is RMSNorm due to its improved computing efficiency. This variant simplifies the normalization process by normalizing the inputs using only the root mean square of the inputs, without subtracting the mean before squaring. This means it does not center the data before computing the scale. RMSNorm is described in more detail in the following paper:
 
-*Root Mean Square Layer Normalization* (2019) by Zhang and Sennrich, <https://arxiv.org/abs/1910.07467>
+- *Root Mean Square Layer Normalization* (2019) by Zhang and Sennrich, <https://arxiv.org/abs/1910.07467>
 
 The GELU (Gaussian Error Linear Unit) activation function combines the properties of both the classic ReLU activation function and the normal distribution's cumulative distribution function to model layer outputs, allowing for stochastic regularization and non-linearities in deep learning models, as introduced in the following paper:
 
-*Gaussian Error Linear Units (GELUs)* (2016) by Hendricks and Gimpel, <https://arxiv.org/abs/1606.08415>
+- *Gaussian Error Linear Units (GELUs)* (2016) by Hendricks and Gimpel, <https://arxiv.org/abs/1606.08415>
 
 The GPT-2 paper introduced a series of transformer-based LLMs with varying sizes—124M, 355M, 774M, and 1.5B parameters:
 
-Language Models are Unsupervised Multitask Learners (2019) by Radford et al., [https://d4mucfpksywv.cloudfront.net/better-language](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)[models/language\_models\_are\_unsupervised\_multitask\_learners.pdf](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)
+- Language Models are Unsupervised Multitask Learners (2019) by Radford et al., https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
 
 OpenAI's GPT-3 uses fundamentally the same architecture as GPT-2, except that the largest version (175 billion) is 100x larger than the largest GPT-2 model and has been trained on much more data. Interested readers can refer to the official GPT-3 paper by OpenAI and the technical overview by Lambda Labs, which calculates that training GPT-3 on a single RTX 8000 consumer GPU would take 665 years:
 
-Language Models are Few-Shot Learners (2023) by Brown et al., <https://arxiv.org/abs/2005.14165>
+- Language Models are Few-Shot Learners (2023) by Brown et al., <https://arxiv.org/abs/2005.14165>
 
-OpenAI's GPT-3 Language Model: A Technical Overview, <https://lambdalabs.com/blog/demystifying-gpt-3>
+- OpenAI's GPT-3 Language Model: A Technical Overview, <https://lambdalabs.com/blog/demystifying-gpt-3>
 
 NanoGPT is a code repository with a minimalist yet efficient implementation of a GPT-2 model, similar to the model implemented in this book. While the code in this book is different from nanoGPT, this repository inspired the reorganization of a large GPT Python parent class implementation into smaller submodules:
 
-NanoGPT, a repository for training medium-sized GPTs, [https://github.](https://github.com/karpathy/nanoGPT) [com/karpathy/nanoGPT](https://github.com/karpathy/nanoGPT)
+- NanoGPT, a repository for training medium-sized GPTs, [https://github.](https://github.com/karpathy/nanoGPT) [com/karpathy/nanoGPT](https://github.com/karpathy/nanoGPT)
 
 An informative blog post showing that most of the computation in LLMs is spent in the feed forward layers rather than attention layers when the context size is smaller than 32,000 tokens:
 
-"In the long (context) run" by Harm de Vries, [https://www.harmdevries.](https://www.harmdevries.com/post/context-length/) [com/post/context-length/](https://www.harmdevries.com/post/context-length/)
+- "In the long (context) run" by Harm de Vries, [https://www.harmdevries.](https://www.harmdevries.com/post/context-length/) [com/post/context-length/](https://www.harmdevries.com/post/context-length/)
 
 ## Chapter 5
 
 A video lecture by the author detailing the loss function and applying a log transformation to make it easier to handle for mathematical optimization:
 
-L8.2 Logistic Regression Loss Function, [https://www.youtube.com/watch?](https://www.youtube.com/watch?v=GxJe0DZvydM) [v=GxJe0DZvydM](https://www.youtube.com/watch?v=GxJe0DZvydM)
+- L8.2 Logistic Regression Loss Function, [https://www.youtube.com/watch?](https://www.youtube.com/watch?v=GxJe0DZvydM) [v=GxJe0DZvydM](https://www.youtube.com/watch?v=GxJe0DZvydM)
 
 The following two papers detail the dataset, hyperparameter, and architecture details used for pretraining LLMs:
 
@@ -8812,15 +8813,15 @@ The following two papers detail the dataset, hyperparameter, and architecture de
 
 The following supplementary code available for this book contains instructions for preparing 60,000 public domain books from Project Gutenberg for LLM training:
 
-Pretraining GPT on the Project Gutenberg Dataset, [https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg)
+- Pretraining GPT on the Project Gutenberg Dataset, [https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/03_bonus_pretraining_on_gutenberg)
 
 Chapter 5 discusses the pretraining of LLMs, and Appendix D covers more advanced training functions, such as linear warmup and cosine annealing. The following paper finds that similar techniques can be successfully applied to continue pretraining already pretrained LLMs, along with additional tips and insights:
 
-Simple and Scalable Strategies to Continually Pre-train Large Language Models (2024) by Ibrahim *et al.*,<https://arxiv.org/abs/2403.08763>
+- Simple and Scalable Strategies to Continually Pre-train Large Language Models (2024) by Ibrahim *et al.*,<https://arxiv.org/abs/2403.08763>
 
 BloombergGPT is an example of a domain-specific large language model (LLM) created by training on both general and domain-specific text corpora, specifically in the field of finance:
 
-BloombergGPT: A Large Language Model for Finance (2023) by Wu *et al.*, <https://arxiv.org/abs/2303.17564>
+- BloombergGPT: A Large Language Model for Finance (2023) by Wu *et al.*, <https://arxiv.org/abs/2303.17564>
 
 GaLore is a recent research project that aims to make LLM pretraining more efficient. The required code change boils down to just replacing PyTorch's AdamW optimizer in the training function with the GaLoreAdamW optimizer provided by the galore-torch Python package.
 
@@ -8837,11 +8838,11 @@ The following papers and resources share openly available, large-scale pretraini
 
 The paper that originally introduced top-k sampling:
 
-Hierarchical Neural Story Generation by Fan *et al.* (2018), [https://arxiv.](https://arxiv.org/abs/1805.04833) [org/abs/1805.04833](https://arxiv.org/abs/1805.04833)
+- Hierarchical Neural Story Generation by Fan *et al.* (2018), [https://arxiv.](https://arxiv.org/abs/1805.04833) [org/abs/1805.04833](https://arxiv.org/abs/1805.04833)
 
 Beam search (not cover in chapter 5) is an alternative decoding algorithm that generates output sequences by keeping only the top-scoring partial sequences at each step to balance efficiency and quality:
 
-Diverse Beam Sea*rch: Decoding Diverse Solutions from Neural Sequence Models by Vijayakumar* et al. (2016), <https://arxiv.org/abs/1610.02424>
+- Diverse Beam Sea*rch: Decoding Diverse Solutions from Neural Sequence Models by Vijayakumar* et al. (2016), <https://arxiv.org/abs/1610.02424>
 
 ## Chapter 6
 
@@ -8852,23 +8853,23 @@ Additional resources that discuss the different types of finetuning:
 
 Additional experiments, including a comparison of finetuning the first output token versus the last output token, can be found in the supplementary code material on GitHub:
 
-*Additional spam classification experiments*, [https://github.com/rasbt/](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch06/02_bonus_additional-experiments) [LLMs-from-scratch/tree/main/ch06/02\_bonus\_additional-experiments](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch06/02_bonus_additional-experiments)
+- *Additional spam classification experiments*, [https://github.com/rasbt/](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch06/02_bonus_additional-experiments) [LLMs-from-scratch/tree/main/ch06/02\_bonus\_additional-experiments](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch06/02_bonus_additional-experiments)
 
 For a binary classification task, such as spam classification, it is technically possible to only use a single output node instead of two output nodes, as I discussed in the following article:
 
-*Losses Learned—Optimizing Negative Log-Likelihood and Cross-Entropy in PyTorch*, [https://sebastianraschka.com/blog/2022/losses-learned-part1.](https://sebastianraschka.com/blog/2022/losses-learned-part1.html) [html](https://sebastianraschka.com/blog/2022/losses-learned-part1.html)
+- *Losses Learned—Optimizing Negative Log-Likelihood and Cross-Entropy in PyTorch*, [https://sebastianraschka.com/blog/2022/losses-learned-part1.](https://sebastianraschka.com/blog/2022/losses-learned-part1.html) [html](https://sebastianraschka.com/blog/2022/losses-learned-part1.html)
 
 You can find additional experiments on finetuning different layers of an LLM in the following article, which shows that finetuning the last transformer block, in addition to the output layer, improves the predictive performance substantially:
 
-*Finetuning Large Language Models*, [https://magazine.sebastianraschka.](https://magazine.sebastianraschka.com/p/finetuning-large-language-models) [com/p/finetuning-large-language-models](https://magazine.sebastianraschka.com/p/finetuning-large-language-models)
+- *Finetuning Large Language Models*, [https://magazine.sebastianraschka.](https://magazine.sebastianraschka.com/p/finetuning-large-language-models) [com/p/finetuning-large-language-models](https://magazine.sebastianraschka.com/p/finetuning-large-language-models)
 
 Readers can find additional resources and information for dealing with imbalanced classification datasets in the imbalanced-learn documentation:
 
-*Imbalanced-learn user guide*, [https://imbalanced-learn.org/stable/user\_](https://imbalanced-learn.org/stable/user_guide.html) [guide.html](https://imbalanced-learn.org/stable/user_guide.html)
+- *Imbalanced-learn user guide*, [https://imbalanced-learn.org/stable/user\_](https://imbalanced-learn.org/stable/user_guide.html) [guide.html](https://imbalanced-learn.org/stable/user_guide.html)
 
 For readers interested in classifying spam emails rather than spam text messages, the following resource provides a large email spam classification dataset in a convenient CSV format similar to the dataset format used in chapter 6:
 
-*Email spam classification dataset*, [https://huggingface.co/datasets/](https://huggingface.co/datasets/TrainingDataPro/email-spam-classification) [TrainingDataPro/email-spam-classification](https://huggingface.co/datasets/TrainingDataPro/email-spam-classification)
+- *Email spam classification dataset*, [https://huggingface.co/datasets/](https://huggingface.co/datasets/TrainingDataPro/email-spam-classification) [TrainingDataPro/email-spam-classification](https://huggingface.co/datasets/TrainingDataPro/email-spam-classification)
 
 GPT-2 is a model based on the decoder module of the transformer architecture, and its primary purpose is to generate new text. As an alternative, encoder-based models such as BERT and RoBERTa can be effective for classification tasks:
 
@@ -8885,7 +8886,7 @@ Recent papers are showing that the classification performance can be further imp
 
 The Alpaca dataset for instruction finetuning contains 52 thousand instruction-response pairs and is one of the first and most popular publicly available datasets for instruction finetuning:
 
-*Stanford Alpaca: An Instruction-following Llama Model*, [https://github.](https://github.com/tatsu-lab/stanford_alpaca) [com/tatsu-lab/stanford\_alpaca](https://github.com/tatsu-lab/stanford_alpaca)
+- *Stanford Alpaca: An Instruction-following Llama Model*, [https://github.](https://github.com/tatsu-lab/stanford_alpaca) [com/tatsu-lab/stanford\_alpaca](https://github.com/tatsu-lab/stanford_alpaca)
 
 Listed below are additional publicly accessible datasets suitable for instruction finetuning:
 
@@ -8895,15 +8896,15 @@ Listed below are additional publicly accessible datasets suitable for instructio
 
 Phi-3 is a 3.8B parameter model with an instruction-finetuned variant that is reported to be comparable to much larger proprietary models, such as GPT-3.5:
 
-*Phi-3 Technical Report: A Highly Capable Language Model Locally on Your Phone* (2024) by Abdin et al.,<https://arxiv.org/abs/2404.14219>
+- *Phi-3 Technical Report: A Highly Capable Language Model Locally on Your Phone* (2024) by Abdin et al.,<https://arxiv.org/abs/2404.14219>
 
 Researchers propose a synthetic instruction data generation method that generates 300,000 high-quality instruction-response pairs from an instruction-finetuned Llama-3 model. A pretrained Llama 3 base model finetuned on these instruction examples performs comparably to the original instruction-finetuned Llama-3 model:
 
-*Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing* (2024) by Xu et al., <https://arxiv.org/abs/2406.08464>
+- *Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing* (2024) by Xu et al., <https://arxiv.org/abs/2406.08464>
 
 Research has shown that not masking the instructions and inputs in instruction finetuning effectively improves performance on various NLP tasks and open-ended generation benchmarks, particularly when trained on datasets with lengthy instructions and brief outputs or when using a small number of training examples:
 
-*Instruction Tuning With Loss Over Instructions* (2024) by Shi, <https://arxiv.org/abs/2405.14394>
+- *Instruction Tuning With Loss Over Instructions* (2024) by Shi, <https://arxiv.org/abs/2405.14394>
 
 Prometheus and PHUDGE are openly available LLMs that match GPT-4 in evaluating longform responses with customizable criteria. We haven't used these in chapter 7 because they are not yet supported by Ollama, and thus cannot be executed efficiently on a laptop.
 
@@ -8913,15 +8914,15 @@ Prometheus and PHUDGE are openly available LLMs that match GPT-4 in evaluating l
 
 The results in the following report support the view that large language models primarily acquire factual knowledge during pretraining and that finetuning mainly enhances their efficiency in using this knowledge. Furthermore, this study explores how finetuning large language models with new factual information affects their ability to use preexisting knowledge, revealing that models learn new facts more slowly and their introduction during finetuning increases the model's tendency to generate incorrect information:
 
-*Does Fine-Tuning LLMs on New Knowledge Encourage Hallucinations?* (2024) by Gekhman,<https://arxiv.org/abs/2405.05904>
+- *Does Fine-Tuning LLMs on New Knowledge Encourage Hallucinations?* (2024) by Gekhman,<https://arxiv.org/abs/2405.05904>
 
 Preference finetuning is an optional step after instruction finetuning to align the LLM more closely with human preferences. The following articles by the author provide more information about this process:
 
 - *LLM Training: RLHF and Its Alternatives*, [https://magazine.](https://magazine.sebastianraschka.com/p/llm-training-rlhf-and-its-alternatives) [sebastianraschka.com/p/llm-training-rlhf-and-its-alternatives](https://magazine.sebastianraschka.com/p/llm-training-rlhf-and-its-alternatives)
 - *Tips for LLM Pretraining and Evaluating Reward Models*, [https://sebastianraschka.com/blog/2024/research-papers-in-march-](https://sebastianraschka.com/blog/2024/research-papers-in-march-2024.html)[2024.html](https://sebastianraschka.com/blog/2024/research-papers-in-march-2024.html)
 
-# <span id="page-365-0"></span>Appendix C. Exercise Solutions
-
+# Appendix C. Exercise Solutions
+<span id="page-365-0"></span>
 The complete code examples for the exercises answers can be found in the supplementary GitHub repository at [https://github.com/rasbt/LLMs-from-scratch.](https://github.com/rasbt/LLMs-from-scratch)
 
 ## Chapter 2
@@ -8948,7 +8949,7 @@ This returns:
 
 'Akwirw ier'
 
-#### EXERCISE 2.2
+### EXERCISE 2.2
 
 The code for the data loader with max_length=2 and stride=2:
 
@@ -8973,7 +8974,7 @@ tensor([[ 40, 367, 2885, 1464, 1807, 3619, 402, 271], [ 2885, 1464, 1807, 3619, 
 
 ## Chapter 3
 
-#### EXERCISE 3.1
+### EXERCISE 3.1
 
 The correct weight assignment is as follows:
 
@@ -8982,7 +8983,7 @@ sa_v1.W_query = torch.nn.Parameter(sa_v2.W_query.weight.T)
 sa_v1.W_key = torch.nn.Parameter(sa_v2.W_key.weight.T)
 sa_v1.W_value = torch.nn.Parameter(sa_v2.W_value.weight.T)
 ```
-#### EXERCISE 3.2
+### EXERCISE 3.2
 
 To achieve an output dimension of 2, similar to what we had in single-head attention, we need to change the projection dimension d_out to 1.
 
@@ -8990,7 +8991,7 @@ To achieve an output dimension of 2, similar to what we had in single-head atten
 d_out = 1
 mha = MultiHeadAttentionWrapper(d_in, d_out, block_size, 0.0, num_heads=2)
 ```
-#### EXERCISE 3.3
+### EXERCISE 3.3
 
 The initialization for the smallest GPT-2 model is as follows:
 
@@ -9002,7 +9003,7 @@ mha = MultiHeadAttention(d_in, d_out, block_size, 0.0, num_heads)
 ```
 ## Chapter 4
 
-#### EXERCISE 4.1
+### EXERCISE 4.1
 
 We can calculate the number of parameters in the feed forward and attention modules as follows:
 
@@ -9023,7 +9024,7 @@ As we can see, the feed forward module contains approximately twice as many para
 
 Total number of parameters in feed forward module: 4,722,432 Total number of parameters in attention module: 2,360,064
 
-#### EXERCISE 4.2
+### EXERCISE 4.2
 
 To instantiate the other GPT model sizes, we can modify the configuration dictionary as follows (here shown for GPT-2 XL):
 
@@ -9040,32 +9041,32 @@ gpt2-xl: Total number of parameters: 1,637,792,000 Number of trainable parameter
 
 ## Chapter 5
 
-#### EXERCISE 5.1
+### EXERCISE 5.1
 
 We can print the number of times the token (or word) "pizza" is sampled using the print_sampled_tokens function we defined in this section. Let's start with the code we defined in section 5.3.1.
 
 The "pizza" token is sampled 0x if the temperature is 0 or 0.1, and it is sampled 32× if the temperature is scaled up to 5. The estimated probability is 32/1000 × 100% = 3.2%.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=46---book-markup-container) actual probability is 4.3% and contained in the rescaled softmax probability tensor (scaled_probas[2][6]).
+The actual probability is 4.3% and contained in the rescaled softmax probability tensor (scaled_probas[2][6]).
 
-#### E[XER](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=47---book-markup-container)CISE 5.2
+### EXERCISE 5.2
 
 Top-k sampling and temperature scaling are settings that have to be adjusted based on the LLM and the desired degree of diversity and randomness in the output.
 
 When using relatively small top-k values (e.g., smaller than 10) and the temperature is set below 1, the model's output becomes less random and more deterministic. This setting is useful when we need the generated text to be more predictable, coherent, and closer to the most likely outcomes based on the training data.
 
-[Ap](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=50---book-markup-container)plications for such low k and temperature settings include generating formal documents or reports where clarity and accuracy are most important. Other examples of applications include technical analysis or code generation tasks, where precision is crucial. Also, question answering and educational content require accurate answers where a temperature below 1 is helpful.
+Applications for such low k and temperature settings include generating formal documents or reports where clarity and accuracy are most important. Other examples of applications include technical analysis or code generation tasks, where precision is crucial. Also, question answering and educational content require accurate answers where a temperature below 1 is helpful.
 
-[On](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=51---book-markup-container) the other hand, larger top-k values (e.g., values in the range of 20 to 40) and temperature values above 1 are useful when using LLMs for brainstorming or generating creative content, such as fiction.
+On the other hand, larger top-k values (e.g., values in the range of 20 to 40) and temperature values above 1 are useful when using LLMs for brainstorming or generating creative content, such as fiction.
 
-#### E[XER](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=52---book-markup-container)CISE 5.3
+### EXERCISE 5.3
 
 There are multiple ways to force deterministic behavior with the generate function:
 
 - 1. Setting to top_k=None and applying no temperature scaling;
-- 2. Setting top_k=1[.](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=56---book-markup-container)
+- 2. Setting top_k=1.
 
-#### EXERCISE 5.4
+### EXERCISE 5.4
 
 In essence, we have to load the model and optimizer that we saved in the main chapter:
 
@@ -9078,7 +9079,7 @@ optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 ```
 Then, call the train_simple_function with num_epochs=1 to train the model for another epoch.
 
-#### EXERCISE 5.5
+### EXERCISE 5.5
 
 We can use the following code to calculate the training and validation set losses of the GPT model:
 
@@ -9098,7 +9099,7 @@ The main observation is that the training and validation set performances are in
 
 2. The Verdict was part of GPT -2's training dataset. In this case, we can't tell whether the model is overfitting the training data because the validation set would have been used for training as well. To evaluate the degree of overfitting, we'd need a new dataset generated after OpenAI finished training GPT-2 to make sure that it couldn't have been part of the pretraining.
 
-#### EXERCISE 5.6
+### EXERCISE 5.6
 
 In the main chapter, we experimented with the smallest GPT-2 model, which has only 124M parameters. The reason was to keep the resource requirements as low as possible. However, you can easily experiment with larger models with minimal code changes. For example, instead of loading the 1558M instead of 124M model weights in chapter 5, the only 2 lines of code that we have to change are the following:
 
@@ -9112,7 +9113,7 @@ hparams, params = download_and_load_gpt2(model_size="1558M", models_dir="gpt2") 
 
 ## Chapter 6
 
-#### EXERCISE 6.1
+### EXERCISE 6.1
 
 We can pad the inputs to the maximum number of tokens the model supports by setting the max length to max_length = 1024 when initializing the datasets:
 
@@ -9123,7 +9124,7 @@ test_dataset = SpamDataset(..., max_length=1024, ...)
 ```
 However, the additional padding results in a substantially worse test accuracy of 78.33% (versus the 95.67% in the main chapter).
 
-#### EXERCISE 6.2
+### EXERCISE 6.2
 
 Instead of finetuning just the final transformer block, we can finetune the entire model by removing the following lines from the code:
 
@@ -9133,7 +9134,7 @@ for param in model.parameters():
 ```
 This modification results in a 1% improved test accuracy of 96.67% (versus the 95.67% in the main chapter).
 
-#### EXERCISE 6.3
+### EXERCISE 6.3
 
 Rather than finetuning the last output token, we can finetune the first output token by changing model(input_batch)[:, -1, :] to model(input_batch)[:, 0, :] everywhere in the code.
 
@@ -9141,17 +9142,19 @@ As expected, since the first token contains less information than the last token
 
 ## Chapter 7
 
-#### EXERCISE 7.1
+### EXERCISE 7.1
 
 The Phi-3 prompt format, which is shown in figure 7.4 in chapter 7, looks like as follows for a given example input:
 
+```python
 <user> Identify the correct spelling of the following word: 'Occasion'
 
 <assistant> The correct spelling is 'Occasion'.
-
-To use this template, we can modify the format_input function as follows:
-
 ```
+
+To use this template, we can modify the `format_input` function as follows:
+
+```python
 def format_input(entry):
     instruction_text = (
         f"<|user|>\n{entry['instruction']}"
@@ -9161,30 +9164,30 @@ def format_input(entry):
 ```
 Lastly, we also have to update the way we extract the generated response when we collect the test set responses:
 
-```
+```python
 for i, entry in tqdm(enumerate(test_data), total=len(test_data)):
-   input_text = format_input(entry)
-   tokenizer=tokenizer
-   token_ids = generate(
-       model=model,
-       idx=text_to_token_ids(input_text, tokenizer).to(device),
-       max_new_tokens=256,
-       context_size=BASE_CONFIG["context_length"],
-       eos_id=50256
-   )
-   generated_text = token_ids_to_text(token_ids, tokenizer)
-   response_text = ( #A
-       generated_text[len(input_text):]
-       .replace("<|assistant|>:", "")
-       .strip()
-   )
-   test_data[i]["model_response"] = response_text
+    input_text = format_input(entry)
+    tokenizer=tokenizer
+    token_ids = generate(
+        model=model,
+        idx=text_to_token_ids(input_text, tokenizer).to(device),
+        max_new_tokens=256,
+        context_size=BASE_CONFIG["context_length"],
+        eos_id=50256
+    )
+    generated_text = token_ids_to_text(token_ids, tokenizer)
+    response_text = (                                          #A
+        generated_text[len(input_text):]
+        .replace("<|assistant|>:", "")
+        .strip()
+    )
+    test_data[i]["model_response"] = response_text
+    
+#A New: Adjust ###Response to <|assistant|>    
 ```
-#### #A New: Adjust ###Response to <|assistant|>
-
 Finetuning the model with the Phi-3 template is approximately 17% faster since it results in shorter model inputs. The score is close to 50, which is in the same ballpark as the score we previously achieved with the Alpaca-style prompts.
 
-#### EXERCISE 7.2
+### EXERCISE 7.2
 
 To mask out the instructions as shown in figure 7.13 in chapter 7, we need to make slight modifications to the InstructionDataset class and custom_collate_fn function. We can modify the InstructionDataset class to collect the lengths of the instructions, which we will use in the collate function to locate the instruction content positions in the targets when we code the collate function, as follows:
 
@@ -9256,7 +9259,7 @@ return inputs_tensor, targets_tensor
 
 When evaluating a model finetuned with this instruction masking method, it performs slightly worse (approximately 4 points using the Ollama Llama 3 method from chapter 7). This is consistent with observations in the "Instruction Tuning With Loss Over Instructions" paper ([https://arxiv.org/abs/2405.14394\)](https://arxiv.org/abs/2405.14394).
 
-#### EXERCISE 7.3
+### EXERCISE 7.3
 
 To finetune the model on the original Stanford Alpaca dataset ([https://github.com/tatsu](https://github.com/tatsu-lab/stanford_alpaca)[lab/stanford\_alpaca](https://github.com/tatsu-lab/stanford_alpaca)), we just have to change the file URL from
 
@@ -9276,7 +9279,7 @@ Thus, it's highly recommended that the training be run on a GPU.
 
 [Bel](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=108---book-markup-container)ow are a few examples from the Alpaca dataset, including the generated model responses:
 
-#### E[XER](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-c?potentialInternalRefId=109---book-markup-container)CISE 7.4
+### EXERCISE 7.4
 
 To instruction finetune the model using LoRA, use the relevant classes and functions from appendix E:
 
@@ -9300,13 +9303,13 @@ Note that on an Nvidia L4 GPU, the finetuning with LoRA, takes 1.30 min to run o
 
 <span id="page-376-0"></span>
 
-In the appendix, we enhance the training function for the pretraining and finetuning processes covered in chapters 5-7. This appendix, in particular, covers *learning rate warmup*, *cosine decay*, and *gradient clipping* in the first three sections.
+In the appendix, we enhance the training function for the pretraining and finetuning processes covered in chapters 5-7. This appendix, in particular, covers **learning rate warmup**, **cosine decay**, and **gradient clipping** in the first three sections.
 
 The final section then incorporates these techniques into the training function developed in chapter 5 and pretrains an LLM.
 
-[To](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-d?potentialInternalRefId=3---book-markup-container) make the code in this appendix self-contained, we reinitialize the model we trained in chapter 5.
+To make the code in this appendix self-contained, we reinitialize the model we trained in chapter 5.
 
-```
+```python
 import torch
 from previous_chapters import GPTModel
 GPT_CONFIG_124M = {
@@ -9325,7 +9328,7 @@ model.eval()
 ```
 After initializing the model, we also need to initialize the data loaders we used in chapter 5. First, we load the "The Verdict" short story:
 
-```
+```python
 import os
 import urllib.request
 file_path = "the-verdict.txt"
@@ -9368,37 +9371,45 @@ The first technique we introduce is *learning rate warmup*. Implementing a learn
 
 Suppose we plan to train an LLM for 15 epochs, starting with an initial learning rate of 0.0001 and increasing it to a maximum learning rate of 0.01. Furthermore, we define 20 warmup steps to increase the initial learning rate from 0.0001 to 0.01 in the first 20 training steps:
 
-n[\_epoc](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-d?potentialInternalRefId=11---book-markup-container)hs = 15 initial_lr = 0.0001 peak_lr = 0.01 warmup_steps = 20
+```python
+n_epochs = 15
+initial_lr = 0.0001
+peak_lr = 0.01
+warmup_steps = 20
+```
 
 Next, we implement a simple training loop template to illustrate this warmup process:
 
-```
+```python
 optimizer = torch.optim.AdamW(model.parameters(), weight_decay=0.1)
-lr_increment = (peak_lr - initial_lr) / warmup_steps #A
+lr_increment = (peak_lr - initial_lr) / warmup_steps         #A
+
 global_step = -1
 track_lrs = []
-for epoch in range(n_epochs): #B
-   for input_batch, target_batch in train_loader:
-      optimizer.zero_grad()
-      global_step += 1
-      if global_step < warmup_steps: #C
-          lr = initial_lr + global_step * lr_increment
-      else:
-          lr = peak_lr
-      for param_group in optimizer.param_groups: #D
-          param_group["lr"] = lr
-      track_lrs.append(optimizer.param_groups[0]["lr"])
-                                                        #E
-```
-#A This increment determines by how much we increase the inital_lr in each of the 20 warmup steps. #B Execute a typical training loop iterating over the batches in the training loader in each epoch #C Update the learning rate if we are still in the warmup phase.
 
+for epoch in range(n_epochs):                                #B
+    for input_batch, target_batch in train_loader:
+        optimizer.zero_grad()
+        global_step += 1
+        
+        if global_step < warmup_steps:                       #C
+        		lr = initial_lr + global_step * lr_increment
+        else:
+       		 lr = peak_lr
+            
+        for param_group in optimizer.param_groups:           #D
+        		param_group["lr"] = lr
+        track_lrs.append(optimizer.param_groups[0]["lr"])    #E
+                                                        
+#A This increment determines by how much we increase the inital_lr in each of the 20 warmup steps.
+#B Execute a typical training loop iterating over the batches in the training loader in each epoch
+#C Update the learning rate if we are still in the warmup phase.
 #D Apply the calculated learning rate to the optimizer.
-
 #E In a complete training loop, the loss and the model updates would be calculated here, which are omitted for simplicity in this example.
-
+```
 After running the preceding code, we visualize how the learning rate was changed by the training loop above to verify that the learning rate warmup works as intended:
 
-```
+```python
 import matplotlib.pyplot as plt
 plt.ylabel("Learning rate")
 plt.xlabel("Step")
@@ -9410,7 +9421,7 @@ The resulting plot is shown in Figure D.1.
 
 ![](_page_380_Figure_0.jpeg)
 
-Figure D.1 The learning rate warmup increases the learning rate for the first 20 training steps. After 20 steps, the learning rate reaches the peak of 0.01 and remains constant for the rest of the training.
+> Figure D.1 The learning rate warmup increases the learning rate for the first 20 training steps. After 20 steps, the learning rate reaches the peak of 0.01 and remains constant for the rest of the training.
 
 As shown in Figure D.1, the learning rate star[ts](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-d?potentialInternalRefId=18---book-markup-container) with a low value and increases for 20 steps until it reaches the maximum value after 20 steps.
 
@@ -9422,9 +9433,9 @@ Another widely adopted technique for training complex deep neural networks and L
 
 In its popular variant, cosine decay reduces (or decays) the learning rate to nearly zero, mimicking the trajectory of a half-cosine cycle. The gradual learning decrease in cosine decay aims to decelerate the pace at which the model updates its weights. This is particularly important as it helps minimize the risk of overshooting the loss minima during the training process, which is essential for ensuring the stability of the training during its later phases.
 
-[We](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-d?potentialInternalRefId=23---book-markup-container) can modify the training loop template from the previous section, adding cosine decay as follows:
+We can modify the training loop template from the previous section, adding cosine decay as follows:
 
-```
+```python
 import math
 min_lr = 0.1 * initial_lr
 track_lrs = []
@@ -9446,7 +9457,7 @@ for epoch in range(n_epochs):
 ```
 Again, to verify that the learning rate has changed as intended, we plot the learning rate:
 
-```
+```python
 plt.ylabel("Learning rate")
 plt.xlabel("Step")
 plt.plot(range(total_training_steps), track_lrs)
@@ -9456,7 +9467,7 @@ The resulting learning rate plot is shown in Figure D.2.
 
 ![](_page_382_Figure_0.jpeg)
 
-Figure D.2 The first 20 steps of linear learning rate warmup are followed by a cosine decay, which reduces the learning rate in a half-cosine cycle until it reaches its minimum point at the end of training.
+> Figure D.2 The first 20 steps of linear learning rate warmup are followed by a cosine decay, which reduces the learning rate in a half-cosine cycle until it reaches its minimum point at the end of training.
 
 As shown in Figure D.2, the learning ratestarts with a linear warmup phase, which increases for 20 steps until it reaches the maximum value after 20 steps. After the 20 steps of linear warmup, cosine decay kicks in, reducing the learning rate gradually until it reaches its minimum.
 
@@ -9464,17 +9475,18 @@ As shown in Figure D.2, the learning ratestarts with a linear warmup phase, whic
 
 In this section, we introduce *gradient clipping*, another important technique for enhancing stability during LLM training. This method involves setting a threshold above which gradients are downscaled to a predetermined maximum magnitude. This process ensures that the updates to the model's parameters during backpropagation stay within a manageable range.
 
-For example, applying the max_norm=1.0 setting within PyTorch's clip_grad_norm_ function ensures that the norm of the gradients does not surpass 1.0. Here, the term "norm" signifies the measure of the gradient vector's length, or magnitude, within the model's parameter space, specifically referring to the L2 norm, also known as the Euclidean norm.
+For example, applying the `max_norm=1.0` setting within PyTorch's `clip_grad_norm_` function ensures that the norm of the gradients does not surpass 1.0. Here, the term "norm" signifies the measure of the gradient vector's length, or magnitude, within the model's parameter space, specifically referring to the L2 norm, also known as the Euclidean norm.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-d?potentialInternalRefId=33---book-markup-container) mathematical terms, for a vector *v* composed of components *v* = [*v*<sup>1</sup> , *v*<sup>2</sup> , ..., *v*<sup>n</sup> ], the L2 norm is described as:
+In mathematical terms, for a vector *v* composed of components *v* = [*v*<sup>1</sup> , *v*<sup>2</sup> , ..., *v*<sup>n</sup> ], the L2 norm is described as:
 
 $$|v|_2 = \sqrt{v_1^2 + v_2^2 + ... + v_n^2}$$
 
- 
+This calculation method is also applied to matrices. For instance, consider a gradient matrix given by:
 
-This calculation method is also applied to matrices.
-
-For instance, consider a gradient matrix given by:
+$$G=\left[\begin{array}{ll}
+1 & 2 \\
+2 & 4
+\end{array}\right]$$
 
 If we aim to clip these gradients to a max_norm of 1, we first compute the L2 norm of these gradients, which is
 
@@ -9482,9 +9494,14 @@ $$|\mathcal{G}|_2 = \sqrt{1^2 + 2^2 + 2^2 + 4^2} = \sqrt{25} = 5$$
 
 Given that |**G**|<sup>2</sup> = 5 exceeds our max_norm of 1, we scale down the gradients to ensure their norm equals exactly 1. This is achieved through a scaling factor, calculated as max_norm/|**G**|<sup>2</sup> = 1/5. Consequently, the adjusted gradient matrix **G'** becomes
 
+$$G^{\prime}=\frac{1}{5} \times G\left[\begin{array}{ll}
+1 / 1 & 2 / 5 \\
+2 / 5 & 4 / 5
+\end{array}\right\rceil$$
+
 To illustrate this gradient clipping process, we would begin by initializing a new model and calculating the loss for a training batch, similar to the procedure in a standard training loop:
 
-```
+```python
 from previous_chapters import calc_loss_batch
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
@@ -9494,7 +9511,7 @@ loss.backward()
 Upon calling the .backward() method in the preceding code snippet, PyTorch calculates the loss gradients and stores them in a .grad attribute for each model weight (parameter) tensor.
 
 For illustration purposes, we can define the following find_highest_gradient utility function to identify the highest gradient value by scanning all the .grad attributes of the model's weight tensors after calling .backward():
-```
+```python
 def find_highest_gradient(model):
     max_grad = None
     for param in model.parameters():
@@ -9508,17 +9525,21 @@ print(find_highest_gradient(model))
 ```
 The largest gradient value identified by the preceding code is as follows:
 
+```python
 tensor(0.0373)
+```
 
 Let's now apply gradient clipping, which can be implemented with one line of code, and see how this affects the largest gradient value:
 
-```
+```python
 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 print(find_highest_gradient(model))
 ```
 The largest gradient value after applying the gradient clipping with the max norm of 1 is substantially smaller than before:
 
+```python
 tensor(0.0166)
+```
 
 In the next section, we will put all the concepts covered in this appendix so far into action and modify the LLM training function.
 
@@ -9526,71 +9547,75 @@ In the next section, we will put all the concepts covered in this appendix so fa
 
 In this final section of this appendix, we improve the train_model_simple training function we used in chapter 5 by adding the three concepts we introduced: linear warmup, cosine decay, and gradient clipping. Together, these methods help stabilize LLM training.
 
-The code is as follows, with the changes compared to the train_model_simple annotated:
+The code is as follows, with the changes compared to the `train_model_simple` annotated:
 
-```
+```python
 from previous_chapters import evaluate_model, generate_and_print_sample
+
 def train_model(model, train_loader, val_loader, optimizer, device, n_epochs,
-                eval_freq, eval_iter, start_context, warmup_steps=10,
-```
+								eval_freq, eval_iter, start_context, warmup_steps=10,initial_lr=3e-05, min_lr=1e-6):
+		train_losses, val_losses, track_tokens_seen, track_lrs = [], [], [], []
+		tokens_seen, global_step = 0, -1
+    
+    peak_lr = optimizer.param_groups[0]["lr"] 						#A
+		total_training_steps = len(train_loader) * n_epochs 	#B
+		lr_increment = (peak_lr - initial_lr) / warmup_steps	#C
+    
+    for epoch in range(n_epochs):
+        model.train()
+        for input_batch, target_batch in train_loader:
+            optimizer.zero_grad()
+            global_step += 1
+            
+            if global_step < warmup_steps:                #D
+           		 lr = initial_lr + global_step * lr_increment
+            else:
+                progress = ((global_step - warmup_steps) /
+                            (total_training_steps - warmup_steps))
+                lr = min_lr + (peak_lr - min_lr) * 0.5 * (
+                    1 + math.cos(math.pi * progress))
+                
+            for param_group in optimizer.param_groups:    #E
+               param_group["lr"] = lr
+            track_lrs.append(lr)
+            loss = calc_loss_batch(input_batch, target_batch, model, device)
+            loss.backward()
 
-```
-initial_lr=3e-05, min_lr=1e-6):
-train_losses, val_losses, track_tokens_seen, track_lrs = [], [], [], []
-tokens_seen, global_step = 0, -1
-peak_lr = optimizer.param_groups[0]["lr"] #A
-total_training_steps = len(train_loader) * n_epochs #B
-lr_increment = (peak_lr - initial_lr) / warmup_steps #C
-for epoch in range(n_epochs):
-   model.train()
-   for input_batch, target_batch in train_loader:
-       optimizer.zero_grad()
-       global_step += 1
-       if global_step < warmup_steps: #D
-           lr = initial_lr + global_step * lr_increment
-       else:
-           progress = ((global_step - warmup_steps) /
-                      (total_training_steps - warmup_steps))
-           lr = min_lr + (peak_lr - min_lr) * 0.5 * (
-               1 + math.cos(math.pi * progress))
-       for param_group in optimizer.param_groups: #E
-           param_group["lr"] = lr
-       track_lrs.append(lr)
-       loss = calc_loss_batch(input_batch, target_batch, model, device)
-       loss.backward()
-       if global_step > warmup_steps: #F
-           torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-                                                          #G
-       optimizer.step()
-       tokens_seen += input_batch.numel()
-       if global_step % eval_freq == 0:
-           train_loss, val_loss = evaluate_model(
-               model, train_loader, val_loader,
-               device, eval_iter
-           )
-           train_losses.append(train_loss)
-           val_losses.append(val_loss)
-           track_tokens_seen.append(tokens_seen)
-           print(f"Ep {epoch+1} (Iter {global_step:06d}): "
-```
-
-```
-Licensed to   <149533107@qq.com>
-```
-
-```
-f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}")
+            if global_step > warmup_steps:                #F
+               torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)    #G
+        
+            optimizer.step()
+            tokens_seen += input_batch.numel()
+            
+            if global_step % eval_freq == 0:
+                train_loss, val_loss = evaluate_model(
+                    model, train_loader, val_loader,
+                    device, eval_iter
+                )
+                train_losses.append(train_loss)
+                val_losses.append(val_loss)
+                track_tokens_seen.append(tokens_seen)
+                print(f"Ep {epoch+1} (Iter {global_step:06d}): "
+                			f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}")
+                
     generate_and_print_sample(
         model, train_loader.dataset.tokenizer,
         device, start_context
     )
+    
 return train_losses, val_losses, track_tokens_seen, track_lrs
-```
-#A Retrieve the initial learning rate from the optimizer, assuming we use it as the peak learning rate #B Calculate the total number of iterations in the training process #C Calculate the learning rate increment during the warmup phase #D Adjust the learning rate based on the current phase (warmup or cosine annealing) #E Apply the calculated learning rate to the optimizer #F Apply gradient clipping after the warmup phase to avoid exploding gradients #G Everything below here remains unchanged compared to the `train_model_simple` function used in Chapter 5
 
-After defining the train_model function, we can use it in a similar fashion to train the model compared to the train_model_simple method in chapter 5:
-
+#A Retrieve the initial learning rate from the optimizer, assuming we use it as the peak learning rate
+#B Calculate the total number of iterations in the training process
+#C Calculate the learning rate increment during the warmup phase
+#D Adjust the learning rate based on the current phase (warmup or cosine annealing)
+#E Apply the calculated learning rate to the optimizer
+#F Apply gradient clipping after the warmup phase to avoid exploding gradients
+#G Everything below here remains unchanged compared to the `train_model_simple` function used in Chapter 5
 ```
+After defining the `train_model` function, we can use it in a similar fashion to train the model compared to the `train_model_simple` method in chapter 5:
+
+```python
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 model.to(device)
@@ -9605,7 +9630,7 @@ train_losses, val_losses, tokens_seen, lrs = train_model(
 ```
 The training will take about 5 minutes to complete on a MacBook Air or similar laptop and print the following outputs:
 
-```
+```python
 Ep 1 (Iter 000000): Train loss 10.934, Val loss 10.939
 Ep 1 (Iter 000005): Train loss 8.529, Val loss 8.843
 Every effort moves you,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -9624,9 +9649,11 @@ Like chapter 5, the model begins to overfit after a few epochs since it is a ver
 
 Readers are encouraged to train the model on a larger text dataset and compare the results obtained with this more sophisticated training function to the results that can be obtained with the train_model_simple function used in chapter 5.
 
-# <span id="page-388-0"></span>Appendix E Parameter-efficient Finetuning with LoRA
+# Appendix E Parameter-efficient Finetuning with LoRA
 
-This appendix introduces *low-rank adaptation* (*LoRA*), one of the most widely used techniques for *parameter-efficient finetuning*. After explaining the main idea behind LoRA, this appendix will be based on the spam classification-finetuning example from chapter 6 and finetune the LLM. It's important to note, however, that LoRA finetuning is also applicable to the supervised *instruction-finetuning* discussed in chapter 7.
+<span id="page-388-0"></span>
+
+This appendix introduces **low-rank adaptation** (*LoRA*), one of the most widely used techniques for *parameter-efficient finetuning*. After explaining the main idea behind LoRA, this appendix will be based on the spam classification-finetuning example from chapter 6 and finetune the LLM. It's important to note, however, that LoRA finetuning is also applicable to the supervised *instruction-finetuning* discussed in chapter 7.
 
 ## E.1 Introduction to LoRA
 
@@ -9634,13 +9661,13 @@ LoRA, or low-rank adaptation, is a technique that adapts a pretrained model to b
 
 The LoRA method is useful and popular because it enables efficient finetuning of large models on task-specific data, significantly cutting down on the computational costs and resources that are usually required for finetuning.
 
-[To](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=5---book-markup-container) explain how LoRA works, suppose there is a large weight matrix *W* associated with a specific layer. LoRA can be applied to all linear layers in an LLM, as we will see later, but we focus on a single layer for illustration purposes in this section.
+To explain how LoRA works, suppose there is a large weight matrix *W* associated with a specific layer. LoRA can be applied to all linear layers in an LLM, as we will see later, but we focus on a single layer for illustration purposes in this section.
 
 When training deep neural networks, during backpropagation, we learn a *ΔW* matrix, which contains information on how much we want to update the original weight parameters to minimize the loss function during training. In the rest of this appendix, we will use the term "weight" as a shorthand for the model's weight parameters.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=7---book-markup-container) regular training and finetuning, the weight update is defined as follows:
+In regular training and finetuning, the weight update is defined as follows:
 
-*W* [upd](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=8---book-markup-container)ated *= W + ΔW*
+*W* updated *= W + ΔW*
 
 The LoRA method proposed by Hu *et al.* [\(https://arxiv.org/abs/2106.09685](https://arxiv.org/abs/2106.09685)) offers a more efficient alternative to computing the weight updates *ΔW* by learning an approximation of it:
 
@@ -9670,7 +9697,7 @@ Besides reducing the number of weights to update during training, the ability to
 
 Keeping the LoRA weights separate is very useful in practice because it enables model customization without needing to store multiple complete versions of an LLM. This reduces storage requirements and improves scalability, as only the smaller LoRA matrices need to be adjusted and saved when we customize LLMs for each specific customer or application.
 
-[No](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=22---book-markup-container)w that we have discussed what LoRA is all about, in the following sections, let's see how it can be used to finetune an LLM for spam classification, similar to the finetuning example in chapter 6.
+Now that we have discussed what LoRA is all about, in the following sections, let's see how it can be used to finetune an LLM for spam classification, similar to the finetuning example in chapter 6.
 
 ## E.2 Preparing the dataset
 
@@ -9680,8 +9707,8 @@ The code in this section repeats the data preparation from chapter 6. (Note that
 
 First, we download the dataset and save it as CSV files:
 
-```
-Listing E.1 Downloading and preparing the dataset
+```python
+# Listing E.1 Downloading and preparing the dataset
 from pathlib import Path
 import pandas as pd
 from ch06 import (
@@ -9689,22 +9716,26 @@ from ch06 import (
     create_balanced_dataset,
     random_split
 )
+
 url = "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip"
 zip_path = "sms_spam_collection.zip"
 extracted_path = "sms_spam_collection"
 data_file_path = Path(extracted_path) / "SMSSpamCollection.tsv"
+
 download_and_unzip_spam_data(url, zip_path, extracted_path, data_file_path)
+
 df = pd.read_csv(data_file_path, sep="\t", header=None, names=["Label", "Text"])
 balanced_df = create_balanced_dataset(df)
 balanced_df["Label"] = balanced_df["Label"].map({"ham": 0, "spam": 1})
+
 train_df, validation_df, test_df = random_split(balanced_df, 0.7, 0.1)
 train_df.to_csv("train.csv", index=None)
 validation_df.to_csv("validation.csv", index=None)
 test_df.to_csv("test.csv", index=None)
 ```
-Next, we create the SpamDataset instances:
+Next, we create the `SpamDataset` instances:
 
-````python
+```python
 # Listing E.2 Instantiating PyTorch datasets
 import torch
 from torch.utils.data import Dataset
@@ -9747,7 +9778,7 @@ test_loader = DataLoader(
 ```
 As a verification step, we iterate through the data loaders and check that the batches contain 8 training examples each, where each training example consists of 120 tokens:
 
-```
+```python
 print("Train loader:")
 for input_batch, target_batch in train_loader:
     pass
@@ -9756,31 +9787,33 @@ print("Label batch dimensions", target_batch.shape)
 ```
 The output is as follows:
 
-```
+```python
 Train loader:
 Input batch dimensions: torch.Size([8, 120])
 Label batch dimensions torch.Size([8])
 ```
 Lastly, we print the total number of batches in each dataset:
 
-```
+```python
 print(f"{len(train_loader)} training batches")
 print(f"{len(val_loader)} validation batches")
 print(f"{len(test_loader)} test batches")
 ```
 In this case, we have the following number of batches per dataset:
 
-130 training batches 19 validation batches 38 test batches
+```python
+130 training batches
+19 validation batches
+38 test batches
+```
 
 ## E.3 Initializing the model
 
-This section repeats the code from chapter 6 to load and prepare the pretrained GPT model. We begin with downloading the model weights and loading them into the GPTModel class:
+This section repeats the code from chapter 6 to load and prepare the pretrained GPT model. We begin with downloading the model weights and loading them into the `GPTModel` class:
 
-```
-Listing E.4 Loading a pretrained GPT model
-```
+```python
+# Listing E.4 Loading a pretrained GPT model
 
-```
 from gpt_download import download_and_load_gpt2
 from previous_chapters import GPTModel, load_weights_into_gpt
 CHOOSE_MODEL = "gpt2-small (124M)"
@@ -9806,7 +9839,7 @@ model.eval()
 ```
 To ensure that the model was loaded corrected, let's double-check that it generates coherent text:
 
-```
+```python
 from previous_chapters import (
     generate_text_simple,
     text_to_token_ids,
@@ -9819,16 +9852,20 @@ token_ids = generate_text_simple(
     max_new_tokens=15,
     context_size=BASE_CONFIG["context_length"]
 )
-```
+
 print(token_ids_to_text(token_ids, tokenizer))
+```
 
 As we can see based on the output below, the model generates coherent text, which is an indicator that the model weights were loaded correctly:
 
-Every effort moves you forward. The first step is to understand the importance of your work
+```python
+Every effort moves you forward.
+The first step is to understand the importance of your work
+```
 
 Next, we prepare the model for classification-finetuning similar to chapter 6, where we replace the output layer:
 
-```
+```python
 torch.manual_seed(123)
 num_classes = 2
 model.out_head = torch.nn.Linear(in_features=768, out_features=num_classes)
@@ -9837,7 +9874,7 @@ model.to(device)
 ```
 Lastly, let's calculate the initial classification accuracy of the not-finetuned model (we expect this to be around 50%, which means that the model is not able to distinguish between spam and non-spam messages yet reliably):
 
-```
+```python
 from ch06 import calc_accuracy_loader
 torch.manual_seed(123)
 train_accuracy = calc_accuracy_loader(train_loader, model, device, num_batches=10)
@@ -9845,46 +9882,64 @@ val_accuracy = calc_accuracy_loader(val_loader, model, device, num_batches=10)
 test_accuracy = calc_accuracy_loader(test_loader, model, device, num_batches=10)
 print(f"Training accuracy: {train_accuracy*100:.2f}%")
 print(f"Validation accuracy: {val_accuracy*100:.2f}%")
-```
 print(f"Test accuracy: {test_accuracy *100:.2f}%")
+```
 
 The initial prediction accuracies are as follows:
 
-Training accuracy: 46.25% Validation accuracy: 45.00% Test accuracy: 48.75%
+```python
+Training accuracy: 46.25%
+Validation accuracy: 45.00%
+Test accuracy: 48.75%
+```
 
 ## E.4 Parameter-efficient finetuning with LoRA
 
-In this section, we modify and finetune the LLM using LoRA. We begin by initializing a LoRALayer that creates the matrices *A* and *B*, along with the alpha scaling factor and the rank (*r*) setting.
+In this section, we modify and finetune the LLM using LoRA. We begin by initializing a LoRALayer that creates the matrices **A** and **B**, along with the alpha scaling factor and the rank (**r**) setting.
 
 This layer can accept an input and compute the corresponding output, as illustrated in Figure E.2.
+
 ![](_page_397_Figure_0.jpeg)
 
-Figure E.2 The LoRA matrices A and B are applied to the layer inputs and are involved to compute the model outputs. The inner dimension r of these matrices serves as a setting that adjusts the number of trainable parameters by varying the sizes of A and B.
+>Figure E.2 The LoRA matrices A and B are applied to the layer inputs and are involved to compute the model outputs. The inner dimension r of these matrices serves as a setting that adjusts the number of trainable parameters by varying the sizes of A and B.
 
-In code, this LoRA layer depicted Figure E.2 c[an](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=57---book-markup-container) be implemented as follows:
+In code, this LoRA layer depicted Figure E.2 can be implemented as follows:
 
-![](_page_397_Figure_3.jpeg)
+```python
+# Listing E.5 Implementing a LoRA layer
 
+import math
+
+class LoRALayer(torch.nn.Module):
+    def __init__(self, in_dim, out_dim, rank, alpha):
+        super().__init__()
+        self.A = torch.nn.Parameter(torch.empty(in_dim, rank))
+        torch.nn.init.kaiming_uniform_(self.A, a=math.sqrt(5))      #A
+        self.B = torch.nn.Parameter(torch.zeros(rank, out_dim))
+        self.alpha = alpha
+    
+    def forward(self, x):
+        x = self.alpha * (x @ self.A @ self.B)
+        return x
 #A Same initialization that is used for Linear layers in PyTorch
-
- 
+```
 
 In the preceding code, the rank governs the inner dimension of matrices *A* and *B*. Essentially, this setting determines the number of extra parameters introduced by LoRA, which is used to balance between the adaptability of the model and its efficiency via the number of parameters used.
 
 The other important setting, alpha, functions as a scaling factor for the output from the low-rank adaptation. It primarily dictates the degree to which the output from the adapted layer can impact the original layer's output. This can be seen as a way to regulate the impact of the low-rank adaptation on the layer's output.
 
-[The](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=61---book-markup-container) LoRALayer class we have implemented so far enables us to transform the inputs of a layer.
+The `LoRALayer` class we have implemented so far enables us to transform the inputs of a layer.
 
-[In](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=62---book-markup-container) LoRA, the typical goal is to substitute existing Linear layers, allowing weight updates to be applied directly to the pre-existing pretrained weights, as illustrated in Figure E.3.
+In LoRA, the typical goal is to substitute existing Linear layers, allowing weight updates to be applied directly to the pre-existing pretrained weights, as illustrated in Figure E.3.
 
 ![](_page_398_Figure_4.jpeg)
 
-Figure E.3 Illustration of the integration of LoRA into a model layer. The original pretrained weights (W) of a layer are combined with the outputs from LoRA matrices (A and B), which approximate the weight update matrix (∆W). The final output is calculated by adding the output of the adapted layer (using LoRA weights) to the original output.
+> Figure E.3 Illustration of the integration of LoRA into a model layer. The original pretrained weights (W) of a layer are combined with the outputs from LoRA matrices (A and B), which approximate the weight update matrix (∆W). The final output is calculated by adding the output of the adapted layer (using LoRA weights) to the original output.
 
 To integrate the original Linear layer weigh[ts](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=64---book-markup-container), as shown in Figure E.3, we now create a LinearWithLoRA layer. This layer utilizes the previously implemented LoRALayer and is designed to replace existing Linear layers within a neural network, such as the selfattention modules or feed-forward modules in the GPTModel:
 
-```
-Listing E.6 A LinearWithLora layer to replace Linear layers
+```python
+# Listing E.6 A LinearWithLora layer to replace Linear layers
 class LinearWithLoRA(torch.nn.Module):
     def __init__(self, linear, rank, alpha):
         super().__init__()
@@ -9899,27 +9954,28 @@ The preceding code combines a standard Linear layer with the LoRALayer. The forw
 
 Since the weight matrix *B* (self.B in LoRALayer) is initialized with zero values, the product of matrices *A* and *B* results in a zero matrix. This ensures that the multiplication does not alter the original weights, as adding zero does not change them.
 
-[To](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=68---book-markup-container) apply LoRA to the earlier defined GPTModel, we also introduce a replace_linear_with_lora function. This function will swap all existing Linear layers in the model with the newly created LinearWithLoRA layers:
+To apply LoRA to the earlier defined GPTModel, we also introduce a replace_linear_with_lora function. This function will swap all existing Linear layers in the model with the newly created LinearWithLoRA layers:
 
-```
+```python
 def replace_linear_with_lora(model, rank, alpha):
    for name, module in model.named_children():
       if isinstance(module, torch.nn.Linear): #A
          setattr(model, name, LinearWithLoRA(module, rank, alpha))
       else: #B
          replace_linear_with_lora(module, rank, alpha)
+#A Replace the Linear layer with LinearWithLoRA
+#B Recursively apply the same function to child modules
 ```
-#A Replace the Linear layer with LinearWithLoRA #B Recursively apply the same function to child modules
 
 We have now implemented all the necessary code to replace the Linear layers in the GPTModel with the newly developed LinearWithLoRA layers for parameter-efficient finetuning. In the subsequent sections, we will apply the LinearWithLoRA upgrade to all Linear layers found in the multi-head attention, feed-forward modules, and the output layer of the GPTModel, as illustrated in Figure E.4.
 
 ![](_page_400_Figure_0.jpeg)
 
-Figure E.4 A diagram representing the architecture of the GPT model. It highlights the parts of the model where Linear layers are being upgraded to LinearWithLoRA layers for parameter-efficient finetuning.
+> Figure E.4 A diagram representing the architecture of the GPT model. It highlights the parts of the model where Linear layers are being upgraded to LinearWithLoRA layers for parameter-efficient finetuning.
 
 Before we apply the LinearWithLoRA layer u[pg](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=72---book-markup-container)rades depicted in Figure E.4, we first freeze the original model parameters:
 
-```
+```python
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print(f"Total trainable parameters before: {total_params:,}")
 for param in model.parameters():
@@ -9930,33 +9986,35 @@ print(f"Total trainable parameters after: {total_params:,}")
 
 After the preceding code, we can see that none of the 124M model parameters are trainable:
 
-```
+```python
 Total trainable parameters before: 124,441,346
 Total trainable parameters after: 0
 ```
 Next, we use the replace_linear_with_lora to replace the Linear layers:
 
-```
+```python
 replace_linear_with_lora(model, rank=16, alpha=16)
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print(f"Total trainable LoRA parameters: {total_params:,}")
 ```
 The number of trainable parameters, after adding the LoRA layers, is as follows:
 
+```python
 Total trainable LoRA parameters: 2,666,528
+```
 
 As we can see, we reduced the number of trainable parameters by almost 50x when using LoRA. A rank and alpha of 16 are good default choices, but it is also common to increase the rank parameter, which in turn increases the number of trainable parameters. Alpha is usually chosen to be half, double, or equal to the rank.
 
 Let's verify that the layers have been modified as intended by printing the model architecture:
 
-```
+```python
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 print(model)
 ```
 The output is as follows:
 
-```
+```python
 GPTModel(
   (tok_emb): Embedding(50257, 768)
   (pos_emb): Embedding(1024, 768)
@@ -9969,9 +10027,7 @@ GPTModel(
           (linear): Linear(in_features=768, out_features=768, bias=True)
           (lora): LoRALayer()
         )
-```
 
-```
 (W_key): LinearWithLoRA(
         (linear): Linear(in_features=768, out_features=768, bias=True)
         (lora): LoRALayer()
@@ -10010,34 +10066,34 @@ GPTModel(
   (lora): LoRALayer()
 )
 ```
-As we can see based on the preceding output, the model now includes the new LinearWithLoRA layers, which themselves consist of the original Linear layers, which we set to non-trainable, and the new LoRA layers, which we will finetune.
-
-)
+As we can see based on the preceding output, the model now includes the new `LinearWithLoRA` layers, which themselves consist of the original Linear layers, which we set to non-trainable, and the new LoRA layers, which we will finetune.
 
 However, before we begin finetuning the model, let's calculate the initial classification accuracy:
 
-```
+```python
 torch.manual_seed(123)
 train_accuracy = calc_accuracy_loader(train_loader, model, device, num_batches=10)
 val_accuracy = calc_accuracy_loader(val_loader, model, device, num_batches=10)
 test_accuracy = calc_accuracy_loader(test_loader, model, device, num_batches=10)
-```
 
-```
 print(f"Training accuracy: {train_accuracy*100:.2f}%")
 print(f"Validation accuracy: {val_accuracy*100:.2f}%")
 print(f"Test accuracy: {test_accuracy*100:.2f}%")
 ```
 The resulting accuracy values are as follows:
 
-Training accuracy: 46.25% Validation accuracy: 45.00% Test accuracy: 48.75%
+```python
+Training accuracy: 46.25%
+Validation accuracy: 45.00%
+Test accuracy: 48.75%
+```
 
 If we compare these accuracy values to the initial ones from chapter 6, we notice they are identical. This occurs because we initialized the LoRA matrix *B* with zeros. Consequently, the product of matrices *AB* results in a zero matrix. This ensures that the multiplication does not alter the original weights since adding zero does not change them before we start finetuning.
 
 Now, let's move on to the exciting part and finetune the model using the training function from chapter 6. The training takes about 15 minutes on an M3 MacBook Air laptop and less than half a minute on a V100 or A100 GPU:
 
-```
-Listing E.7 Finetuning a model with LoRA layers
+```python
+# Listing E.7 Finetuning a model with LoRA layers
 import time
 from ch06 import train_classifier_simple
 start_time = time.time()
@@ -10055,52 +10111,65 @@ print(f"Training completed in {execution_time_minutes:.2f} minutes.")
 ```
 The output we see during the training is as follows:
 
-Ep 1 (Step 000000): Train loss 3.820, Val loss 3.462 Ep 1 (Step 000050): Train loss 0.396, Val loss 0.364 Ep 1 (Step 000100): Train loss 0.111, Val loss 0.229 Training accuracy: 97.50% | Validation accuracy: 95.00% Ep 2 (Step 000150): Train loss 0.135, Val loss 0.073 Ep 2 (Step 000200): Train loss 0.008, Val loss 0.052 Ep 2 (Step 000250): Train loss 0.021, Val loss 0.179 Training accuracy: 97.50% | Validation accuracy: 97.50% Ep 3 (Step 000300): Train loss 0.096, Val loss 0.080 Ep 3 (Step 000350): Train loss 0.010, Val loss 0.116 Training accuracy: 97.50% | Validation accuracy: 95.00% Ep 4 (Step 000400): Train loss 0.003, Val loss 0.151 Ep 4 (Step 000450): Train loss 0.008, Val loss 0.077 Ep 4 (Step 000500): Train loss 0.001, Val loss 0.147 Training accuracy: 100.00% | Validation accuracy: 97.50% Ep 5 (Step 000550): Train loss 0.007, Val loss 0.094 Ep 5 (Step 000600): Train loss 0.000, Val loss 0.056 Training accuracy: 100.00% | Validation accuracy: 97.50%
+```python
+Ep 1 (Step 000000): Train loss 3.820, Val loss 3.462
+Ep 1 (Step 000050): Train loss 0.396, Val loss 0.364
+Ep 1 (Step 000100): Train loss 0.111, Val loss 0.229
+Training accuracy: 97.50% | Validation accuracy: 95.00%
+Ep 2 (Step 000150): Train loss 0.135, Val loss 0.073
+Ep 2 (Step 000200): Train loss 0.008, Val loss 0.052
+Ep 2 (Step 000250): Train loss 0.021, Val loss 0.179
+Training accuracy: 97.50% | Validation accuracy: 97.50%
+Ep 3 (Step 000300): Train loss 0.096, Val loss 0.080
+Ep 3 (Step 000350): Train loss 0.010, Val loss 0.116
+Training accuracy: 97.50% | Validation accuracy: 95.00%
+Ep 4 (Step 000400): Train loss 0.003, Val loss 0.151
+Ep 4 (Step 000450): Train loss 0.008, Val loss 0.077
+Ep 4 (Step 000500): Train loss 0.001, Val loss 0.147
+Training accuracy: 100.00% | Validation accuracy: 97.50%
+Ep 5 (Step 000550): Train loss 0.007, Val loss 0.094
+Ep 5 (Step 000600): Train loss 0.000, Val loss 0.056
+Training accuracy: 100.00% | Validation accuracy: 97.50%
 
 Training completed in 12.10 minutes.
+```
 
 Note that training the model with LoRA takes longer than training it without LoRA in chapter 6, because the LoRA layers introduce an additional computation during the forward pass. However, for larger models, where backpropagation becomes more costly, models typically train faster with LoRA than without it.
 
 As we can see, the model received perfect training and very high validation accuracy. Let's also visualize the loss curves to better see if the training has converged:
 
-f[rom](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=97---book-markup-container) ch06 import plot_values
-
-```
+```python
+from ch06 import plot_values
 epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
 examples_seen_tensor = torch.linspace(0, examples_seen, len(train_losses))
-```
-plot_values(epochs_tensor, examples_seen_tensor, train_losses, val_losses, label="loss")
 
+plot_values(epochs_tensor, examples_seen_tensor, train_losses, val_losses, label="loss")
+```
 The resulting plot is shown in Figure E.5.
 
 ![](_page_406_Figure_1.jpeg)
 
-Figure E.5 The training and validation loss curves over six epochs for a machine learning model. Initially, both training and validation loss decrease sharply, then they level off, indicating the model is converging, which means that it is not expected to improve noticeably with further training.
+> Figure E.5 The training and validation loss curves over six epochs for a machine learning model. Initially, both training and validation loss decrease sharply, then they level off, indicating the model is converging, which means that it is not expected to improve noticeably with further training.
 
 In addition to evaluating the model based [o](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=100---book-markup-container)n the loss curves shown in E.5, let's also calculate the accuracies on the full training, validation, and test set (during the training, we approximated the training and validation set accuracies from 5 batches via the eval_iter=5 setting):
 
-```
+```python
 from previous_chapters import calc_accuracy_loader
-```
 
-```
 train_accuracy = calc_accuracy_loader(train_loader, model, device)
 val_accuracy = calc_accuracy_loader(val_loader, model, device)
 test_accuracy = calc_accuracy_loader(test_loader, model, device)
-```
 
-```
 print(f"Training accuracy: {train_accuracy*100:.2f}%")
 print(f"Validation accuracy: {val_accuracy*100:.2f}%")
 print(f"Test accuracy: {test_accuracy*100:.2f}%")
 ```
 The resulting accuracy values are as follows:
 
-```
+```python
 Training accuracy: 100.00%
 Validation accuracy: 96.64%
 Test accuracy: 98.00%
 ```
 
 The given accuracy shows that the model performs well across training, validation, and test datasets. With a training accuracy of 100%, the model has perfectly learned the training data. However, the slightly lower validation and test accuracies (96.64% and 97.33%, respectively) suggest a small degree of overfitting, as the model does not generalize quite as well on unseen data compared to the training set. Overall, the results are very impressive considering that we finetuned only a relatively small number of model weights (2.7 million LoRA weights instead of the original 124 million model weights).
-````
