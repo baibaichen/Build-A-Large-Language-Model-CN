@@ -7567,7 +7567,7 @@ If not all components in the code above make sense to you, don't worry. The poin
 
 ![](_page_317_Figure_1.jpeg)
 
-> Figure A.7 A logistic regression forward pass as a computation graph. The input feature x1 is multiplied by a model weight w<sup>1</sup> and passed through an activation function σ after adding the bias. The loss is computed by comparing the model output a with a given label y.
+> Figure A.7 A logistic regression forward pass as a computation graph. The input feature x<sub>1</sub>> is multiplied by a model weight w<sub>1</sub> and passed through an activation function σ after adding the bias. The loss is computed by comparing the model output a with a given label y.
 
 In fact, PyTorch builds such a computation graph in the background, and we can use this to calculate gradients of a loss function with respect to the model parameters (here w1 and b) to train the model, which is the topic of the upcoming sections.
 
@@ -7629,7 +7629,7 @@ The outputs are:
 (tensor([-0.0817]),)
 ```
 
-If this section is packed with a lot of information and you may be overwhelmed by the calculus concepts, don't worry. While this calculus jargon was a means to explain PyTorch's autograd component, all you need to take away from this section is that PyTorch takes care of the calculus for us via the .backward method -- we won't need to compute any derivatives or gradients by hand in this book.
+If this section is packed with a lot of information and you may be overwhelmed by the calculus concepts, don't worry. While this calculus jargon was a means to explain PyTorch's autograd component, all you need to take away from this section is that PyTorch takes care of the calculus for us via the `.backward` method -- we won't need to compute any derivatives or gradients by hand in this book.
 
 ## A.5 Implementing multilayer neural networks
 
@@ -7985,7 +7985,7 @@ However, if we are working with very small datasets, setting num_workers to 1 or
 
 Furthermore, for Jupyter notebooks, setting num_workers to greater than 0 can sometimes lead to issues related to the sharing of resources between different processes, resulting in errors or notebook crashes. Therefore, it's essential to understand the trade-off and make a calculated decision on setting the num_workers parameter. When used correctly, it can be a beneficial tool but should be adapted to your specific dataset size and computational environment for optimal results.
 
-In my experience, setting num_workers=4 usually leads to optimal performance on many real-world datasets, but optimal settings depend on your hardware and the code used for loading a training example defined in the Dataset class.
+In my experience, setting `num_workers=4` usually leads to optimal performance on many real-world datasets, but optimal settings depend on your hardware and the code used for loading a training example defined in the Dataset class.
 
 ## A.7 A typical training loop
 
