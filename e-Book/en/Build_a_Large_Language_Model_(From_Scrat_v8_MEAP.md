@@ -7879,9 +7879,10 @@ train_ds = ToyDataset(X_train, y_train)
 test_ds = ToyDataset(X_test, y_test)
 
 
-#A Instructions for retrieving exactly one data record and the corresponding label #B Instructions for returning the total length of the dataset
+#A Instructions for retrieving exactly one data record and the corresponding label
+#B Instructions for returning the total length of the dataset
 ```
-This custom ToyDataset class's purpose is to use it to instantiate a PyTorch DataLoader. But before we get to this step, let's briefly go over the general structure of the ToyDataset code.
+This custom `ToyDataset` class's purpose is to use it to instantiate a PyTorch DataLoader. But before we get to this step, let's briefly go over the general structure of the ToyDataset code.
 
 In PyTorch, the three main components of a custom Dataset class are the `__init__` constructor, the `__getitem__` method, and the `__len__` method, as shown in code listing A.6 above.
 
@@ -7944,7 +7945,7 @@ Batch 2: tensor([[ 2.3000, -1.1000],
                  [-0.9000, 2.9000]]) tensor([1, 0])
 Batch 3: tensor([[ 2.7000, -1.5000]]) tensor([1])
 ```
-As we can see based on the output above, the train_loader iterates over the training dataset visiting each training example exactly once. This is known as a training epoch. Since we seeded the random number generator using torch.manual_seed(123) above, you should get the exact same shuffling order of training examples as shown above. However if you iterate over the dataset a second time, you will see that the shuffling order will change. This is desired to prevent deep neural networks getting caught in repetitive update cycles during training.
+As we can see based on the output above, the `train_loader` iterates over the training dataset visiting each training example exactly once. This is known as a training epoch. Since we seeded the random number generator using torch.manual_seed(123) above, you should get the exact same shuffling order of training examples as shown above. However if you iterate over the dataset a second time, you will see that the shuffling order will change. This is desired to prevent deep neural networks getting caught in repetitive update cycles during training.
 
 Note that we specified a batch size of 2 above, but the 3rd batch only contains a single example. That's because we have five training examples, which is not evenly divisible by 2. In practice, having a substantially smaller batch as the last batch in a training epoch can disturb the convergence during training. To prevent this, it's recommended to set drop_last=True, which will drop the last batch in each epoch, as shown below:
 
@@ -9662,7 +9663,7 @@ Before applying LoRA to the spam classification example from chapter 6, we have 
 
 The code in this section repeats the data preparation from chapter 6. (Note that instead of repeating the code in this section, we could also open and run the chapter 6 notebook and then insert the LoRA code from section E.4 there.)
 
-[Firs](https://livebook.manning.com/book/build-a-large-language-model-from-scratch/appendix-e?potentialInternalRefId=26---book-markup-container)t, we download the dataset and save it as CSV files:
+First, we download the dataset and save it as CSV files:
 
 ```
 Listing E.1 Downloading and preparing the dataset
@@ -10087,3 +10088,4 @@ Test accuracy: 98.00%
 ```
 
 The given accuracy shows that the model performs well across training, validation, and test datasets. With a training accuracy of 100%, the model has perfectly learned the training data. However, the slightly lower validation and test accuracies (96.64% and 97.33%, respectively) suggest a small degree of overfitting, as the model does not generalize quite as well on unseen data compared to the training set. Overall, the results are very impressive considering that we finetuned only a relatively small number of model weights (2.7 million LoRA weights instead of the original 124 million model weights).
+````
