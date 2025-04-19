@@ -183,7 +183,7 @@
 
 **GPT-2 的论文介绍了一系列不同规模的基于 Transformer 的 LLM——参数量分别为 1.24 亿、3.55 亿、7.74 亿和 15 亿：**
 
-+ 语言模型是无监督的多任务学习者 (2019)，Radford 等人著，https://d4mucfpksywv.cloudfront.net/better-languagemodels/language_models_are_unsupervised_multitask_learners.pdf
++ 语言模型是无监督的多任务学习者 (2019)，Radford 等人著，https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
 
 <br />
 
