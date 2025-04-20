@@ -8056,11 +8056,11 @@ We also introduced new settings called `model.train()` and `model.eval()`. As th
 
 As discussed earlier, we pass the logits directly into the `cross_entropy` loss function, which will apply the `softmax` function internally for efficiency and numerical stability reasons. Then, calling `loss.backward()` will calculate the gradients in the computation graph that PyTorch constructed in the background. The `optimizer.step()` method will use the gradients to update the model parameters to minimize the loss. In the case of the SGD optimizer, this means multiplying the gradients with the learning rate and adding the scaled negative gradient to the parameters.
 
-**PREVENTING UNDESIRED GRADIENT ACCUMULATION** It is important to include an optimizer.zero_grad() call in each update round to reset the gradients to zero. Otherwise, the gradients will accumulate, which may be undesired.
+**PREVENTING UNDESIRED GRADIENT ACCUMULATION** It is important to include an `optimizer.zero_grad()` call in each update round to reset the gradients to zero. Otherwise, the gradients will accumulate, which may be undesired.
 
 After we trained the model, we can use it to make predictions, as shown below:
 
-```
+```python
 model.eval()
 with torch.no_grad():
     outputs = model(X_train)
@@ -8068,7 +8068,7 @@ print(outputs)
 ```
 The results are as follows:
 
-```
+```python
 tensor([[ 2.8569, -4.1618],
         [ 2.5382, -3.7548],
         [ 2.0944, -3.1820],
@@ -8077,129 +8077,145 @@ tensor([[ 2.8569, -4.1618],
 ```
 To obtain the class membership probabilities, we can then use PyTorch's softmax function, as follows:
 
-```
+```python
 torch.set_printoptions(sci_mode=False)
 probas = torch.softmax(outputs, dim=1)
 print(probas)
 ```
 This outputs:
-
-| tensor([[ | 0.9991, | 0.0009],  |
-|-----------|---------|-----------|
-| [         | 0.9982, | 0.0018],  |
-| [         | 0.9949, | 0.0051],  |
-| [         | 0.0491, | 0.9509],  |
-| [         | 0.0307, | 0.9693]]) |
-
-Let's consider the first row in the code output above. Here, the first value (column) means that the training example has a 99.91% probability of belonging to class 0 and a 0.09% probability of belonging to class 1. (The set_printoptions call is used here to make the outputs more legible.)
+```python
+tensor([[ 0.9991, 0.0009],
+        [ 0.9982, 0.0018],
+        [ 0.9949, 0.0051],
+        [ 0.0491, 0.9509],
+        [ 0.0307, 0.9693]])
+```
+Let's consider the first row in the code output above. Here, the first value (column) means that the training example has a 99.91% probability of belonging to class 0 and a 0.09% probability of belonging to class 1. (The `set_printoptions` call is used here to make the outputs more legible.)
 
 We can convert these values into class labels predictions using PyTorch's argmax function, which returns the index position of the highest value in each row if we set dim=1 (setting dim=0 would return the highest value in each column, instead):
 
-```
+```python
 predictions = torch.argmax(probas, dim=1)
 print(predictions)
 ```
 This prints:
 
+```python
 tensor([0, 0, 0, 1, 1])
+```
 
 Note that it is unnecessary to compute softmax probabilities to obtain the class labels. We could also apply the argmax function to the logits (outputs) directly:
 
-```
+```python
 predictions = torch.argmax(outputs, dim=1)
 print(predictions)
 ```
 The output is:
 
+```python
 tensor([0, 0, 0, 1, 1])
+```
 
 Above, we computed the predicted labels for the training dataset. Since the training dataset is relatively small, we could compare it to the true training labels by eye and see that the model is 100% correct. We can double-check this using the == comparison operator:
 
+```python
 predictions == y_train
+```
 
 The results are:
 
+```python
 tensor([True, True, True, True, True])
+```
 
 Using torch.sum, we can count the number of correct prediction as follows:
 
-```
+```python
 torch.sum(predictions == y_train)
 ```
 The output is:
 
+```python
 5
+```
 
 Since the dataset consists of 5 training examples, we have 5 out of 5 predictions that are correct, which equals 5/5 × 100% = 100% prediction accuracy.
 
-However, to generalize the computation of the prediction accuracy, let's implement a compute_accuracy function as shown in the following code listing.
+However, to generalize the computation of the prediction accuracy, let's implement a `compute_accuracy` function as shown in the following code listing.
 
-```
-Listing A.10 A function to compute the prediction accuracy
-```
+```python
+# Listing A.10 A function to compute the prediction accuracy
 
-```
 def compute_accuracy(model, dataloader):
-   model = model.eval()
-   correct = 0.0
-   total_examples = 0
-   for idx, (features, labels) in enumerate(dataloader):
-      with torch.no_grad():
-          logits = model(features)
-      predictions = torch.argmax(logits, dim=1)
-      compare = labels == predictions #A
-      correct += torch.sum(compare) #B
-      total_examples += len(compare)
-   return (correct / total_examples).item() #C
-```
-#A This returns a tensor of True/False values depending on whether the labels match #B The sum operations counts the number of True values
+  
+    model = model.eval()
+    correct = 0.0
+    total_examples = 0
+    
+    for idx, (features, labels) in enumerate(dataloader):
+        with torch.no_grad():
+        		logits = model(features)
+            
+        predictions = torch.argmax(logits, dim=1)
+        compare = labels == predictions              #A
+        correct += torch.sum(compare)                #B
+        total_examples += len(compare)
+        
+    return (correct / total_examples).item()         #C
 
+#A This returns a tensor of True/False values depending on whether the labels match
+#B The sum operations counts the number of True values
 #C This is the fraction of correct prediction, a value between 0 and 1. And .item() returns the value of the tensor as a Python float.
+```
 
-Note that the following code listing iterates over a data loader to compute the number and fraction of the correct predictions. This is because when we work with large datasets, we typically can only call the model on a small part of the dataset due to memory limitations. The compute_accuracy function above is a general method that scales to datasets of arbitrary size since, in each iteration, the dataset chunk that the model receives is the same size as the batch size seen during training.
+Note that the following code listing iterates over a data loader to compute the number and fraction of the correct predictions. This is because when we work with large datasets, we typically can only call the model on a small part of the dataset due to memory limitations. The `compute_accuracy` function above is a general method that scales to datasets of arbitrary size since, in each iteration, the dataset chunk that the model receives is the same size as the batch size seen during training.
 
-Notice that the internals of the compute_accuracy function are similar to what we used before when we converted the logits to the class labels.
+Notice that the internals of the `compute_accuracy` function are similar to what we used before when we converted the logits to the class labels.
 
 We can then apply the function to the training as follows:
 
-```
+```python
 print(compute_accuracy(model, train_loader))
 ```
 The results is:
 
+```python
 1.0
+```
 
 Similarly, we can apply the function to the test set as follows:
 
-```
+```python
 >>> print(compute_accuracy(model, test_loader))
 ```
 This prints:
 
+```python
 1.0
+```
 
 In this section, we learned how we can train a neural network using PyTorch. Next, let's see how we can save and restore models after training.
 
 ## A.8 Saving and loading models
 
-## In the previous section, we successfully trained a model. Let's now see how we can save a trained model to reuse it later.
+In the previous section, we successfully trained a model. Let's now see how we can save a trained model to reuse it later.
 
 Here's the recommended way how we can save and load models in PyTorch:
 
-```
+```python
 torch.save(model.state_dict(), "model.pth")
 ```
-The model's state_dict is a Python dictionary object that maps each layer in the model to its trainable parameters (weights and biases). Note that "model.pth" is an arbitrary filename for the model file saved to disk. We can give it any name and file ending we like; however, .pth and .pt are the most common conventions.
+The model's `state_dict` is a Python dictionary object that maps each layer in the model to its trainable parameters (weights and biases). Note that "model.pth" is an arbitrary filename for the model file saved to disk. We can give it any name and file ending we like; however, `.pth` and `.pt` are the most common conventions.
 
 Once we saved the model, we can restore it from disk as follows:
 
-```
+```python
 model = NeuralNetwork(2, 2)
 model.load_state_dict(torch.load("model.pth"))
 ```
-The torch.load("model.pth") function reads the file "model.pth" and reconstructs the Python dictionary object containing the model's parameters while model.load_state_dict() applies these parameters to the model, effectively restoring its learned state from when we saved it.
+The `torch.load("model.pth")` function reads the file "model.pth" and reconstructs the Python dictionary object containing the model's parameters while `model.load_state_dict()` applies these parameters to the model, effectively restoring its learned state from when we saved it.
 
-Note that the line model = NeuralNetwork(2, 2) above is not strictly necessary if you execute this code in the same session where you saved a model. However, I included it here to illustrate that we need an instance of the model in memory to apply the saved parameters. Here, the NeuralNetwork(2, 2) architecture needs to match the original saved model exactly.
+Note that the line `model = NeuralNetwork(2, 2)` above is not strictly necessary if you execute this code in the same session where you saved a model. However, I included it here to illustrate that we need an instance of the model in memory to apply the saved parameters. Here, the `NeuralNetwork(2, 2)` architecture needs to match the original saved model exactly.
 
 Now, we are well equipped to use PyTorch to implement large language models in the upcoming chapters. However, before we jump to the next chapter, the last section will show you how to train PyTorch models faster using one or more GPUs (if available).
 
