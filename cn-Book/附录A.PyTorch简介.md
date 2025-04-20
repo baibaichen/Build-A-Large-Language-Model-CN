@@ -733,7 +733,7 @@ tensor([[-0.1262,  0.1080, -0.1792]], grad_fn=<AddBackward0>)
 
 ```python
 with torch.no_grad():
-out = model(X)
+    out = model(X)
 print(out)
 ```
 
@@ -747,7 +747,7 @@ tensor([[-0.1262, 0.1080, -0.1792]])
 
 ```python
 with torch.no_grad():
-out = torch.softmax(model(X), dim=1)
+    out = torch.softmax(model(X), dim=1)
 print(out)
 ```
 

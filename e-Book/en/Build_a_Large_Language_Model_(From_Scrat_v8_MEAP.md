@@ -7669,6 +7669,7 @@ class NeuralNetwork(torch.nn.Module):
     def forward(self, x):
         logits = self.layers(x)
         return logits                                     #E
+
 #A It's useful to code the number of inputs and outputs as variables to reuse the same code for datasets with different numbers of features and classes.
 #B The Linear layer takes the number of input and output nodes as arguments.
 #C Nonlinear activation functions are placed between the hidden layers.
