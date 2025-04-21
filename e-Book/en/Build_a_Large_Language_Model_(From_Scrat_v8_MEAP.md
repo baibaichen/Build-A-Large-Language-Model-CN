@@ -1,7 +1,6 @@
-![](_page_0_Picture_2.jpeg)
+![](_page_0_Picture_2.jpeg)![](_page_1_Picture_0.jpeg)
 
-![](_page_1_Picture_0.jpeg)
-
+[TOC]
 # Build a Large Language Model (From Scratch) Version 8
 
 Copyright 2024 Manning Publications
@@ -2475,7 +2474,7 @@ For example, in a neural network layer that is represented by a 2,048x2,048 dime
 
 We specify the configuration of the small GPT-2 model via the following Python dictionary, which we will use in the code examples later:
 
-```
+```python
 GPT_CONFIG_124M = {
    "vocab_size": 50257, # Vocabulary size
    "context_length": 1024, # Context length
@@ -2484,12 +2483,11 @@ GPT_CONFIG_124M = {
    "n_layers": 12, # Number of layers
    "drop_rate": 0.1, # Dropout rate
    "qkv_bias": False # Query-Key-Value bias
-```
 }
-
+```
 In the `GPT_CONFIG_124M` dictionary, we use concise variable names for clarity and to prevent long lines of code:
 
-"vocab_size" refers to a vocabulary of 50,257 words, as used by the BPE tokenizer from chapter 2.
+- "vocab_size" refers to a vocabulary of 50,257 words, as used by the BPE tokenizer from chapter 2.
 
 - "context_length" denotes the maximum number of input tokens the model can handle, via the positional embeddings discussed in chapter 2.
 - "emb_dim" represents the embedding size, transforming each token into a 768-dimensional vector.
